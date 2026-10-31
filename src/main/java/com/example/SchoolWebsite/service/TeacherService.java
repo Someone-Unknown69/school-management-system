@@ -59,4 +59,8 @@ public class TeacherService {
         userRepository.delete(employeeId);
         teacherRepository.delete(employeeId);
     }
+
+    public int getTotalStudentsTaught(String employeeId) {
+        return teacherRepository.getTotalStudentsTaught(employeeId);
+    }
 }

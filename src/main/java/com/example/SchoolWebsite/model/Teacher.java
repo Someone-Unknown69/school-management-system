@@ -11,6 +11,7 @@ public class Teacher {
     private String dateOfJoining;
     private String phoneNo;
     private String email;
+    private String address;
     private double salary;
     private String mentorOf;
     private String houseName;
@@ -53,6 +54,9 @@ public class Teacher {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
 
     public double getSalary() { return salary; }
     public void setSalary(double salary) { this.salary = salary; }

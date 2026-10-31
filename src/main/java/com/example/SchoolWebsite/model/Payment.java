@@ -10,6 +10,7 @@ public class Payment {
     private double amount;
     private String relatedId;
     private String relatedRole;
+    private String subType;
 
     public Payment() {}
 
@@ -49,4 +50,7 @@ public class Payment {
 
     public String getRelatedRole() { return relatedRole; }
     public void setRelatedRole(String relatedRole) { this.relatedRole = relatedRole; }
+
+    public String getSubType() { return subType; }
+    public void setSubType(String subType) { this.subType = subType; }
 }

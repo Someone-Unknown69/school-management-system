@@ -18,6 +18,10 @@ public class Student {
     private int age;
     private String gender;
     private double remainingFees;
+    private String address;
+    private String contactNumber;
+    private int houseWins;
+    private String houseCaptainId;
     private String roomNo;
     private String classTeacherName;
     private String grade;
@@ -86,6 +90,22 @@ public class Student {
 
     public double getRemainingFees() { return remainingFees; }
     public void setRemainingFees(double remainingFees) { this.remainingFees = remainingFees; }
+
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
+
+    public String getContactNumber() { return contactNumber; }
+    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
+
+    public int getHouseWins() { return houseWins; }
+    public void setHouseWins(int houseWins) { this.houseWins = houseWins; }
+
+    public String getHouseCaptainId() { return houseCaptainId; }
+    public void setHouseCaptainId(String houseCaptainId) { this.houseCaptainId = houseCaptainId; }
+
+    public boolean isHouseCaptain() {
+        return admissionNo != null && admissionNo.equalsIgnoreCase(houseCaptainId);
+    }
 
     public String getRoomNo() { return roomNo; }
     public void setRoomNo(String roomNo) { this.roomNo = roomNo; }

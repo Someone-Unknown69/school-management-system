@@ -19,7 +19,7 @@ public class TeacherRepository {
     // Find full teacher profile including qualifications, specializations, and mentorship
     public Teacher findFullProfile(String employeeId) {
         String sql = "SELECT t.Employee_ID, t.First_Name, t.Middle_Name, t.Last_Name, " +
-                     "t.Date_Of_Joining, t.Phone_No, t.Email, t.Salary, t.MentorOf, " +
+                     "t.Date_Of_Joining, t.Phone_No, t.Email, t.Address, t.Salary, t.MentorOf, " +
                      "h.House_Name, " +
                      "sec.Standard AS classTeacherStandard, sec.Division AS classTeacherDivision, sec.Room_No AS classTeacherRoomNo " +
                      "FROM Teacher t " +
@@ -36,6 +36,7 @@ public class TeacherRepository {
             t.setDateOfJoining(rs.getString("Date_Of_Joining"));
             t.setPhoneNo(rs.getString("Phone_No"));
             t.setEmail(rs.getString("Email"));
+            t.setAddress(rs.getString("Address"));
             t.setSalary(rs.getDouble("Salary"));
             t.setMentorOf(rs.getString("MentorOf"));
             t.setHouseName(rs.getString("House_Name"));
@@ -152,7 +153,7 @@ public class TeacherRepository {
     // Get all teachers for Admin faculty list
     public List<Teacher> findAll() {
         String sql = "SELECT t.Employee_ID, t.First_Name, t.Middle_Name, t.Last_Name, " +
-                     "t.Date_Of_Joining, t.Phone_No, t.Email, t.Salary, t.MentorOf, " +
+                     "t.Date_Of_Joining, t.Phone_No, t.Email, t.Address, t.Salary, t.MentorOf, " +
                      "h.House_Name, " +
                      "sec.Standard AS classTeacherStandard, sec.Division AS classTeacherDivision " +
                      "FROM Teacher t " +
@@ -169,6 +170,7 @@ public class TeacherRepository {
             t.setDateOfJoining(rs.getString("Date_Of_Joining"));
             t.setPhoneNo(rs.getString("Phone_No"));
             t.setEmail(rs.getString("Email"));
+            t.setAddress(rs.getString("Address"));
             t.setSalary(rs.getDouble("Salary"));
             t.setMentorOf(rs.getString("MentorOf"));
             t.setHouseName(rs.getString("House_Name"));
@@ -191,7 +193,7 @@ public class TeacherRepository {
     // Save new Teacher
     public void save(Teacher t, List<String> qualifications, List<String> specializations) {
         String sql = "INSERT INTO Teacher (Employee_ID, First_Name, Middle_Name, Last_Name, " +
-                     "Date_Of_Joining, Phone_No, Email, Salary, MentorOf) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                     "Date_Of_Joining, Phone_No, Email, Address, Salary, MentorOf) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(sql,
             t.getEmployeeId(),
@@ -201,6 +203,7 @@ public class TeacherRepository {
             t.getDateOfJoining(),
             t.getPhoneNo(),
             t.getEmail(),
+            t.getAddress() != null && t.getAddress().trim().isEmpty() ? null : t.getAddress(),
             t.getSalary(),
             t.getMentorOf() != null && t.getMentorOf().trim().isEmpty() ? null : t.getMentorOf()
         );
@@ -225,7 +228,7 @@ public class TeacherRepository {
     // Update Teacher
     public void update(Teacher t, List<String> qualifications, List<String> specializations) {
         String sql = "UPDATE Teacher SET First_Name = ?, Middle_Name = ?, Last_Name = ?, " +
-                     "Date_Of_Joining = ?, Phone_No = ?, Email = ?, Salary = ?, MentorOf = ? " +
+                     "Date_Of_Joining = ?, Phone_No = ?, Email = ?, Address = ?, Salary = ?, MentorOf = ? " +
                      "WHERE Employee_ID = ?";
 
         jdbcTemplate.update(sql,
@@ -235,6 +238,7 @@ public class TeacherRepository {
             t.getDateOfJoining(),
             t.getPhoneNo(),
             t.getEmail(),
+            t.getAddress() != null && t.getAddress().trim().isEmpty() ? null : t.getAddress(),
             t.getSalary(),
             t.getMentorOf() != null && t.getMentorOf().trim().isEmpty() ? null : t.getMentorOf(),
             t.getEmployeeId()
@@ -264,5 +268,16 @@ public class TeacherRepository {
     // Delete Teacher
     public void delete(String employeeId) {
         jdbcTemplate.update("DELETE FROM Teacher WHERE Employee_ID = ?", employeeId);
+    }
+
+    // Total distinct students taught across all scheduled classes
+    public int getTotalStudentsTaught(String employeeId) {
+        String sql = "SELECT COUNT(DISTINCT e.Student_ID) " +
+                     "FROM Enrollments e " +
+                     "JOIN Student st ON e.Student_ID = st.Admission_No " +
+                     "JOIN Class_Schedule cs ON cs.Subject_ID = e.Subject_ID AND cs.Standard = st.Standard AND cs.Division = st.Division " +
+                     "WHERE cs.Teacher_ID = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, employeeId);
+        return count != null ? count : 0;
     }
 }

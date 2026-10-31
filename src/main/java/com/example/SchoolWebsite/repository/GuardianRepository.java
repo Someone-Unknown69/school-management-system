@@ -18,7 +18,7 @@ public class GuardianRepository {
     // Get all guardians for a specific student
     public List<Guardian> findByStudentId(String studentId) {
         String sql = "SELECT Student_ID, Relationship, First_Name, Middle_Name, Last_Name, " +
-                     "Occupation, Phone_No FROM Student_Guardian WHERE Student_ID = ?";
+                     "Occupation, Phone_No, Email FROM Student_Guardian WHERE Student_ID = ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Guardian g = new Guardian();
@@ -29,6 +29,7 @@ public class GuardianRepository {
             g.setLastName(rs.getString("Last_Name"));
             g.setOccupation(rs.getString("Occupation"));
             g.setPhoneNo(rs.getString("Phone_No"));
+            g.setEmail(rs.getString("Email"));
             return g;
         }, studentId);
     }

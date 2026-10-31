@@ -38,19 +38,27 @@ public class StudentService {
         return studentRepository.searchAndFilter(standard, division, search);
     }
 
-    public void saveStudent(Student s, String guardianRel, String gFirst, String gMiddle, String gLast, String gOcc, String gPhone) {
+    public void saveStudent(Student s, String guardianRel, String gFirst, String gMiddle, String gLast, String gOcc, String gPhone, String gEmail) {
         studentRepository.save(s);
         userRepository.createOrUpdate(s.getAdmissionNo(), "pass_" + s.getAdmissionNo(), "student");
         if (guardianRel != null && !guardianRel.trim().isEmpty() && gFirst != null && !gFirst.trim().isEmpty()) {
-            studentRepository.saveGuardian(s.getAdmissionNo(), guardianRel.trim(), gFirst.trim(), gMiddle, gLast, gOcc != null ? gOcc.trim() : "", gPhone != null ? gPhone.trim() : "");
+            studentRepository.saveGuardian(s.getAdmissionNo(), guardianRel.trim(), gFirst.trim(), gMiddle, gLast, gOcc != null ? gOcc.trim() : "", gPhone != null ? gPhone.trim() : "", gEmail != null ? gEmail.trim() : "");
+        }
+    }
+
+    public void saveStudent(Student s, String guardianRel, String gFirst, String gMiddle, String gLast, String gOcc, String gPhone) {
+        saveStudent(s, guardianRel, gFirst, gMiddle, gLast, gOcc, gPhone, null);
+    }
+
+    public void updateStudent(Student s, String guardianRel, String gFirst, String gMiddle, String gLast, String gOcc, String gPhone, String gEmail) {
+        studentRepository.update(s);
+        if (guardianRel != null && !guardianRel.trim().isEmpty() && gFirst != null && !gFirst.trim().isEmpty()) {
+            studentRepository.saveGuardian(s.getAdmissionNo(), guardianRel.trim(), gFirst.trim(), gMiddle, gLast, gOcc != null ? gOcc.trim() : "", gPhone != null ? gPhone.trim() : "", gEmail != null ? gEmail.trim() : "");
         }
     }
 
     public void updateStudent(Student s, String guardianRel, String gFirst, String gMiddle, String gLast, String gOcc, String gPhone) {
-        studentRepository.update(s);
-        if (guardianRel != null && !guardianRel.trim().isEmpty() && gFirst != null && !gFirst.trim().isEmpty()) {
-            studentRepository.saveGuardian(s.getAdmissionNo(), guardianRel.trim(), gFirst.trim(), gMiddle, gLast, gOcc != null ? gOcc.trim() : "", gPhone != null ? gPhone.trim() : "");
-        }
+        updateStudent(s, guardianRel, gFirst, gMiddle, gLast, gOcc, gPhone, null);
     }
 
     public void deleteStudent(String admissionNo) {
@@ -76,5 +84,17 @@ public class StudentService {
 
     public List<java.util.Map<String, Object>> getAvailableVehicles() {
         return studentRepository.getAvailableVehicles();
+    }
+
+    public List<Student> getStudentsWithDues(String standard, String division, String search) {
+        return studentRepository.findStudentsWithDues(standard, division, search);
+    }
+
+    public List<Student> getAllStudentsWithDues() {
+        return studentRepository.findAllStudentsWithDues();
+    }
+
+    public double getTotalOutstandingDues(String standard, String division, String search) {
+        return studentRepository.getTotalOutstandingDues(standard, division, search);
     }
 }

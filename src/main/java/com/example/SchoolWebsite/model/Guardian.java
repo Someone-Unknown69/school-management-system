@@ -8,6 +8,7 @@ public class Guardian {
     private String lastName;
     private String occupation;
     private String phoneNo;
+    private String email;
 
     // Constructors
     public Guardian() {}
@@ -33,6 +34,9 @@ public class Guardian {
 
     public String getPhoneNo() { return phoneNo; }
     public void setPhoneNo(String phoneNo) { this.phoneNo = phoneNo; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
     // Helper: full name
     public String getFullName() {

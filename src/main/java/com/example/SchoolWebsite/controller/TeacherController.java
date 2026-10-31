@@ -1,8 +1,10 @@
 package com.example.SchoolWebsite.controller;
 
 import com.example.SchoolWebsite.model.ScheduleItem;
+import com.example.SchoolWebsite.model.SectionInfo;
 import com.example.SchoolWebsite.model.Student;
 import com.example.SchoolWebsite.model.Teacher;
+import com.example.SchoolWebsite.service.SectionService;
 import com.example.SchoolWebsite.service.StudentService;
 import com.example.SchoolWebsite.service.TeacherService;
 
@@ -10,10 +12,14 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 @RequestMapping("/teacher")
@@ -21,10 +27,45 @@ public class TeacherController {
 
     private final TeacherService teacherService;
     private final StudentService studentService;
+    private final SectionService sectionService;
 
-    public TeacherController(TeacherService teacherService, StudentService studentService) {
+    public TeacherController(TeacherService teacherService,
+                             StudentService studentService,
+                             SectionService sectionService) {
         this.teacherService = teacherService;
         this.studentService = studentService;
+        this.sectionService = sectionService;
+    }
+
+    @GetMapping({"", "/", "/dashboard"})
+    public String showDashboard(HttpSession session, Model model) {
+        String userId = (String) session.getAttribute("userId");
+        String role = (String) session.getAttribute("role");
+
+        if (userId == null || !"teacher".equals(role)) {
+            return "redirect:/login";
+        }
+
+        Teacher teacher = teacherService.getFullProfile(userId);
+        List<ScheduleItem> schedule = teacherService.getSchedule(userId);
+        SectionInfo classTeacherSection = sectionService.getSectionByClassTeacher(userId);
+        int totalStudentsTaught = teacherService.getTotalStudentsTaught(userId);
+
+        LocalDate today = LocalDate.now();
+        String dayOfWeek = today.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+
+        model.addAttribute("teacher", teacher);
+        model.addAttribute("schedule", schedule);
+        model.addAttribute("classTeacherSection", classTeacherSection);
+        model.addAttribute("totalStudentsTaught", totalStudentsTaught);
+        model.addAttribute("todayDay", dayOfWeek);
+        model.addAttribute("todayDate", today.toString());
+
+        model.addAttribute("isLoggedIn", true);
+        model.addAttribute("loggedInUser", userId);
+        model.addAttribute("loggedInRole", role);
+
+        return "teacher/dashboard";
     }
 
     @GetMapping("/profile")
@@ -150,5 +191,10 @@ public class TeacherController {
         model.addAttribute("loggedInRole", role);
 
         return "teacher/salary";
+    }
+
+    @GetMapping("/salary/slip/{transactionId}")
+    public String viewSalarySlip(@PathVariable String transactionId) {
+        return "redirect:/admin/salary/slip/" + transactionId;
     }
 }

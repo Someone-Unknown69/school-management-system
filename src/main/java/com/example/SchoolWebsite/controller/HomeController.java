@@ -27,15 +27,28 @@ public class HomeController {
 
     @GetMapping("/")
     public String homePage(HttpSession session, Model model) {
-        // Aggregate stats for the home page
+        String userId = (String) session.getAttribute("userId");
+        String role = (String) session.getAttribute("role");
+
+        // If logged in, redirect directly to role-specific dashboard
+        if (role != null) {
+            switch (role.toLowerCase()) {
+                case "admin":
+                    return "redirect:/admin/dashboard";
+                case "student":
+                    return "redirect:/student/dashboard";
+                case "teacher":
+                    return "redirect:/teacher/dashboard";
+                case "staff":
+                    return "redirect:/staff/dashboard";
+            }
+        }
+
+        // Aggregate stats for the landing page
         model.addAttribute("studentCount", statsRepository.countStudents());
         model.addAttribute("teacherCount", statsRepository.countTeachers());
         model.addAttribute("staffCount", statsRepository.countStaff());
         model.addAttribute("houseCount", statsRepository.countHouses());
-
-        // Session information so navbar and page reflect login state
-        String userId = (String) session.getAttribute("userId");
-        String role = (String) session.getAttribute("role");
         boolean isDriver = false;
         if ("staff".equals(role) && userId != null) {
             Staff staff = staffService.getStaffProfile(userId);

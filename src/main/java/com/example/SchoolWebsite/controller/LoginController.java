@@ -26,13 +26,13 @@ public class LoginController {
         if (role != null) {
             switch (role.toLowerCase()) {
                 case "student":
-                    return "redirect:/student/profile";
+                    return "redirect:/student/dashboard";
                 case "teacher":
-                    return "redirect:/teacher/profile";
+                    return "redirect:/teacher/dashboard";
                 case "staff":
-                    return "redirect:/staff/profile";
+                    return "redirect:/staff/dashboard";
                 case "admin":
-                    return "redirect:/admin/students";
+                    return "redirect:/admin/dashboard";
             }
         }
         return "login";
@@ -77,13 +77,13 @@ public class LoginController {
 
         switch (user.getRole().toLowerCase()) {
             case "admin":
-                return "redirect:/admin/students";
+                return "redirect:/admin/dashboard";
             case "student":
-                return "redirect:/student/profile";
+                return "redirect:/student/dashboard";
             case "teacher":
-                return "redirect:/teacher/profile";
+                return "redirect:/teacher/dashboard";
             case "staff":
-                return "redirect:/staff/profile";
+                return "redirect:/staff/dashboard";
             default:
                 return "redirect:/";
         }

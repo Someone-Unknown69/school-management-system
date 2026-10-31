@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
@@ -22,6 +23,49 @@ public class StaffController {
 
     public StaffController(StaffService staffService) {
         this.staffService = staffService;
+    }
+
+    @GetMapping({"", "/", "/dashboard"})
+    public String showDashboard(HttpSession session, Model model) {
+        String userId = (String) session.getAttribute("userId");
+        String role = (String) session.getAttribute("role");
+
+        if (userId == null || !"staff".equals(role)) {
+            return "redirect:/login";
+        }
+
+        Staff staff = staffService.getStaffProfile(userId);
+        List<Payment> salaryHistory = staffService.getSalaryHistory(userId);
+        Payment lastSalary = (salaryHistory != null && !salaryHistory.isEmpty()) ? salaryHistory.get(0) : null;
+        int totalSalaryPayments = (salaryHistory != null) ? salaryHistory.size() : 0;
+        double totalSalaryReceived = (salaryHistory != null)
+                ? salaryHistory.stream().mapToDouble(Payment::getAmount).sum()
+                : 0.0;
+
+        VehicleInfo vehicle = null;
+        int busStudentCount = 0;
+        boolean isDriver = staff != null && staff.isDriver();
+        if (isDriver) {
+            vehicle = staffService.getAssignedVehicle(userId);
+            if (vehicle != null) {
+                List<Student> busStudents = staffService.getBusStudents(vehicle.getVehicleId());
+                busStudentCount = (busStudents != null) ? busStudents.size() : 0;
+            }
+        }
+
+        model.addAttribute("staff", staff);
+        model.addAttribute("lastSalary", lastSalary);
+        model.addAttribute("totalSalaryPayments", totalSalaryPayments);
+        model.addAttribute("totalSalaryReceived", totalSalaryReceived);
+        model.addAttribute("vehicle", vehicle);
+        model.addAttribute("busStudentCount", busStudentCount);
+        model.addAttribute("isDriver", isDriver);
+
+        model.addAttribute("isLoggedIn", true);
+        model.addAttribute("loggedInUser", userId);
+        model.addAttribute("loggedInRole", role);
+
+        return "staff/dashboard";
     }
 
     @GetMapping("/profile")
@@ -99,5 +143,10 @@ public class StaffController {
         model.addAttribute("loggedInRole", role);
 
         return "staff/transport";
+    }
+
+    @GetMapping("/salary/slip/{transactionId}")
+    public String viewSalarySlip(@PathVariable String transactionId) {
+        return "redirect:/admin/salary/slip/" + transactionId;
     }
 }

@@ -39,6 +39,7 @@ def generate_sql():
     lines.append("-- Reset / Truncate (foreign key safe)")
     lines.append("-- ---------------------------------------------------------")
     lines.append("SET FOREIGN_KEY_CHECKS = 0;")
+    lines.append("TRUNCATE TABLE User_Account;")
     lines.append("TRUNCATE TABLE Staff_Salary;    TRUNCATE TABLE Teacher_Salary;  TRUNCATE TABLE Fees;")
     lines.append("TRUNCATE TABLE Payments;        TRUNCATE TABLE Class_Schedule;  TRUNCATE TABLE Enrollments;")
     lines.append("TRUNCATE TABLE Teacher_Subject; TRUNCATE TABLE Reference_Books; TRUNCATE TABLE Subject;")
@@ -53,14 +54,14 @@ def generate_sql():
     lines.append("-- ---------------------------------------------------------")
     lines.append("-- 1. Houses")
     lines.append("-- ---------------------------------------------------------")
-    lines.append("INSERT INTO House (Color, House_Name, No_Of_Wins) VALUES")
+    lines.append("INSERT INTO House (Color, House_Name, No_Of_Wins, Captain_ID) VALUES")
     houses = [
         ("Red", "Phoenix House", 18),
         ("Blue", "Neptune House", 14),
         ("Green", "Falcon House", 16),
         ("Yellow", "Tigris House", 15)
     ]
-    house_vals = [f"('{h[0]}', '{h[1]}', {h[2]})" for h in houses]
+    house_vals = [f"('{h[0]}', '{h[1]}', {h[2]}, NULL)" for h in houses]
     lines.append(",\n".join(house_vals) + ";")
     lines.append("")
 
@@ -136,39 +137,39 @@ def generate_sql():
     lines.append("-- ---------------------------------------------------------")
     lines.append("-- 5. Faculty Teachers")
     lines.append("-- ---------------------------------------------------------")
-    lines.append("INSERT INTO Teacher (Employee_ID, First_Name, Middle_Name, Last_Name, Date_Of_Joining, Phone_No, Email, Salary, MentorOf) VALUES")
+    lines.append("INSERT INTO Teacher (Employee_ID, First_Name, Middle_Name, Last_Name, Date_Of_Joining, Phone_No, Email, Salary, MentorOf, Address) VALUES")
     teachers = [
-        ("T001", "Anita", "NULL", "'Verma'", "'2015-07-10'", "'9876000001'", "'anita.verma@school.edu'", 52000.00, "'Red'"),
-        ("T002", "Rakesh", "'K.'", "'Singh'", "'2017-03-22'", "'9876000002'", "'rakesh.singh@school.edu'", 48000.00, "'Blue'"),
-        ("T003", "Meena", "NULL", "'Gupta'", "'2014-06-18'", "'9876000003'", "'meena.gupta@school.edu'", 55000.00, "'Green'"),
-        ("T004", "Vikram", "NULL", "'Pandey'", "'2016-08-01'", "'9876000004'", "'vikram.pandey@school.edu'", 50000.00, "'Yellow'"),
-        ("T005", "Kavita", "NULL", "'Mishra'", "'2018-07-05'", "'9876000005'", "'kavita.mishra@school.edu'", 46000.00, "NULL"),
-        ("T006", "Arjun", "'P.'", "'Tiwari'", "'2013-04-12'", "'9876000006'", "'arjun.tiwari@school.edu'", 62000.00, "NULL"),
-        ("T007", "Neha", "NULL", "'Srivastava'", "'2015-11-20'", "'9876000007'", "'neha.srivastava@school.edu'", 58000.00, "NULL"),
-        ("T008", "Sanjay", "NULL", "'Yadav'", "'2012-06-30'", "'9876000008'", "'sanjay.yadav@school.edu'", 65000.00, "NULL"),
-        ("T009", "Pooja", "NULL", "'Agarwal'", "'2019-01-14'", "'9876000009'", "'pooja.agarwal@school.edu'", 47000.00, "NULL"),
-        ("T010", "Deepak", "NULL", "'Joshi'", "'2020-07-01'", "'9876000010'", "'deepak.joshi@school.edu'", 51000.00, "NULL"),
-        ("T011", "Ritu", "NULL", "'Saxena'", "'2017-09-09'", "'9876000011'", "'ritu.saxena@school.edu'", 54000.00, "NULL"),
-        ("T012", "Manoj", "NULL", "'Dubey'", "'2021-04-05'", "'9876000012'", "'manoj.dubey@school.edu'", 42000.00, "NULL"),
-        ("T013", "Sunil", "'K.'", "'Chawla'", "'2016-05-18'", "'9876000013'", "'sunil.chawla@school.edu'", 53000.00, "NULL"),
-        ("T014", "Vandana", "NULL", "'Tripathi'", "'2015-02-11'", "'9876000014'", "'vandana.tripathi@school.edu'", 56000.00, "NULL"),
-        ("T015", "Anuradha", "NULL", "'Sen'", "'2014-10-04'", "'9876000015'", "'anuradha.sen@school.edu'", 59000.00, "NULL"),
-        ("T016", "Kamal", "NULL", "'Nayan'", "'2018-08-20'", "'9876000016'", "'kamal.nayan@school.edu'", 48000.00, "NULL"),
-        ("T017", "Girish", "'C.'", "'Bhatt'", "'2017-12-01'", "'9876000017'", "'girish.bhatt@school.edu'", 51000.00, "NULL"),
-        ("T018", "Deepa", "NULL", "'Rastogi'", "'2019-03-15'", "'9876000018'", "'deepa.rastogi@school.edu'", 49000.00, "NULL"),
-        ("T019", "Pradeep", "NULL", "'Chawla'", "'2018-11-10'", "'9876000019'", "'pradeep.chawla@school.edu'", 50000.00, "NULL"),
-        ("T020", "Meenu", "NULL", "'Kapoor'", "'2020-02-14'", "'9876000020'", "'meenu.kapoor@school.edu'", 47000.00, "NULL"),
-        ("T021", "Harish", "'Chand'", "'Sharma'", "'2015-08-25'", "'9876000021'", "'harish.sharma@school.edu'", 57000.00, "NULL"),
-        ("T022", "Ravi", "NULL", "'Shukla'", "'2016-09-17'", "'9876000022'", "'ravi.shukla@school.edu'", 52000.00, "NULL"),
-        ("T023", "Amitabh", "'R.'", "'Sinha'", "'2017-06-05'", "'9876000023'", "'amitabh.sinha@school.edu'", 54000.00, "NULL"),
-        ("T024", "Preeti", "NULL", "'Deshmukh'", "'2019-07-22'", "'9876000024'", "'preeti.deshmukh@school.edu'", 48000.00, "NULL"),
-        ("T025", "Bhavna", "NULL", "'Kulkarni'", "'2020-09-01'", "'9876000025'", "'bhavna.kulkarni@school.edu'", 46000.00, "NULL"),
-        ("T026", "Suresh", "NULL", "'Nambiar'", "'2016-01-15'", "'9876000026'", "'suresh.nambiar@school.edu'", 55000.00, "NULL"),
-        ("T027", "Alka", "NULL", "'Gautam'", "'2018-04-10'", "'9876000027'", "'alka.gautam@school.edu'", 50000.00, "NULL"),
-        ("T028", "Naveen", "'Kumar'", "'Jha'", "'2021-05-12'", "'9876000028'", "'naveen.jha@school.edu'", 44000.00, "NULL"),
+        ("T001", "Anita", "NULL", "'Verma'", "'2015-07-10'", "'9876000001'", "'anita.verma@school.edu'", 52000.00, "'Red'", "'B-12, Shivala Colony, Mahmoorganj, Varanasi'"),
+        ("T002", "Rakesh", "'K.'", "'Singh'", "'2017-03-22'", "'9876000002'", "'rakesh.singh@school.edu'", 48000.00, "'Blue'", "'Flat 302, Ganga Heights, Bhelupur, Varanasi'"),
+        ("T003", "Meena", "NULL", "'Gupta'", "'2014-06-18'", "'9876000003'", "'meena.gupta@school.edu'", 55000.00, "'Green'", "'House 88/B, Saket Nagar, Lanka, Varanasi'"),
+        ("T004", "Vikram", "NULL", "'Pandey'", "'2016-08-01'", "'9876000004'", "'vikram.pandey@school.edu'", 50000.00, "'Yellow'", "'12, Tagore Town, Orderly Bazar, Varanasi'"),
+        ("T005", "Kavita", "NULL", "'Mishra'", "'2018-07-05'", "'9876000005'", "'kavita.mishra@school.edu'", 46000.00, "NULL", "'C-4/15, Vidyapeeth Road, Sigra, Varanasi'"),
+        ("T006", "Arjun", "'P.'", "'Tiwari'", "'2013-04-12'", "'9876000006'", "'arjun.tiwari@school.edu'", 62000.00, "NULL", "'78, Shivpur By-pass, Shivpur, Varanasi'"),
+        ("T007", "Neha", "NULL", "'Srivastava'", "'2015-11-20'", "'9876000007'", "'neha.srivastava@school.edu'", 58000.00, "NULL", "'House 23, DLW Colony, Kakarmatta, Varanasi'"),
+        ("T008", "Sanjay", "NULL", "'Yadav'", "'2012-06-30'", "'9876000008'", "'sanjay.yadav@school.edu'", 65000.00, "NULL", "'56/A, Pandeypur Chauraha, Varanasi'"),
+        ("T009", "Pooja", "NULL", "'Agarwal'", "'2019-01-14'", "'9876000009'", "'pooja.agarwal@school.edu'", 47000.00, "NULL", "'19, Sarnath Station Road, Sarnath, Varanasi'"),
+        ("T010", "Deepak", "NULL", "'Joshi'", "'2020-07-01'", "'9876000010'", "'deepak.joshi@school.edu'", 51000.00, "NULL", "'Plot 102, Chandpur Industrial Estate, Varanasi'"),
+        ("T011", "Ritu", "NULL", "'Saxena'", "'2017-09-09'", "'9876000011'", "'ritu.saxena@school.edu'", 54000.00, "NULL", "'House 34, Maldahiya, Cantt, Varanasi'"),
+        ("T012", "Manoj", "NULL", "'Dubey'", "'2021-04-05'", "'9876000012'", "'manoj.dubey@school.edu'", 42000.00, "NULL", "'Flat 101, Surya Vihar, Ravindrapuri, Varanasi'"),
+        ("T013", "Sunil", "'K.'", "'Chawla'", "'2016-05-18'", "'9876000013'", "'sunil.chawla@school.edu'", 53000.00, "NULL", "'8/12, Gurubagh, Kamachha, Varanasi'"),
+        ("T014", "Vandana", "NULL", "'Tripathi'", "'2015-02-11'", "'9876000014'", "'vandana.tripathi@school.edu'", 56000.00, "NULL", "'44, Assi Ghat Road, Assi, Varanasi'"),
+        ("T015", "Anuradha", "NULL", "'Sen'", "'2014-10-04'", "'9876000015'", "'anuradha.sen@school.edu'", 59000.00, "NULL", "'15/C, Nagwa, Lanka, Varanasi'"),
+        ("T016", "Kamal", "NULL", "'Nayan'", "'2018-08-20'", "'9876000016'", "'kamal.nayan@school.edu'", 48000.00, "NULL", "'67, Naria, BHU Road, Varanasi'"),
+        ("T017", "Girish", "'C.'", "'Bhatt'", "'2017-12-01'", "'9876000017'", "'girish.bhatt@school.edu'", 51000.00, "NULL", "'Plot 8, Chitaipur Road, Sundarpur, Varanasi'"),
+        ("T018", "Deepa", "NULL", "'Rastogi'", "'2019-03-15'", "'9876000018'", "'deepa.rastogi@school.edu'", 49000.00, "NULL", "'House 91, Manduadih Station Road, Varanasi'"),
+        ("T019", "Pradeep", "NULL", "'Chawla'", "'2018-11-10'", "'9876000019'", "'pradeep.chawla@school.edu'", 50000.00, "NULL", "'28/B, Rohania, GT Road, Varanasi'"),
+        ("T020", "Meenu", "NULL", "'Kapoor'", "'2020-02-14'", "'9876000020'", "'meenu.kapoor@school.edu'", 47000.00, "NULL", "'B-14, Shivala Colony, Mahmoorganj, Varanasi'"),
+        ("T021", "Harish", "'Chand'", "'Sharma'", "'2015-08-25'", "'9876000021'", "'harish.sharma@school.edu'", 57000.00, "NULL", "'Flat 204, Ganga Heights, Bhelupur, Varanasi'"),
+        ("T022", "Ravi", "NULL", "'Shukla'", "'2016-09-17'", "'9876000022'", "'ravi.shukla@school.edu'", 52000.00, "NULL", "'House 55/A, Saket Nagar, Lanka, Varanasi'"),
+        ("T023", "Amitabh", "'R.'", "'Sinha'", "'2017-06-05'", "'9876000023'", "'amitabh.sinha@school.edu'", 54000.00, "NULL", "'18, Tagore Town, Orderly Bazar, Varanasi'"),
+        ("T024", "Preeti", "NULL", "'Deshmukh'", "'2019-07-22'", "'9876000024'", "'preeti.deshmukh@school.edu'", 48000.00, "NULL", "'C-7/12, Vidyapeeth Road, Sigra, Varanasi'"),
+        ("T025", "Bhavna", "NULL", "'Kulkarni'", "'2020-09-01'", "'9876000025'", "'bhavna.kulkarni@school.edu'", 46000.00, "NULL", "'82, Shivpur By-pass, Shivpur, Varanasi'"),
+        ("T026", "Suresh", "NULL", "'Nambiar'", "'2016-01-15'", "'9876000026'", "'suresh.nambiar@school.edu'", 55000.00, "NULL", "'House 10, DLW Colony, Kakarmatta, Varanasi'"),
+        ("T027", "Alka", "NULL", "'Gautam'", "'2018-04-10'", "'9876000027'", "'alka.gautam@school.edu'", 50000.00, "NULL", "'61/B, Pandeypur Chauraha, Varanasi'"),
+        ("T028", "Naveen", "'Kumar'", "'Jha'", "'2021-05-12'", "'9876000028'", "'naveen.jha@school.edu'", 44000.00, "NULL", "'25, Sarnath Station Road, Sarnath, Varanasi'"),
     ]
     teacher_vals = [
-        f"('{t[0]}', '{t[1]}', {t[2]}, {t[3]}, {t[4]}, {t[5]}, {t[6]}, {t[7]:.2f}, {t[8]})"
+        f"('{t[0]}', '{t[1]}', {t[2]}, {t[3]}, {t[4]}, {t[5]}, {t[6]}, {t[7]:.2f}, {t[8]}, {t[9]})"
         for t in teachers
     ]
     lines.append(",\n".join(teacher_vals) + ";")
@@ -284,7 +285,30 @@ def generate_sql():
     lines.append("-- ---------------------------------------------------------")
     lines.append("-- 9. Students (480 Students, 30 per section across 16 sections)")
     lines.append("-- ---------------------------------------------------------")
-    lines.append("INSERT INTO Student (Admission_No, Roll_No, First_Name, Middle_Name, Last_Name, Blood_Group, Standard, Division, House, Vehicle_No, Date_Of_Admission, Date_Of_Birth, Age, Gender, Remaining_Fees) VALUES")
+    lines.append("INSERT INTO Student (Admission_No, Roll_No, First_Name, Middle_Name, Last_Name, Blood_Group, Standard, Division, House, Vehicle_No, Date_Of_Admission, Date_Of_Birth, Age, Gender, Remaining_Fees, Address, Contact_Number) VALUES")
+
+    varanasi_addresses = [
+        "Plot 12, Assi Ghat Road, Assi, Varanasi",
+        "B-45, Mahmoorganj, Varanasi",
+        "Flat 302, Surya Complex, Sigra, Varanasi",
+        "House 18, Chitaipur Road, Sundarpur, Varanasi",
+        "54, Orderly Bazar, Cantt, Varanasi",
+        "C-19/2, Ravindrapuri, Lanka, Varanasi",
+        "77, Pandeypur Chauraha, Varanasi",
+        "House 8, Saket Nagar, Lanka, Varanasi",
+        "Flat 104, Ganga Heights, Bhelupur, Varanasi",
+        "28/A, Durgakund Road, Varanasi",
+        "15, Gurubagh, Kamachha, Varanasi",
+        "Plot 6, Vidyapeeth Road, Sigra, Varanasi",
+        "House 92, Manduadih Station Road, Varanasi",
+        "44, Shivpur By-pass, Varanasi",
+        "12, Naria, BHU Road, Varanasi",
+        "Flat 201, Shivala Colony, Varanasi",
+        "33, Tagore Town, Orderly Bazar, Varanasi",
+        "House 67, Sarnath Station Road, Varanasi",
+        "Plot 21, Chandpur Industrial Estate, Varanasi",
+        "Flat 405, Kashi Enclave, Maldahiya, Varanasi"
+    ]
 
     first_names_male = [
         "Rohan", "Madhav", "Arnav", "Siddharth", "Aarav", "Vihaan", "Aditya", "Aryan",
@@ -349,6 +373,8 @@ def generate_sql():
                 dob = "2011-05-14"
                 age = 15
                 rem_fee = 5000.00
+                address = "Flat 402, Ganga Heights, Bhelupur, Varanasi"
+                contact_num = "9876543210"
             elif adm_id == "A002":
                 fname = "Priya"
                 mname = "NULL"
@@ -361,6 +387,8 @@ def generate_sql():
                 dob = "2011-08-22"
                 age = 15
                 rem_fee = 0.00
+                address = "House 14, Saket Nagar, Lanka, Varanasi"
+                contact_num = "9876543211"
             elif adm_id == "A003":
                 fname = "Kavya"
                 mname = "NULL"
@@ -373,6 +401,8 @@ def generate_sql():
                 dob = "2011-07-17"
                 age = 15
                 rem_fee = 18000.00
+                address = "22/A, Tagore Town, Orderly Bazar, Varanasi"
+                contact_num = "9876543212"
             else:
                 is_female = (roll % 2 == 0)
                 if is_female:
@@ -415,6 +445,9 @@ def generate_sql():
                     rem_fee = 25000.00
                 else:
                     rem_fee = 0.00
+                
+                address = random.choice(varanasi_addresses)
+                contact_num = f"981{adm_num:07d}"
             
             s_dict = {
                 "adm_id": adm_id,
@@ -432,13 +465,15 @@ def generate_sql():
                 "age": age,
                 "gender": gender,
                 "rem_fee": rem_fee,
+                "address": address,
+                "contact_number": contact_num,
                 "full_name": f"{fname} {lname}" if lname else fname
             }
             students_data.append(s_dict)
             
             mname_str = mname
             lname_str = f"'{lname}'" if lname else "NULL"
-            val_str = f"('{adm_id}', {roll}, '{fname}', {mname_str}, {lname_str}, '{blood}', '{std}', '{div}', '{house}', {vehicle}, '{adm_date}', '{dob}', {age}, '{gender}', {rem_fee:.2f})"
+            val_str = f"('{adm_id}', {roll}, '{fname}', {mname_str}, {lname_str}, '{blood}', '{std}', '{div}', '{house}', {vehicle}, '{adm_date}', '{dob}', {age}, '{gender}', {rem_fee:.2f}, '{address}', '{contact_num}')"
             student_insert_vals.append(val_str)
 
     lines.append(",\n".join(student_insert_vals) + ";")
@@ -448,7 +483,7 @@ def generate_sql():
     lines.append("-- ---------------------------------------------------------")
     lines.append("-- 10. Student Guardians")
     lines.append("-- ---------------------------------------------------------")
-    lines.append("INSERT INTO Student_Guardian (Student_ID, Relationship, First_Name, Middle_Name, Last_Name, Occupation, Phone_No) VALUES")
+    lines.append("INSERT INTO Student_Guardian (Student_ID, Relationship, First_Name, Middle_Name, Last_Name, Occupation, Phone_No, Email) VALUES")
     
     occupations_father = [
         "Software Engineer", "Business Executive", "Doctor", "Advocate",
@@ -480,30 +515,52 @@ def generate_sql():
         if adm_id == "A001":
             f_fname, f_occ = "Suresh", "Software Engineer"
             m_fname, m_occ = "Sunita", "Professor"
+            f_email = "suresh.mehta@gmail.com"
+            m_email = "sunita.mehta@gmail.com"
         elif adm_id == "A002":
             f_fname, f_occ = "Venu", "Bank Manager"
             m_fname, m_occ = "Lakshmi", "Doctor"
+            f_email = "venu.nair@gmail.com"
+            m_email = "lakshmi.nair@gmail.com"
         elif adm_id == "A003":
             f_fname, f_occ = "Kailash", "Business Owner"
             m_fname, m_occ = "Poonam", "Homemaker"
+            f_email = "kailash.jaiswal@gmail.com"
+            m_email = "poonam.jaiswal@gmail.com"
         else:
             f_fname = random.choice(father_first_names)
             f_occ = random.choice(occupations_father)
             m_fname = random.choice(mother_first_names)
             m_occ = random.choice(occupations_mother)
+            f_email = f"{f_fname.lower()}.{lname.lower()}{s['roll']}@gmail.com"
+            m_email = f"{m_fname.lower()}.{lname.lower()}{s['roll']}@gmail.com"
 
         # Father record
         f_phone = f"{phone_counter}"
         phone_counter += 1
-        guardians_vals.append(f"('{adm_id}', 'Father', '{f_fname}', NULL, '{lname}', '{f_occ}', '{f_phone}')")
+        guardians_vals.append(f"('{adm_id}', 'Father', '{f_fname}', NULL, '{lname}', '{f_occ}', '{f_phone}', '{f_email}')")
 
         # Mother record (for ~85% students)
         if s["roll"] % 7 != 0 or adm_id in ["A001", "A002", "A003"]:
             m_phone = f"{phone_counter}"
             phone_counter += 1
-            guardians_vals.append(f"('{adm_id}', 'Mother', '{m_fname}', NULL, '{lname}', '{m_occ}', '{m_phone}')")
+            guardians_vals.append(f"('{adm_id}', 'Mother', '{m_fname}', NULL, '{lname}', '{m_occ}', '{m_phone}', '{m_email}')")
 
     lines.append(",\n".join(guardians_vals) + ";")
+    lines.append("")
+
+    # 10b. House Captains
+    lines.append("-- ---------------------------------------------------------")
+    lines.append("-- 10b. House Captains (Each house gets a captain from its own students)")
+    lines.append("-- ---------------------------------------------------------")
+    captains = {}
+    for col in house_colors:
+        for s in students_data:
+            if s["standard"] == "12" and s["house"] == col:
+                captains[col] = s["adm_id"]
+                break
+    for col, cap_id in captains.items():
+        lines.append(f"UPDATE House SET Captain_ID = '{cap_id}' WHERE Color = '{col}';")
     lines.append("")
 
     # 11. Subject
@@ -888,6 +945,22 @@ def generate_sql():
     lines.append("-- ---------------------------------------------------------")
     lines.append("INSERT INTO Staff_Salary (Payment_ID, Staff_ID) VALUES")
     lines.append(",\n".join(staff_salary_links) + ";")
+    lines.append("")
+
+    # 20. User Account Seed Data
+    lines.append("-- ---------------------------------------------------------")
+    lines.append("-- 20. User Accounts (Unified Login)")
+    lines.append("-- ---------------------------------------------------------")
+    lines.append("INSERT IGNORE INTO User_Account (Username, Password, Role) VALUES ('admin', 'admin123', 'admin');")
+    lines.append("")
+    lines.append("INSERT IGNORE INTO User_Account (Username, Password, Role)")
+    lines.append("SELECT Admission_No, CONCAT('pass_', Admission_No), 'student' FROM Student;")
+    lines.append("")
+    lines.append("INSERT IGNORE INTO User_Account (Username, Password, Role)")
+    lines.append("SELECT Employee_ID, CONCAT('pass_', Employee_ID), 'teacher' FROM Teacher;")
+    lines.append("")
+    lines.append("INSERT IGNORE INTO User_Account (Username, Password, Role)")
+    lines.append("SELECT Employee_ID, CONCAT('pass_', Employee_ID), 'staff' FROM Staff;")
     lines.append("")
 
     return "\n".join(lines)

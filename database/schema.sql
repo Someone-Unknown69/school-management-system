@@ -13,7 +13,8 @@ USE school_dbms;
 CREATE TABLE House (
     Color               VARCHAR(30)       PRIMARY KEY,
     House_Name          VARCHAR(50)       NOT NULL,
-    No_Of_Wins          INT               DEFAULT 0
+    No_Of_Wins          INT               DEFAULT 0,
+    Captain_ID          VARCHAR(10)       UNIQUE
 );
 
 CREATE TABLE Class (
@@ -54,6 +55,7 @@ CREATE TABLE Teacher (
     Email               VARCHAR(100)      UNIQUE NOT NULL,
     Salary              DECIMAL(10,2)     NOT NULL        CHECK (Salary > 0),
     MentorOf            VARCHAR(30),      -- FK to House, can be null (there can be a teacher not alloted to a house)
+    Address             VARCHAR(200),
 
     FOREIGN KEY (MentorOf) REFERENCES House(Color)
         ON DELETE SET NULL
@@ -122,13 +124,15 @@ CREATE TABLE Student (
     Blood_Group         VARCHAR(5)        NOT NULL,
     Standard            VARCHAR(5)        NOT NULL,
     Division            VARCHAR(5)        NOT NULL,
-    House                VARCHAR(30)       NOT NULL,
-    Vehicle_No           VARCHAR(10),
+    House               VARCHAR(30)       NOT NULL,
+    Vehicle_No          VARCHAR(10),
     Date_Of_Admission   DATE              NOT NULL,
     Date_Of_Birth       DATE              NOT NULL,
-    Age                  INT               NOT NULL,
-    Gender               VARCHAR(20)       NOT NULL,
+    Age                 INT               NOT NULL,
+    Gender              VARCHAR(20)       NOT NULL,
     Remaining_Fees      DECIMAL(10,2)     DEFAULT 0,
+    Address             VARCHAR(200),
+    Contact_Number      VARCHAR(15),
 
     FOREIGN KEY (Standard, Division) REFERENCES Section(Standard, Division)
         ON UPDATE CASCADE,
@@ -139,14 +143,22 @@ CREATE TABLE Student (
         ON UPDATE CASCADE
 );
 
+-- Now that Student exists, add House captain FK constraint
+ALTER TABLE House
+    ADD CONSTRAINT fk_house_captain
+    FOREIGN KEY (Captain_ID) REFERENCES Student(Admission_No)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE;
+
 CREATE TABLE Student_Guardian (
     Student_ID           VARCHAR(10)       NOT NULL,
-    Relationship          VARCHAR(20)       NOT NULL,
+    Relationship         VARCHAR(20)       NOT NULL,
     First_Name           VARCHAR(50)       NOT NULL,
     Middle_Name          VARCHAR(50),
     Last_Name            VARCHAR(50),
     Occupation           VARCHAR(50)       NOT NULL,
     Phone_No             VARCHAR(15)       NOT NULL,
+    Email                VARCHAR(100),
 
     PRIMARY KEY (Student_ID, Relationship),
     FOREIGN KEY (Student_ID) REFERENCES Student(Admission_No)

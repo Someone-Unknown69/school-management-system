@@ -38,7 +38,7 @@ class LoginAuthTest {
                         .param("userId", "admin")
                         .param("password", "admin123"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin/students"));
+                .andExpect(redirectedUrl("/admin/dashboard"));
     }
 
     @Test
@@ -57,7 +57,7 @@ class LoginAuthTest {
                         .param("userId", "A001")
                         .param("password", "pass_A001"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/student/profile"));
+                .andExpect(redirectedUrl("/student/dashboard"));
     }
 
     @Test
@@ -76,7 +76,7 @@ class LoginAuthTest {
                         .param("userId", "T001")
                         .param("password", "pass_T001"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/teacher/profile"));
+                .andExpect(redirectedUrl("/teacher/dashboard"));
     }
 
     @Test
@@ -85,7 +85,7 @@ class LoginAuthTest {
                         .param("userId", "anita.verma@school.edu")
                         .param("password", "pass_T001"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/teacher/profile"));
+                .andExpect(redirectedUrl("/teacher/dashboard"));
     }
 
     @Test
@@ -94,6 +94,6 @@ class LoginAuthTest {
                         .param("userId", "S001")
                         .param("password", "pass_S001"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/staff/profile"));
+                .andExpect(redirectedUrl("/staff/dashboard"));
     }
 }

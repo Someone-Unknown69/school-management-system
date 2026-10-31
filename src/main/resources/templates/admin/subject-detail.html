@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${subject.subjectName} + ' (' + ${subject.subjectCode} + ')', ~{::section})}">
+<head><title th:text="${subject.subjectName}">Subject Details</title></head>
+<body>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/subjects">Subjects</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${subject.subjectCode}">Subject</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title" th:text="${subject.subjectName} + ' (' + ${subject.subjectCode} + ')'">Subject Details</h1>
+            <p class="page-subtitle">Syllabus specifications, bibliography reference books, and faculty assignments.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{'/admin/subjects/edit/' + ${subject.subjectCode}}" class="btn btn-bw btn-sm">Edit Subject</a>
+            <a href="/admin/subjects" class="btn btn-bw-outline btn-sm">&larr; Back to Subjects</a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- Subject Particulars & Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-7">
+            <div class="card h-100">
+                <div class="card-header">Curriculum Information</div>
+                <div class="card-body p-0">
+                    <table class="kv-table">
+                        <tr>
+                            <td class="kv-label">Subject Code</td>
+                            <td><strong th:text="${subject.subjectCode}">MATH10</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Subject Name</td>
+                            <td><span th:text="${subject.subjectName}">Mathematics</span></td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Target Standard</td>
+                            <td><span class="badge-filled" th:text="'Class ' + ${subject.className}">Class 10</span></td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Weekly Periods</td>
+                            <td><strong th:text="${subject.periodsPerWeek} + ' periods / week'">6 periods / week</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Student Enrollments</td>
+                            <td><span class="badge-outlined" th:text="${subject.enrollmentCount} + ' enrolled students'">60 students</span></td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Scheduled Sections</td>
+                            <td><span class="badge-outlined" th:text="${subject.scheduleCount} + ' timetable slots'">2 slots</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reference Books Card -->
+        <div class="col-md-5">
+            <div class="card h-100">
+                <div class="card-header">Reference Books &amp; Bibliography</div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(subject.referenceBooks)}">
+                        <p class="text-muted mb-0" style="font-size: 13px;">No reference textbooks recorded for this subject.</p>
+                    </div>
+                    <ul class="list-group list-group-flush" th:if="${!#lists.isEmpty(subject.referenceBooks)}">
+                        <li class="list-group-item px-0 py-2" th:each="book : ${subject.referenceBooks}" style="font-size: 13px;">
+                            &bull; <strong th:text="${book}">NCERT Class 10 Mathematics</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Faculty Mapping (Teacher_Subject) -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Faculty Assignments (Teacher_Subject)</span>
+            <span class="badge-outlined" th:text="${#lists.size(subject.teachers)} + ' assigned'">2 assigned</span>
+        </div>
+        <div class="card-body">
+            <!-- Table of Assigned Teachers -->
+            <div class="table-responsive mb-4" th:if="${!#lists.isEmpty(subject.teachers)}">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 140px;">Employee ID</th>
+                            <th>Faculty Member</th>
+                            <th>Email Address</th>
+                            <th>Contact Phone</th>
+                            <th style="width: 120px; text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="t : ${subject.teachers}">
+                            <td><strong th:text="${t.employeeId}">T001</strong></td>
+                            <td th:text="${t.fullName}">Anita Verma</td>
+                            <td th:text="${t.email}">anita@school.edu</td>
+                            <td th:text="${t.phoneNo}">+91 9876543210</td>
+                            <td style="text-align: right;">
+                                <form method="post" th:action="@{'/admin/subjects/' + ${subject.subjectCode} + '/teachers/remove'}" style="display:inline;">
+                                    <input type="hidden" name="teacherId" th:value="${t.employeeId}">
+                                    <button type="submit" class="btn btn-bw-outline btn-sm">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${#lists.isEmpty(subject.teachers)}" class="mb-4">
+                <p class="text-muted mb-0" style="font-size: 13px;">No faculty members are currently mapped to teach this subject.</p>
+            </div>
+
+            <!-- Add Teacher Form -->
+            <div class="p-3" style="border: 1px solid #000; background: #f5f5f5;" th:if="${!#lists.isEmpty(unassignedTeachers)}">
+                <h5 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">Assign Additional Faculty Member</h5>
+                <form method="post" th:action="@{'/admin/subjects/' + ${subject.subjectCode} + '/teachers/add'}" class="row g-2 align-items-end">
+                    <div class="col-md-8">
+                        <label for="assignTeacherSelect" class="form-label" style="font-size: 12px;">Select Teacher</label>
+                        <select id="assignTeacherSelect" name="teacherId" class="form-select form-select-sm" required>
+                            <option value="">-- Choose teacher to authorize for this subject --</option>
+                            <option th:each="t : ${unassignedTeachers}"
+                                    th:value="${t.employeeId}"
+                                    th:text="${t.employeeId} + ' — ' + ${t.fullName} + ' (' + ${t.email} + ')'"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-bw btn-sm w-100">Assign Teacher &rarr;</button>
+                    </div>
+                </form>
+            </div>
+            <div th:if="${#lists.isEmpty(unassignedTeachers)}" class="p-2" style="border: 1px solid #e0e0e0; font-size: 12px; color: #666;">
+                All active faculty members in the institution are already mapped to this subject.
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
+

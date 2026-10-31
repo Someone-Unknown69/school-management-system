@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${student.fullName} + ' — Course Enrollments', ~{::section})}">
+<head><title th:text="${student.fullName}">Student Course Enrollments</title></head>
+<body>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/students">Students</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${student.admissionNo}">Student Details</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title" th:text="${student.fullName} + ' (' + ${student.admissionNo} + ')'">Student Details</h1>
+            <p class="page-subtitle">Academic profile, section assignment, and enrolled subject curriculum management.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{'/admin/students/edit/' + ${student.admissionNo}}" class="btn btn-bw-outline btn-sm">Edit Profile</a>
+            <a href="/admin/students" class="btn btn-bw-outline btn-sm">&larr; Back to Students</a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- Student Quick Dossier -->
+    <div class="card mb-4">
+        <div class="card-header">Academic Profile Overview</div>
+        <div class="card-body p-0">
+            <table class="kv-table">
+                <tr>
+                    <td class="kv-label">Admission Number</td>
+                    <td><strong th:text="${student.admissionNo}">A001</strong></td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Current Section</td>
+                    <td>
+                        <span class="badge-filled" th:text="'Class ' + ${student.standard} + ' - ' + ${student.division}">Class 10 - A</span>
+                        &nbsp;(Roll No: <span th:text="${student.rollNo}">1</span>)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Assigned House</td>
+                    <td><span class="badge-outlined" th:text="${student.house}">Red</span></td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Fee Balance</td>
+                    <td>
+                        <span th:if="${student.remainingFees > 0}" style="font-weight: 700;"
+                              th:text="'₹' + ${student.remainingFees}">₹5000.00</span>
+                        <span th:if="${student.remainingFees <= 0}" class="badge-filled">Cleared</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── ENROLLED SUBJECTS SECTION ── -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Enrolled Subjects &amp; Academic Grades</span>
+            <!-- Bulk Action: Enroll entire section in all subjects of this class -->
+            <form method="post" th:action="@{'/admin/students/' + ${student.admissionNo} + '/bulk-enroll-section'}" style="display:inline;">
+                <input type="hidden" name="standard" th:value="${student.standard}">
+                <input type="hidden" name="division" th:value="${student.division}">
+                <button type="submit" class="btn btn-bw btn-sm"
+                        onclick="return confirm('Enroll all students in Section ' + this.form.standard.value + '-' + this.form.division.value + ' in all subjects for this class?');">
+                    Enroll Section <span th:text="${student.standard} + '-' + ${student.division}">10-A</span> in All Class Subjects
+                </button>
+            </form>
+        </div>
+        <div class="card-body">
+            <!-- Enrollments Table -->
+            <div class="table-responsive mb-4" th:if="${!#lists.isEmpty(enrolledSubjects)}">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;">Code</th>
+                            <th>Subject Name</th>
+                            <th style="width: 130px; text-align: center;">Periods / Wk</th>
+                            <th>Instructor</th>
+                            <th style="width: 200px;">Assigned Grade</th>
+                            <th style="width: 110px; text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="enr : ${enrolledSubjects}">
+                            <td><strong th:text="${enr.subjectCode}">MATH10</strong></td>
+                            <td>
+                                <span style="font-weight: 600;" th:text="${enr.subjectName}">Mathematics</span>
+                                <div th:if="${!#lists.isEmpty(enr.referenceBooks)}" style="font-size: 11px; color: #666;">
+                                    Books: <span th:text="${#strings.listJoin(enr.referenceBooks, ', ')}">NCERT</span>
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                <span th:text="${enr.periodsPerWeek}">6</span>
+                            </td>
+                            <td>
+                                <span th:text="${enr.teacherName}">Anita Verma</span>
+                            </td>
+                            <td>
+                                <!-- Inline Grade Editor -->
+                                <form method="post" th:action="@{'/admin/students/' + ${student.admissionNo} + '/grade'}" class="d-flex gap-1 align-items-center">
+                                    <input type="hidden" name="subjectCode" th:value="${enr.subjectCode}">
+                                    <select name="grade" class="form-select form-select-sm" style="width: 90px;">
+                                        <option value="" th:selected="${enr.grade == null or enr.grade == ''}">None</option>
+                                        <option value="A+" th:selected="${enr.grade == 'A+'}">A+</option>
+                                        <option value="A" th:selected="${enr.grade == 'A'}">A</option>
+                                        <option value="B+" th:selected="${enr.grade == 'B+'}">B+</option>
+                                        <option value="B" th:selected="${enr.grade == 'B'}">B</option>
+                                        <option value="C" th:selected="${enr.grade == 'C'}">C</option>
+                                        <option value="D" th:selected="${enr.grade == 'D'}">D</option>
+                                        <option value="F" th:selected="${enr.grade == 'F'}">F</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-bw btn-sm">Set</button>
+                                </form>
+                            </td>
+                            <td style="text-align: right;">
+                                <form method="post" th:action="@{'/admin/students/' + ${student.admissionNo} + '/unenroll'}" style="display:inline;">
+                                    <input type="hidden" name="subjectCode" th:value="${enr.subjectCode}">
+                                    <button type="submit" class="btn btn-bw-outline btn-sm"
+                                            onclick="return confirm('Unenroll student from this course?');">
+                                        Drop
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State if no subjects enrolled -->
+            <div th:if="${#lists.isEmpty(enrolledSubjects)}" class="mb-4">
+                <div th:replace="~{fragments/ui :: empty-state('📖', 'No Enrolled Subjects', 'This student is not enrolled in any subjects yet. Use the form below to enroll them.')}"></div>
+            </div>
+
+            <!-- Add Single Subject Enrollment Form -->
+            <div class="p-3" style="border: 1px solid #000; background: #f5f5f5;" th:if="${!#lists.isEmpty(availableSubjects)}">
+                <h5 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">
+                    Enroll in Additional Class <span th:text="${student.standard}">10</span> Subject
+                </h5>
+                <form method="post" th:action="@{'/admin/students/' + ${student.admissionNo} + '/enroll'}" class="row g-2 align-items-end">
+                    <div class="col-md-7">
+                        <label for="enrollSubjectSelect" class="form-label" style="font-size: 12px;">Available Subject</label>
+                        <select id="enrollSubjectSelect" name="subjectCode" class="form-select form-select-sm" required>
+                            <option value="">-- Choose subject to enroll --</option>
+                            <option th:each="sub : ${availableSubjects}"
+                                    th:value="${sub.subjectCode}"
+                                    th:text="${sub.subjectCode} + ' — ' + ${sub.subjectName} + ' (' + ${sub.periodsPerWeek} + ' periods/wk)'"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="initialGradeSelect" class="form-label" style="font-size: 12px;">Initial Grade</label>
+                        <select id="initialGradeSelect" name="grade" class="form-select form-select-sm">
+                            <option value="">(None)</option>
+                            <option value="A+">A+</option>
+                            <option value="A">A</option>
+                            <option value="B+">B+</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="F">F</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-bw btn-sm w-100">Enroll Subject &rarr;</button>
+                    </div>
+                </form>
+            </div>
+
+            <div th:if="${#lists.isEmpty(availableSubjects)}" class="p-2" style="border: 1px solid #e0e0e0; font-size: 12px; color: #666;">
+                Student is already enrolled in all available subjects for Class <span th:text="${student.standard}">10</span>.
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
+

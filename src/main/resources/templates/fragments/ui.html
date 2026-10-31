@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!--
+  fragments/ui.html
+  =================
+  Reusable UI component fragments for the Black & White design system.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- FLASH MESSAGES -->
+<div th:fragment="flash-messages">
+    <div th:if="${successMessage}" class="flash-success" role="alert">
+        &#10003;&nbsp;<span th:text="${successMessage}">Operation successful.</span>
+    </div>
+    <div th:if="${errorMessage}" class="flash-error" role="alert">
+        &#9888;&nbsp;<span th:text="${errorMessage}">An error occurred.</span>
+    </div>
+</div>
+
+<!-- PAGINATION -->
+<nav th:fragment="pagination"
+     th:if="${totalPages != null and totalPages > 1}"
+     aria-label="Page navigation"
+     class="mt-3">
+    <ul class="pagination pagination-sm flex-wrap mb-1">
+        <!-- Previous page -->
+        <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled'">
+            <a class="page-link"
+               th:href="${currentPage > 1} ? ${pageUrl + '&amp;page=' + (currentPage - 1)} : '#'"
+               aria-label="Previous">&laquo; Prev</a>
+        </li>
+
+        <th:block th:with="start=${currentPage > 3 ? currentPage - 2 : 1},
+                           end=${currentPage < totalPages - 2 ? currentPage + 2 : totalPages}">
+            <li class="page-item" th:if="${start > 1}">
+                <a class="page-link" th:href="${pageUrl + '&amp;page=1'}">1</a>
+            </li>
+            <li class="page-item disabled" th:if="${start > 2}">
+                <span class="page-link">&hellip;</span>
+            </li>
+
+            <li class="page-item"
+                th:each="p : ${#numbers.sequence(start, end)}"
+                th:classappend="${p == currentPage} ? 'active'">
+                <a class="page-link"
+                   th:href="${pageUrl + '&amp;page=' + p}"
+                   th:text="${p}">1</a>
+            </li>
+
+            <li class="page-item disabled" th:if="${end < totalPages - 1}">
+                <span class="page-link">&hellip;</span>
+            </li>
+            <li class="page-item" th:if="${end < totalPages}">
+                <a class="page-link" th:href="${pageUrl + '&amp;page=' + totalPages}"
+                   th:text="${totalPages}">N</a>
+            </li>
+        </th:block>
+
+        <!-- Next page -->
+        <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+            <a class="page-link"
+               th:href="${currentPage < totalPages} ? ${pageUrl + '&amp;page=' + (currentPage + 1)} : '#'"
+               aria-label="Next">Next &raquo;</a>
+        </li>
+    </ul>
+    <div class="text-muted" style="font-size: 11px;" th:if="${totalCount != null}">
+        Showing page <strong th:text="${currentPage}">1</strong> of <strong th:text="${totalPages}">1</strong>
+        (<span th:text="${totalCount}">0</span> total records)
+    </div>
+</nav>
+
+<!-- STAT CARD -->
+<div th:fragment="stat-card(value, label)" class="stat-card">
+    <div class="stat-value" th:text="${value}">0</div>
+    <div class="stat-label" th:text="${label}">Label</div>
+</div>
+
+<!-- EMPTY STATE -->
+<div th:fragment="empty-state(icon, title, text)" class="empty-state">
+    <div class="empty-state-icon" th:text="${icon}">—</div>
+    <div class="empty-state-title" th:text="${title}">No data found</div>
+    <p class="empty-state-text" th:text="${text}">There are no records matching your request.</p>
+</div>
+
+<!-- CONFIRM MODAL (Standard POST with no hidden inputs) -->
+<div th:fragment="confirm-modal(modalId, title, body, formAction)"
+     class="modal fade" th:id="${modalId}" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="${title}">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" th:text="${body}">
+                Are you sure you want to perform this action?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-bw-outline btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <form th:action="${formAction}" method="post" style="margin: 0;">
+                    <button type="submit" class="btn btn-bw btn-sm">Confirm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CONFIRM MODAL WITH 2 HIDDEN INPUTS (For remove passenger, etc.) -->
+<div th:fragment="confirm-modal-with-2inputs(modalId, title, body, formAction, name1, val1, name2, val2)"
+     class="modal fade" th:id="${modalId}" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="${title}">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" th:text="${body}">
+                Are you sure? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-bw-outline btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <form th:action="${formAction}" method="post" style="margin: 0;">
+                    <input type="hidden" th:name="${name1}" th:value="${val1}">
+                    <input type="hidden" th:name="${name2}" th:value="${val2}">
+                    <button type="submit" class="btn btn-bw btn-sm">Confirm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STATUS BADGE -->
+<span th:fragment="status-badge(status)"
+      th:with="s=${#strings.toLowerCase(status ?: '')}"
+      th:classappend="${s == 'paid' or s == 'completed' or s == 'active'} ? 'badge-filled' :
+                      (${s == 'pending' or s == 'unpaid' or s == 'inactive'} ? 'badge-outlined' :
+                       'badge-muted')"
+      th:text="${status}">Status</span>
+
+</body>
+</html>

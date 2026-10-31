@@ -1,53 +1,71 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>My Teaching Schedule</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('My Schedule', ~{::section})}">
+<head><title>My Teaching Schedule</title></head>
 <body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/teacher/profile">My Profile</a>
-        <a href="/teacher/schedule">My Schedule</a>
-        <a href="/teacher/salary">My Salary</a>
-        <a href="/teacher/students">Student Directory</a>
-        <a href="/logout">Logout (<span th:text="${teacher.employeeId}">T001</span>)</a>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Teaching Schedule</li>
+        </ol>
     </nav>
 
-    <h1>My Teaching Schedule & Classes</h1>
-    <p>Teacher: <strong th:text="${teacher.fullName}">Anita Verma</strong> (Employee ID: <span th:text="${teacher.employeeId}">T001</span>)</p>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Teaching Schedule &amp; Course Timetable</h1>
+            <p class="page-subtitle">
+                Faculty: <strong th:text="${teacher.fullName}">Anita Verma</strong>
+                (Employee ID: <span th:text="${teacher.employeeId}">T001</span>)
+            </p>
+        </div>
+        <div>
+            <span class="badge-outlined" th:text="${#lists.size(schedule)} + ' Classes'">0 Classes</span>
+        </div>
+    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Subject Code</th>
-                <th>Subject Name</th>
-                <th>Class (Standard)</th>
-                <th>Section (Division)</th>
-                <th>Classroom (Room No)</th>
-                <th>Enrolled Students</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="item : ${schedule}">
-                <td><strong th:text="${item.subjectCode}">MATH10</strong></td>
-                <td th:text="${item.subjectName}">Mathematics</td>
-                <td th:text="${item.standard}">10</td>
-                <td th:text="${item.division}">A</td>
-                <td th:text="${item.roomNo}">Room-101</td>
-                <td th:text="${item.enrolledCount} + ' Students'">2 Students</td>
-                <td>
-                    <a th:href="@{/teacher/course-students(subjectCode=${item.subjectCode},standard=${item.standard},division=${item.division})}">
-                        Show Students →
-                    </a>
-                </td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(schedule)}">
-                <td colspan="7" style="text-align: center; color: #666;">No scheduled classes assigned currently.</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- Schedule Table -->
+    <div class="table-responsive" th:if="${!#lists.isEmpty(schedule)}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 140px;">Subject Code</th>
+                    <th>Course Title</th>
+                    <th style="width: 100px;">Class</th>
+                    <th style="width: 100px;">Section</th>
+                    <th style="width: 140px;">Classroom</th>
+                    <th style="width: 140px;">Enrolled Count</th>
+                    <th style="width: 150px; text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${schedule}">
+                    <td><strong th:text="${item.subjectCode}">MATH10</strong></td>
+                    <td th:text="${item.subjectName}">Mathematics</td>
+                    <td th:text="${item.standard}">10</td>
+                    <td th:text="${item.division}">A</td>
+                    <td><span class="badge-outlined" th:text="${item.roomNo}">Room-101</span></td>
+                    <td th:text="${item.enrolledCount} + ' Students'">2 Students</td>
+                    <td style="text-align: right;">
+                        <a th:href="@{/teacher/course-students(subjectCode=${item.subjectCode},standard=${item.standard},division=${item.division})}"
+                           class="btn btn-bw-outline btn-sm">
+                            Show Students &rarr;
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(schedule)}">
+        <div th:replace="~{fragments/ui :: empty-state('📅', 'No Scheduled Classes', 'You do not have any teaching courses scheduled currently.')}"></div>
+    </div>
+</section>
 </body>
 </html>

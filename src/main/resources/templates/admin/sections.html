@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Classes and Sections', ~{::section})}">
+<head><title>Classes and Sections</title></head>
+<body>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Classes and Sections</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Classes &amp; Sections</h1>
+            <p class="page-subtitle">Roster of academic sections, room allocations, student headcounts, and assigned class teachers.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/admin/sections/promote" class="btn btn-bw btn-sm">Promote Students &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- Sections Table -->
+    <div class="table-responsive" th:if="${!#lists.isEmpty(sections)}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Class &amp; Div</th>
+                    <th style="width: 110px;">Room No</th>
+                    <th style="width: 140px; text-align: center;">Students</th>
+                    <th>Class Teacher</th>
+                    <th style="width: 140px; text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="sec : ${sections}">
+                    <td>
+                        <strong th:text="'Class ' + ${sec.standard} + ' - ' + ${sec.division}">Class 10 - A</strong>
+                    </td>
+                    <td>
+                        <span class="badge-outlined" th:text="'Room ' + ${sec.roomNo}">Room 101</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="badge-filled" th:text="${sec.studentCount} + ' students'">30 students</span>
+                    </td>
+                    <td>
+                        <!-- Appoint / Change Class Teacher Form -->
+                        <form method="post" th:action="@{'/admin/sections/' + ${sec.standard} + '/' + ${sec.division} + '/teacher'}"
+                              class="d-flex gap-2 align-items-center">
+                            <select name="teacherId" class="form-select form-select-sm" style="max-width: 280px;">
+                                <option value="">-- No Class Teacher --</option>
+                                <option th:each="t : ${teachers}"
+                                        th:value="${t.employeeId}"
+                                        th:text="${t.fullName} + ' (' + ${t.employeeId} + ')'"
+                                        th:selected="${t.employeeId == sec.classTeacherId}"></option>
+                            </select>
+                            <button type="submit" class="btn btn-bw btn-sm">Save</button>
+                        </form>
+                    </td>
+                    <td style="text-align: right;">
+                        <a th:href="@{'/admin/sections/promote(sourceStandard=' + ${sec.standard} + ', sourceDivision=' + ${sec.division} + ')'}"
+                           class="btn btn-bw-outline btn-sm">Promote &rarr;</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(sections)}">
+        <div th:replace="~{fragments/ui :: empty-state('🏫', 'No Sections Found', 'No academic sections registered in the database.')}"></div>
+    </div>
+</section>
+</body>
+</html>
+

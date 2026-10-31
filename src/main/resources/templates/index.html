@@ -1,65 +1,209 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>School Management System</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Home', ~{::section})}">
+<head><title>Home</title></head>
 <body>
-    <nav>
-        <a href="/">Home</a>
-        <!-- When logged in -->
-        <span th:if="${isLoggedIn}">
-            <span th:if="${loggedInRole == 'student'}">
-                <a href="/students">Student Directory</a>
-                <a href="/student/profile">My Profile</a>
-                <a href="/student/subjects">My Subjects</a>
-                <a href="/student/fees">My Fees</a>
-            </span>
-            <span th:if="${loggedInRole == 'teacher'}">
-                <a href="/teacher/profile">My Profile</a>
-                <a href="/teacher/schedule">My Schedule</a>
-                <a href="/teacher/salary">My Salary</a>
-                <a href="/teacher/students">Student Directory</a>
-            </span>
-            <span th:if="${loggedInRole == 'staff'}">
-                <a href="/staff/profile">My Profile</a>
-                <a href="/staff/salary">My Salary</a>
-                <a th:if="${isDriver}" href="/staff/transport">My Bus Students</a>
-            </span>
-            <span th:if="${loggedInRole == 'admin'}">
-                <a href="/admin/students">Manage Students</a>
-                <a href="/admin/faculty">Manage Faculty &amp; Staff</a>
-                <a href="/admin/transactions">Transactions</a>
-                <a href="/admin/transport">Transport</a>
-            </span>
-            <a href="/logout">Logout (<span th:text="${loggedInUser}">User</span>)</a>
-        </span>
-        <!-- When not logged in -->
-        <span th:unless="${isLoggedIn}">
-            <a href="/login">Login</a>
-        </span>
-    </nav>
+<section>
 
-    <h1>School Management System</h1>
-    <p>Welcome to the school management portal.</p>
-
-    <!-- User status banner when logged in -->
-    <div th:if="${isLoggedIn}" style="background: #eef2ff; border: 1px solid #c7d2fe; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
-        Logged in as: <strong th:text="${loggedInUser}"></strong> (<span th:text="${loggedInRole}"></span>)
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active" aria-current="page">Home</li>
+            </ol>
+        </nav>
     </div>
 
-    <h2>Quick Stats</h2>
-    <table style="width: 400px;">
-        <tr><th>Category</th><th>Count</th></tr>
-        <tr><td>Students</td><td th:text="${studentCount}">0</td></tr>
-        <tr><td>Teachers</td><td th:text="${teacherCount}">0</td></tr>
-        <tr><td>Staff</td><td th:text="${staffCount}">0</td></tr>
-        <tr><td>Houses</td><td th:text="${houseCount}">0</td></tr>
-    </table>
-
-    <div th:unless="${isLoggedIn}" style="margin-top: 15px;">
-        <a href="/login">→ Go to Login</a>
+    <!-- Institutional Hero -->
+    <div class="portal-hero">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <span class="portal-badge">Academic &amp; Administrative Portal</span>
+                <h1 class="portal-title">School Name</h1>
+                <p class="portal-subtitle">Unified Institutional Management System for Students, Faculty, Operations &amp; Administration</p>
+            </div>
+            <div th:if="${isLoggedIn}">
+                <a th:if="${loggedInRole == 'admin'}" href="/admin/dashboard" class="btn btn-primary btn-sm">Go to Admin Dashboard &rarr;</a>
+                <a th:if="${loggedInRole == 'teacher'}" href="/teacher/dashboard" class="btn btn-primary btn-sm">Go to Teacher Dashboard &rarr;</a>
+                <a th:if="${loggedInRole == 'student'}" href="/student/dashboard" class="btn btn-primary btn-sm">Go to Student Dashboard &rarr;</a>
+                <a th:if="${loggedInRole == 'staff'}" href="/staff/dashboard" class="btn btn-primary btn-sm">Go to Staff Dashboard &rarr;</a>
+            </div>
+        </div>
     </div>
+
+    <!-- Flash messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- ── LOGGED-OUT STATE: BALANCED SPLIT PORTAL ── -->
+    <div th:unless="${isLoggedIn}" class="row g-4">
+        <!-- Left Column: Campus Census & Directory Overview -->
+        <div class="col-lg-7">
+            <div class="census-card">
+                <div class="census-header">
+                    <h2 class="census-title">Campus Directory &amp; Live Census</h2>
+                    <span class="badge-filled">Active Term 2026–27</span>
+                </div>
+
+                <!-- 2x2 Clean Census Grid -->
+                <div class="census-grid">
+                    <div class="census-item">
+                        <div class="census-value" th:text="${studentCount}">480</div>
+                        <div class="census-label">Enrolled Students</div>
+                        <div class="census-sub">Secondary &amp; Senior Secondary (Classes 9–12)</div>
+                    </div>
+
+                    <div class="census-item">
+                        <div class="census-value" th:text="${teacherCount}">28</div>
+                        <div class="census-label">Teaching Faculty</div>
+                        <div class="census-sub">Subject Teachers &amp; Appointed Class Mentors</div>
+                    </div>
+
+                    <div class="census-item">
+                        <div class="census-value" th:text="${staffCount}">25</div>
+                        <div class="census-label">Operations &amp; Staff</div>
+                        <div class="census-sub">Accounts, Administration &amp; Transport Drivers</div>
+                    </div>
+
+                    <div class="census-item">
+                        <div class="census-value" th:text="${houseCount}">4</div>
+                        <div class="census-label">Institutional Houses</div>
+                        <div class="census-sub">Garuda, Phoenix, Trishul &amp; Vajra Houses</div>
+                    </div>
+                </div>
+
+                <!-- Core Portal Capabilities -->
+                <div class="portal-features-list">
+                    <div class="portal-feature-row">
+                        <div class="portal-feature-icon">&#10003;</div>
+                        <div class="portal-feature-text">
+                            <strong>Academic Records &amp; Course Syllabus</strong>
+                            <p>Timetable schedules, enrolled courses, syllabus reference bibliography, and academic grading.</p>
+                        </div>
+                    </div>
+                    <div class="portal-feature-row">
+                        <div class="portal-feature-icon">&#10003;</div>
+                        <div class="portal-feature-text">
+                            <strong>Tuition Fee Collection &amp; Digital Receipts</strong>
+                            <p>Cashless fee processing, instant computer-generated receipts, and fee dues tracking.</p>
+                        </div>
+                    </div>
+                    <div class="portal-feature-row">
+                        <div class="portal-feature-icon">&#10003;</div>
+                        <div class="portal-feature-text">
+                            <strong>Staff Payroll &amp; Financial Statements</strong>
+                            <p>Automated salary disbursements, printable salary advice slips, and ledger auditing.</p>
+                        </div>
+                    </div>
+                    <div class="portal-feature-row">
+                        <div class="portal-feature-icon">&#10003;</div>
+                        <div class="portal-feature-text">
+                            <strong>Transport Fleet Logistics</strong>
+                            <p>School bus vehicle tracking, route assignment, and passenger capacity rosters.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Dedicated High-End Sign In Box -->
+        <div class="col-lg-5">
+            <div class="login-card-pro">
+                <h2 class="login-card-title">Portal Sign In</h2>
+                <p class="login-card-sub">Access your customized academic and administrative workspace</p>
+
+                <!-- Error message (if redirected) -->
+                <div th:if="${error}" class="flash-error mb-3" role="alert">
+                    &#9888;&nbsp;<span th:text="${error}">Error</span>
+                </div>
+
+                <form method="post" action="/login">
+                    <div class="mb-3">
+                        <label for="userId" class="form-label fw-bold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">User ID or Username</label>
+                        <input type="text"
+                               id="userId"
+                               name="userId"
+                               class="form-control"
+                               placeholder="e.g. admin, A001, T001, S001"
+                               autocomplete="username"
+                               required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-bold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Password</label>
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               class="form-control"
+                               placeholder="Enter your password"
+                               autocomplete="current-password"
+                               required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="letter-spacing: 0.5px;">Sign In to Portal &rarr;</button>
+                </form>
+
+                <!-- Quick Test Credentials Autofill -->
+                <div class="credential-chips-container">
+                    <div class="credential-chips-title">One-Click Test Accounts:</div>
+                    <div class="credential-chips-grid">
+                        <button type="button" class="credential-chip-btn" onclick="fillCredentials('admin', 'admin123')">
+                            <span class="chip-role">Administrator</span>
+                            <span class="chip-sub">admin / admin123</span>
+                        </button>
+
+                        <button type="button" class="credential-chip-btn" onclick="fillCredentials('A001', 'pass_A001')">
+                            <span class="chip-role">Student (10-A)</span>
+                            <span class="chip-sub">A001 / pass_A001</span>
+                        </button>
+
+                        <button type="button" class="credential-chip-btn" onclick="fillCredentials('T001', 'pass_T001')">
+                            <span class="chip-role">Teacher</span>
+                            <span class="chip-sub">T001 / pass_T001</span>
+                        </button>
+
+                        <button type="button" class="credential-chip-btn" onclick="fillCredentials('S001', 'pass_S001')">
+                            <span class="chip-role">Driver / Staff</span>
+                            <span class="chip-sub">S001 / pass_S001</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── LOGGED-IN STATE: ACTIVE WELCOME ── -->
+    <div th:if="${isLoggedIn}" class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Active Session</span>
+            <span class="badge-filled" th:text="${#strings.toUpperCase(loggedInRole)}">ROLE</span>
+        </div>
+        <div class="card-body">
+            <p class="mb-3">
+                You are currently signed in as <strong th:text="${loggedInUser}">user</strong>.
+                Access your dashboard and tools using the navigation bar above or the button below.
+            </p>
+            <div>
+                <a th:if="${loggedInRole == 'admin'}" href="/admin/dashboard" class="btn btn-primary">Open Admin Dashboard &rarr;</a>
+                <a th:if="${loggedInRole == 'teacher'}" href="/teacher/dashboard" class="btn btn-primary">Open Teacher Dashboard &rarr;</a>
+                <a th:if="${loggedInRole == 'student'}" href="/student/dashboard" class="btn btn-primary">Open Student Dashboard &rarr;</a>
+                <a th:if="${loggedInRole == 'staff'}" href="/staff/dashboard" class="btn btn-primary">Open Staff Dashboard &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vanilla JavaScript for Quick Credential Autofill -->
+    <script>
+        function fillCredentials(user, pass) {
+            var u = document.getElementById('userId');
+            var p = document.getElementById('password');
+            if (u && p) {
+                u.value = user;
+                p.value = pass;
+                u.focus();
+            }
+        }
+    </script>
+
+</section>
 </body>
 </html>

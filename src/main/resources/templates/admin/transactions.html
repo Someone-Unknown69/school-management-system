@@ -1,159 +1,226 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin — Fee &amp; Salary Transactions</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Financial Transactions', ~{::section})}">
+<head><title>Admin — Transactions</title></head>
 <body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/admin/students">Manage Students</a>
-        <a href="/admin/faculty">Manage Faculty &amp; Staff</a>
-        <a href="/admin/transactions"><strong>Transactions</strong></a>
-        <a href="/admin/transport">Transport</a>
-        <a href="/logout">Logout (<span th:text="${loggedInUser}">admin</span>)</a>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Transactions</li>
+        </ol>
     </nav>
 
-    <h1>Transaction Ledger &amp; Financial Audit</h1>
-    <p>Comprehensive transaction record of student fee collections and faculty/staff salary payouts.</p>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Financial Audit &amp; Transaction Ledger</h1>
+            <p class="page-subtitle">Unified transaction logs of student fee remittances and faculty/staff salary disbursements.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{/admin/transactions/export(type=${selectedType}, mode=${selectedMode}, startDate=${startDate}, endDate=${endDate}, search=${search})}"
+               class="btn btn-bw-outline btn-sm">
+                Export CSV
+            </a>
+            <a th:href="@{/admin/transactions/statement(startDate=${startDate}, endDate=${endDate})}"
+               class="btn btn-bw btn-sm">
+                Print Financial Statement &rarr;
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
 
     <!-- Financial KPI Summary Cards -->
-    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
-        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 6px; min-width: 220px; flex: 1;">
-            <div style="font-size: 12px; color: #166534; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Total Fee Revenue</div>
-            <div style="font-size: 22px; font-weight: bold; color: #15803d; margin-top: 5px;" th:text="'₹' + ${stats.totalFee}">₹0.00</div>
-            <div style="font-size: 12px; color: #166534; margin-top: 3px;" th:text="${stats.feeCount} + ' fee payments logged'">0 fee payments logged</div>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-4">
+            <div class="stat-card">
+                <div class="stat-value" th:text="'₹' + ${#numbers.formatDecimal(financialSummary.totalFees, 1, 2)}">₹0.00</div>
+                <div class="stat-label">Total Fee Collections</div>
+                <div class="stat-sub" th:text="${(startDate != null and startDate != '') ? 'Period: ' + startDate + ' to ' + (endDate != '' ? endDate : 'present') : 'All-time collections'}">All-time</div>
+            </div>
         </div>
-        <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 6px; min-width: 220px; flex: 1;">
-            <div style="font-size: 12px; color: #991b1b; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Total Salary Disbursements</div>
-            <div style="font-size: 22px; font-weight: bold; color: #b91c1c; margin-top: 5px;" th:text="'₹' + ${stats.totalSalary}">₹0.00</div>
-            <div style="font-size: 12px; color: #991b1b; margin-top: 3px;" th:text="${stats.salaryCount} + ' salary payouts logged'">0 salary payouts logged</div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="stat-card">
+                <div class="stat-value" th:text="'₹' + ${#numbers.formatDecimal(financialSummary.totalSalaries, 1, 2)}">₹0.00</div>
+                <div class="stat-label">Total Salary Disbursements</div>
+                <div class="stat-sub"
+                     th:text="'Faculty: ₹' + ${#numbers.formatDecimal(financialSummary.teacherSalaries, 1, 0)} + ' | Staff: ₹' + ${#numbers.formatDecimal(financialSummary.staffSalaries, 1, 0)}">
+                    Faculty + Staff
+                </div>
+            </div>
         </div>
-        <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 6px; min-width: 220px; flex: 1;">
-            <div style="font-size: 12px; color: #1e40af; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">All Recorded Transactions</div>
-            <div style="font-size: 22px; font-weight: bold; color: #1d4ed8; margin-top: 5px;" th:text="${stats.totalCount}">0</div>
-            <div style="font-size: 12px; color: #1e40af; margin-top: 3px;">Full institutional ledger count</div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="stat-card">
+                <div class="stat-value"
+                     th:text="(${financialSummary.netBalance >= 0} ? '+' : '') + '₹' + ${#numbers.formatDecimal(financialSummary.netBalance, 1, 2)}">
+                    +₹0.00
+                </div>
+                <div class="stat-label">Net Operating Balance</div>
+                <div class="stat-sub" th:if="${financialSummary.netBalance >= 0}">Surplus Operating Margin</div>
+                <div class="stat-sub" th:if="${financialSummary.netBalance < 0}">Deficit Operating Balance</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Financial Performance Breakdown Accordion/Card -->
+    <div class="card mb-4" th:if="${!#lists.isEmpty(monthlyBreakdown)}">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Monthly Financial Breakdown (Collections vs Outflows)</span>
+            <span class="badge-outlined" th:text="${#lists.size(monthlyBreakdown)} + ' billing periods'">6 periods</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0" style="font-size: 13px;">
+                    <thead>
+                        <tr style="background: #f5f5f5;">
+                            <th>Billing Month</th>
+                            <th style="text-align: right;">Fee Collections (₹)</th>
+                            <th style="text-align: right;">Faculty Salaries (₹)</th>
+                            <th style="text-align: right;">Staff Salaries (₹)</th>
+                            <th style="text-align: right;">Total Outflows (₹)</th>
+                            <th style="text-align: right; width: 160px;">Net Balance (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="m : ${monthlyBreakdown}">
+                            <td><strong th:text="${m.periodMonth}">2026-04</strong></td>
+                            <td style="text-align: right;" th:text="'₹' + ${#numbers.formatDecimal(m.feesCollected, 1, 2)}">₹0.00</td>
+                            <td style="text-align: right;" th:text="'₹' + ${#numbers.formatDecimal(m.teacherSalaries, 1, 2)}">₹0.00</td>
+                            <td style="text-align: right;" th:text="'₹' + ${#numbers.formatDecimal(m.staffSalaries, 1, 2)}">₹0.00</td>
+                            <td style="text-align: right; font-weight: 600;" th:text="'₹' + ${#numbers.formatDecimal(m.totalSalaries, 1, 2)}">₹0.00</td>
+                            <td style="text-align: right; font-weight: 700;"
+                                th:text="(${m.netOperatingBalance >= 0} ? '+' : '') + '₹' + ${#numbers.formatDecimal(m.netOperatingBalance, 1, 2)}">
+                                +₹0.00
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <!-- Filter & Search Toolbar -->
-    <div style="background: #fafafa; border: 1px solid #ddd; padding: 12px; margin-bottom: 20px;">
-        <form method="get" action="/admin/transactions" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-            <label>
-                <strong>Type:</strong>
-                <select name="type">
+    <div class="filter-bar">
+        <form method="get" action="/admin/transactions" class="row g-2 align-items-end">
+            <div class="col-sm-6 col-md-2">
+                <label class="form-label">Type</label>
+                <select name="type" class="form-select form-select-sm">
                     <option value="">All Types</option>
                     <option th:each="t : ${availableTypes}"
                             th:value="${t}"
                             th:text="${t}"
                             th:selected="${t == selectedType}"></option>
                 </select>
-            </label>
+            </div>
 
-            <label>
-                <strong>Payment Mode:</strong>
-                <select name="mode">
+            <div class="col-sm-6 col-md-2">
+                <label class="form-label">Payment Mode</label>
+                <select name="mode" class="form-select form-select-sm">
                     <option value="">All Modes</option>
                     <option th:each="m : ${availableModes}"
                             th:value="${m}"
                             th:text="${m}"
                             th:selected="${m == selectedMode}"></option>
                 </select>
-            </label>
+            </div>
 
-            <label>
-                <strong>From Date:</strong>
-                <input type="date" name="startDate" th:value="${startDate}">
-            </label>
+            <div class="col-sm-6 col-md-2">
+                <label class="form-label">From Date</label>
+                <input type="date" name="startDate" th:value="${startDate}" class="form-control form-control-sm">
+            </div>
 
-            <label>
-                <strong>To Date:</strong>
-                <input type="date" name="endDate" th:value="${endDate}">
-            </label>
+            <div class="col-sm-6 col-md-2">
+                <label class="form-label">To Date</label>
+                <input type="date" name="endDate" th:value="${endDate}" class="form-control form-control-sm">
+            </div>
 
-            <label>
-                <strong>Search:</strong>
-                <input type="text" name="search" th:value="${search}" placeholder="Txn ID, Sender, Receiver, ID..." style="width: 220px;">
-            </label>
+            <div class="col-sm-8 col-md-3">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" th:value="${search}" placeholder="Txn ID, Sender, Receiver..."
+                       class="form-control form-control-sm">
+            </div>
 
-            <button type="submit" class="btn">Apply Filters</button>
-            <a href="/admin/transactions" style="font-size: 13px; color: #666; text-decoration: none;">Reset</a>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-bw btn-sm">Filter</button>
+            </div>
+            <div class="col-auto" th:if="${(selectedType != null and selectedType != '') or (selectedMode != null and selectedMode != '') or (startDate != null and startDate != '') or (endDate != null and endDate != '') or (search != null and search != '')}">
+                <a href="/admin/transactions" class="btn btn-bw-outline btn-sm">Reset</a>
+            </div>
         </form>
     </div>
 
-    <!-- Results Table -->
-    <table>
-        <thead>
-            <tr>
-                <th>Transaction ID</th>
-                <th>Date &amp; Time</th>
-                <th>Type</th>
-                <th>Related Entity</th>
-                <th>Sender</th>
-                <th>Receiver</th>
-                <th>Payment Mode</th>
-                <th style="text-align: right;">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="tx : ${transactions}">
-                <td><strong th:text="${tx.transactionId}">TXN0001</strong></td>
-                <td th:text="${tx.dateOfPayment}">2026-04-05 09:45:00</td>
-                <td>
-                    <span th:if="${tx.paymentType == 'Fee'}" 
-                          style="background: #dcfce7; color: #15803d; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">Fee</span>
-                    <span th:if="${tx.paymentType == 'Salary'}" 
-                          style="background: #fee2e2; color: #b91c1c; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">Salary</span>
-                    <span th:if="${tx.paymentType != 'Fee' and tx.paymentType != 'Salary'}" 
-                          style="background: #f3f4f6; color: #374151; padding: 3px 8px; border-radius: 4px; font-size: 12px;" th:text="${tx.paymentType}">Other</span>
-                </td>
-                <td>
-                    <span th:if="${tx.relatedId != null}">
-                        <strong th:text="${tx.relatedRole} + ': ' + ${tx.relatedId}">Student: A001</strong>
-                    </span>
-                    <span th:unless="${tx.relatedId != null}" style="color: #999;">—</span>
-                </td>
-                <td th:text="${tx.sender}">Rohan Mehta</td>
-                <td th:text="${tx.receiver}">School</td>
-                <td>
-                    <span style="background: #f1f5f9; color: #334155; padding: 2px 7px; border-radius: 3px; font-size: 12px;" th:text="${tx.paymentMode}">UPI</span>
-                </td>
-                <td style="text-align: right; font-weight: bold;" 
-                    th:styleappend="${tx.paymentType == 'Fee'} ? 'color: #15803d;' : 'color: #b91c1c;'"
-                    th:text="(${tx.paymentType == 'Fee' ? '+' : '-'}) + '₹' + ${tx.amount}">
-                    +₹20000.00
-                </td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(transactions)}">
-                <td colspan="8" style="text-align: center; color: #666; padding: 20px;">
-                    No transactions match the selected filters.
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Transactions Table -->
+    <div class="table-responsive" th:if="${!#lists.isEmpty(transactions)}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 130px;">Transaction ID</th>
+                    <th style="width: 170px;">Date &amp; Time</th>
+                    <th style="width: 110px;">Type</th>
+                    <th>Related Party</th>
+                    <th>Payer / Sender</th>
+                    <th>Payee / Receiver</th>
+                    <th style="width: 120px;">Mode</th>
+                    <th style="width: 140px; text-align: right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="tx : ${transactions}">
+                    <td><strong th:text="${tx.transactionId}">TXN0001</strong></td>
+                    <td th:text="${tx.dateOfPayment}">2026-04-05</td>
+                    <td>
+                        <span th:if="${tx.paymentType == 'Fee'}" class="badge-filled">Fee</span>
+                        <span th:if="${tx.paymentType == 'Salary'}" class="badge-outlined">Salary</span>
+                        <span th:if="${tx.paymentType != 'Fee' and tx.paymentType != 'Salary'}" class="badge-muted" th:text="${tx.paymentType}">Other</span>
+                    </td>
+                    <td>
+                        <span th:if="${tx.relatedId != null}">
+                            <span class="badge-muted" th:text="${tx.relatedRole} + ': ' + ${tx.relatedId}">Student: A001</span>
+                        </span>
+                        <span th:unless="${tx.relatedId != null}" class="text-muted">—</span>
+                    </td>
+                    <td th:text="${tx.sender}">Rohan Mehta</td>
+                    <td th:text="${tx.receiver}">School</td>
+                    <td>
+                        <span class="badge-outlined" th:text="${tx.paymentMode}">UPI</span>
+                    </td>
+                    <td style="text-align: right; font-weight: 700;"
+                        th:text="(${tx.paymentType == 'Fee' ? '+' : '-'}) + '₹' + ${tx.amount}">
+                        +₹20000.00
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(transactions)}">
+        <div th:replace="~{fragments/ui :: empty-state('💳', 'No Transactions Found', 'No financial transactions match your current search and filter selections.')}"></div>
+    </div>
 
     <!-- Pagination Controls -->
-    <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-        <div style="color: #666; font-size: 13px;">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3" th:if="${totalPages > 1}">
+        <div class="text-muted" style="font-size: 12px;">
             Showing page <strong th:text="${currentPage}">1</strong> of <strong th:text="${totalPages}">1</strong>
             (<span th:text="${totalCount}">0</span> total matching records)
         </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-            <a th:if="${currentPage > 1}"
-               th:href="@{/admin/transactions(type=${selectedType}, mode=${selectedMode}, startDate=${startDate}, endDate=${endDate}, search=${search}, page=${currentPage - 1})}"
-               style="padding: 5px 12px; border: 1px solid #ccc; background: #fff; color: #2563eb; text-decoration: none; border-radius: 4px;">&laquo; Previous</a>
-            <span th:unless="${currentPage > 1}"
-                  style="padding: 5px 12px; border: 1px solid #eee; background: #f9f9f9; color: #aaa; border-radius: 4px;">&laquo; Previous</span>
-
-            <span style="font-weight: bold; padding: 0 4px;" th:text="'Page ' + ${currentPage}">Page 1</span>
-
-            <a th:if="${currentPage < totalPages}"
-               th:href="@{/admin/transactions(type=${selectedType}, mode=${selectedMode}, startDate=${startDate}, endDate=${endDate}, search=${search}, page=${currentPage + 1})}"
-               style="padding: 5px 12px; border: 1px solid #ccc; background: #fff; color: #2563eb; text-decoration: none; border-radius: 4px;">Next &raquo;</a>
-            <span th:unless="${currentPage < totalPages}"
-                  style="padding: 5px 12px; border: 1px solid #eee; background: #f9f9f9; color: #aaa; border-radius: 4px;">Next &raquo;</span>
-        </div>
+        <ul class="pagination pagination-sm m-0">
+            <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/admin/transactions(type=${selectedType}, mode=${selectedMode}, startDate=${startDate}, endDate=${endDate}, search=${search}, page=${currentPage - 1})}">&laquo; Prev</a>
+            </li>
+            <li class="page-item active">
+                <span class="page-link" th:text="${currentPage}">1</span>
+            </li>
+            <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/admin/transactions(type=${selectedType}, mode=${selectedMode}, startDate=${startDate}, endDate=${endDate}, search=${search}, page=${currentPage + 1})}">Next &raquo;</a>
+            </li>
+        </ul>
     </div>
+</section>
 </body>
 </html>

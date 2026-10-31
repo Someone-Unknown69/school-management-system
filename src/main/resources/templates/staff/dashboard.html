@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Staff Dashboard', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/staff/dashboard">Staff</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Staff Dashboard</h1>
+            <p class="page-subtitle">
+                Welcome back, <strong th:text="${staff != null ? staff.fullName : loggedInUser}">Staff Member</strong>
+                (Employee ID: <code th:text="${staff != null ? staff.employeeId : loggedInUser}">S001</code>)
+                &nbsp;|&nbsp; Role: <span class="badge-filled" th:text="${staff != null ? staff.designatedRole : 'Staff'}">Staff</span>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/staff/salary" class="btn btn-secondary btn-sm">Salary Records</a>
+            <a href="/staff/profile" class="btn btn-primary btn-sm">My Profile</a>
+        </div>
+    </div>
+
+    <!-- Stat Cards Row -->
+    <div class="row g-3 mb-4">
+        <!-- Card 1: Role & Department -->
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label">Designated Role</div>
+                <div class="stat-value" th:text="${staff != null ? staff.designatedRole : 'Support Staff'}">Driver</div>
+                <div class="stat-sub">
+                    Joined: <strong th:text="${staff != null and staff.dateOfJoining != null ? staff.dateOfJoining : '-'}">2024-01-15</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Last Salary Disbursed -->
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label">Last Salary Payout</div>
+                <div th:if="${lastSalary != null}">
+                    <div class="stat-value" th:text="'₹ ' + ${#numbers.formatDecimal(lastSalary.amount, 0, 'COMMA', 2, 'POINT')}">₹ 0.00</div>
+                    <div class="stat-sub">
+                        Paid on <span th:text="${lastSalary.dateOfPayment}">2026-10-01</span> via <strong th:text="${lastSalary.paymentMode}">UPI</strong>
+                    </div>
+                </div>
+                <div th:unless="${lastSalary != null}">
+                    <div class="stat-value" style="font-size: 18px; line-height: 1.4;">No Payouts Yet</div>
+                    <div class="stat-sub">Base: ₹ <span th:text="${staff != null ? #numbers.formatDecimal(staff.salary, 0, 'COMMA', 2, 'POINT') : '0.00'}">0.00</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Driver Bus Summary OR General Staff Metric -->
+        <div class="col-md-4">
+            <div class="stat-card" th:if="${isDriver}">
+                <div class="stat-label">Assigned Vehicle</div>
+                <div th:if="${vehicle != null}">
+                    <div class="stat-value" th:text="${vehicle.registrationNumber}">UP65AB1234</div>
+                    <div class="stat-sub">
+                        <strong th:text="${busStudentCount}">0</strong> / <span th:text="${vehicle.capacity}">40</span> Passengers Onboard
+                    </div>
+                </div>
+                <div th:unless="${vehicle != null}">
+                    <div class="stat-value" style="font-size: 18px; line-height: 1.4;">Unassigned</div>
+                    <div class="stat-sub">No bus registered to your driver ID</div>
+                </div>
+            </div>
+
+            <div class="stat-card" th:unless="${isDriver}">
+                <div class="stat-label">Salary History</div>
+                <div class="stat-value" th:text="${totalSalaryPayments} + ' Disbursements'">0 Disbursements</div>
+                <div class="stat-sub">
+                    Total Received: <strong>₹ <span th:text="${#numbers.formatDecimal(totalSalaryReceived, 0, 'COMMA', 2, 'POINT')}">0.00</span></strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Summary Section -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Employee Profile Summary</span>
+            <a href="/staff/profile" class="text-decoration-none fw-bold" style="font-size: 12px; color: var(--c-black);">Full Details &rarr;</a>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-sm-6 col-md-3">
+                    <div class="text-muted small text-uppercase fw-bold">Employee ID</div>
+                    <div class="fw-bold fs-6"><code th:text="${staff != null ? staff.employeeId : '-'}">S001</code></div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="text-muted small text-uppercase fw-bold">Full Name</div>
+                    <div class="fw-bold fs-6" th:text="${staff != null ? staff.fullName : '-'}">Ramesh Kumar</div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="text-muted small text-uppercase fw-bold">Contact Number</div>
+                    <div class="fw-bold fs-6" th:text="${staff != null and staff.contactNumber != null ? staff.contactNumber : 'Not Provided'}">+91-9876543210</div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="text-muted small text-uppercase fw-bold">Monthly Base Salary</div>
+                    <div class="fw-bold fs-6" th:text="${staff != null ? '₹ ' + #numbers.formatDecimal(staff.salary, 0, 'COMMA', 2, 'POINT') : '-'}">₹ 22,000.00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Last Salary Details Box -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Last Salary Disbursement</span>
+            <a href="/staff/salary" class="text-decoration-none fw-bold" style="font-size: 12px; color: var(--c-black);">View All Salary Records &rarr;</a>
+        </div>
+        <div class="card-body">
+            <div th:if="${lastSalary != null}">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex flex-wrap gap-3 align-items-center mb-2">
+                            <span class="h4 fw-bold mb-0" th:text="'₹ ' + ${#numbers.formatDecimal(lastSalary.amount, 0, 'COMMA', 2, 'POINT')}">₹ 22,000.00</span>
+                            <span class="badge-filled">PAID</span>
+                            <span class="badge-outlined" th:text="${lastSalary.paymentMode}">UPI</span>
+                        </div>
+                        <p class="text-muted small mb-0">
+                            Transaction Reference: <code th:text="${lastSalary.transactionId}">TXN-001</code> &nbsp;|&nbsp;
+                            Disbursement Date: <strong th:text="${lastSalary.dateOfPayment}">2026-10-01</strong>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <a th:href="@{'/staff/salary/slip/' + ${lastSalary.transactionId}}"
+                           class="btn btn-secondary btn-sm">Print / View Salary Slip</a>
+                    </div>
+                </div>
+            </div>
+            <div th:unless="${lastSalary != null}">
+                <p class="text-muted mb-0">No salary payment records found for this employee.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bus Summary (Drivers Only) -->
+    <div th:if="${isDriver}" class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Driver Bus Operations Summary</span>
+            <span class="badge-filled">Fleet Duty</span>
+        </div>
+        <div class="card-body">
+            <div th:if="${vehicle != null}">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="h5 fw-bold mb-1" th:text="'Vehicle Registration: ' + ${vehicle.registrationNumber}">UP65AB1234</h3>
+                        <p class="text-muted small mb-2">
+                            Assigned Route: <strong th:text="${vehicle.routeName}">Route A - Sigra &amp; Cantt</strong> &nbsp;|&nbsp;
+                            Vehicle ID: <code th:text="${vehicle.vehicleId}">V01</code>
+                        </p>
+                        <div class="small mb-1">
+                            Seating Capacity: <strong th:text="${vehicle.capacity}">40</strong> seats &nbsp;|&nbsp;
+                            Assigned Students: <strong th:text="${busStudentCount}">30</strong> learners
+                            (<span th:text="${vehicle.capacity > 0 ? (busStudentCount * 100 / vehicle.capacity) : 0} + '%'">75%</span> capacity utilization)
+                        </div>
+                        <div class="progress-bw" style="max-width: 380px;">
+                            <div class="progress-bw-bar"
+                                 th:style="'width: ' + (${vehicle.capacity > 0 ? (busStudentCount * 100 / vehicle.capacity) : 0}) + '%'"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <a href="/staff/transport" class="btn btn-primary btn-sm">Bus Passenger Roster &rarr;</a>
+                    </div>
+                </div>
+            </div>
+            <div th:unless="${vehicle != null}">
+                <p class="text-muted mb-0">No school bus or van currently assigned to your driver ID.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+        <div class="card-header">
+            <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Quick Actions</span>
+        </div>
+        <div class="card-body">
+            <div class="dashboard-actions-grid">
+                <a href="/staff/profile" class="action-tile">
+                    <div class="action-tile-title">Staff Profile</div>
+                    <div class="action-tile-sub">Employment details</div>
+                </a>
+                <a href="/staff/salary" class="action-tile">
+                    <div class="action-tile-title">Salary Records</div>
+                    <div class="action-tile-sub">Slips &amp; monthly disbursements</div>
+                </a>
+                <a th:if="${isDriver}" href="/staff/transport" class="action-tile">
+                    <div class="action-tile-title">Passenger List</div>
+                    <div class="action-tile-sub">Bus students &amp; guardians</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</section>
+</body>
+</html>
+

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Teacher Dashboard', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/teacher/dashboard">Teacher</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Teacher Dashboard</h1>
+            <p class="page-subtitle">
+                Welcome back, <strong th:text="${teacher != null ? teacher.fullName : loggedInUser}">Teacher</strong>
+                (Employee ID: <code th:text="${teacher != null ? teacher.employeeId : loggedInUser}">T001</code>)
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/teacher/schedule" class="btn btn-secondary btn-sm">Full Schedule</a>
+            <a href="/teacher/profile" class="btn btn-primary btn-sm">My Profile</a>
+        </div>
+    </div>
+
+    <!-- Stat Cards Row -->
+    <div class="row g-3 mb-4">
+        <!-- Card 1: Today's Date & Duty -->
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label">Active Schedule</div>
+                <div class="stat-value" th:text="${todayDay}">Monday</div>
+                <div class="stat-sub">
+                    <span th:text="${#lists.size(schedule)}">0</span> assigned course period(s)
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Class Teacher Role -->
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label">Class Teacher Duty</div>
+                <div th:if="${classTeacherSection != null}">
+                    <div class="stat-value" th:text="'Class ' + ${classTeacherSection.standard} + '-' + ${classTeacherSection.division}">10-A</div>
+                    <div class="stat-sub">
+                        <span th:text="${classTeacherSection.roomNo}">Room-101</span> ·
+                        <span th:text="${classTeacherSection.studentCount}">30</span> Students
+                    </div>
+                </div>
+                <div th:unless="${classTeacherSection != null}">
+                    <div class="stat-value" style="font-size: 18px; line-height: 1.4;">Unassigned</div>
+                    <div class="stat-sub">No section mentoring role assigned</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Total Students Taught -->
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label">Students Taught</div>
+                <div class="stat-value" th:text="${totalStudentsTaught}">0</div>
+                <div class="stat-sub">Distinct learners across all assigned sections</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teaching Schedule / Assigned Classes -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Today's Classes &amp; Course Schedule</span>
+            <span class="badge-outlined" th:text="${todayDay} + ', ' + ${todayDate}">Date</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive m-0 border-0">
+                <table class="table mb-0">
+                    <thead>
+                    <tr>
+                        <th>Class &amp; Division</th>
+                        <th>Subject Code</th>
+                        <th>Subject Name</th>
+                        <th>Room Number</th>
+                        <th class="text-center">Enrolled Students</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(schedule)}">
+                        <td colspan="6" class="text-center text-muted py-4">No scheduled classes found for this teacher.</td>
+                    </tr>
+                    <tr th:each="item : ${schedule}">
+                        <td>
+                            <strong th:text="'Class ' + ${item.standard} + ' - ' + ${item.division}">Class 10-A</strong>
+                        </td>
+                        <td><code th:text="${item.subjectCode}">MATH10</code></td>
+                        <td th:text="${item.subjectName}">Mathematics</td>
+                        <td th:text="${item.roomNo}">Room-101</td>
+                        <td class="text-center">
+                            <span class="badge-filled" th:text="${item.enrolledCount} + ' Students'">30 Students</span>
+                        </td>
+                        <td class="text-center">
+                            <a th:href="@{/teacher/course-students(code=${item.subjectCode}, standard=${item.standard}, division=${item.division})}"
+                               class="btn btn-secondary btn-sm py-0 px-2" style="font-size: 11px;">View Class Roster</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Teacher Section Box (if assigned) -->
+    <div th:if="${classTeacherSection != null}" class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Assigned Class Teacher Section</span>
+            <span class="badge-filled">Class Mentor</span>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <p class="mb-1">
+                        You are appointed as the <strong>Class Teacher</strong> for
+                        <strong>Class <span th:text="${classTeacherSection.standard}">10</span> - Division <span th:text="${classTeacherSection.division}">A</span></strong>.
+                    </p>
+                    <p class="text-muted small mb-0">
+                        Designated Classroom: <strong th:text="${classTeacherSection.roomNo}">Room-101</strong> &nbsp;|&nbsp;
+                        Enrolled Strength: <strong th:text="${classTeacherSection.studentCount}">30</strong> learners.
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="/teacher/students" class="btn btn-primary btn-sm">Section Student Directory &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Action Links -->
+    <div class="card">
+        <div class="card-header">
+            <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Quick Navigation</span>
+        </div>
+        <div class="card-body">
+            <div class="dashboard-actions-grid">
+                <a href="/teacher/schedule" class="action-tile">
+                    <div class="action-tile-title">Teaching Schedule</div>
+                    <div class="action-tile-sub">Full timetable view</div>
+                </a>
+                <a href="/teacher/students" class="action-tile">
+                    <div class="action-tile-title">Class Directory</div>
+                    <div class="action-tile-sub">Student records &amp; contacts</div>
+                </a>
+                <a href="/teacher/salary" class="action-tile">
+                    <div class="action-tile-title">Salary History</div>
+                    <div class="action-tile-sub">Monthly disbursements &amp; slips</div>
+                </a>
+                <a href="/teacher/profile" class="action-tile">
+                    <div class="action-tile-title">Personal Profile</div>
+                    <div class="action-tile-sub">Qualifications &amp; details</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</section>
+</body>
+</html>
+

@@ -1,72 +1,99 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title th:text="${mode == 'create'} ? 'Admin — Add Vehicle' : 'Admin — Edit Vehicle'">Admin — Vehicle Form</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${mode == 'create' ? 'Add Vehicle' : 'Edit Vehicle — ' + vehicle.vehicleId}, ~{::section})}">
+<head><title>Vehicle Form</title></head>
 <body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/admin/students">Manage Students</a>
-        <a href="/admin/faculty">Manage Faculty &amp; Staff</a>
-        <a href="/admin/transactions">Transactions</a>
-        <a href="/admin/transport"><strong>Transport</strong></a>
-        <a href="/logout">Logout (<span th:text="${loggedInUser}">admin</span>)</a>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/transport">Transport Fleet</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${mode == 'create' ? 'Add Vehicle' : 'Edit ' + vehicle.vehicleId}">Vehicle Form</li>
+        </ol>
     </nav>
 
-    <h1 th:text="${mode == 'create'} ? 'Add New School Vehicle' : 'Edit Vehicle: ' + ${vehicle.vehicleId}">Vehicle Form</h1>
-    <p>Configure school bus vehicle registration, designated route, capacity, and driver assignment.</p>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title" th:text="${mode == 'create' ? 'Add New School Vehicle' : 'Edit Fleet Vehicle: ' + vehicle.vehicleId}">Vehicle Form</h1>
+            <p class="page-subtitle">Configure vehicle registration, passenger capacity, route details, and assigned driver.</p>
+        </div>
+        <div>
+            <a href="/admin/transport" class="btn btn-bw-outline btn-sm">&larr; Back to Fleet</a>
+        </div>
+    </div>
 
-    <form th:action="${mode == 'create' ? '/admin/transport/vehicle/new' : '/admin/transport/vehicle/edit/' + vehicle.vehicleId}" method="post" style="max-width: 550px;">
-        <table style="border: none;">
-            <tr>
-                <td style="border: none; width: 180px;"><label for="vehicleId"><strong>Vehicle ID:</strong></label></td>
-                <td style="border: none;">
-                    <input type="text" id="vehicleId" name="vehicleId" th:value="${vehicle.vehicleId}" 
-                           th:readonly="${mode == 'edit'}" required placeholder="e.g. V09" style="width: 100%;">
-                </td>
-            </tr>
-            <tr>
-                <td style="border: none;"><label for="registrationNumber"><strong>Registration Number:</strong></label></td>
-                <td style="border: none;">
-                    <input type="text" id="registrationNumber" name="registrationNumber" th:value="${vehicle.registrationNumber}" 
-                           required placeholder="e.g. UP65XY1234" style="width: 100%;">
-                </td>
-            </tr>
-            <tr>
-                <td style="border: none;"><label for="routeName"><strong>Route Name:</strong></label></td>
-                <td style="border: none;">
-                    <input type="text" id="routeName" name="routeName" th:value="${vehicle.routeName}" 
-                           required placeholder="e.g. Route I - Manduadih &amp; Lahartara" style="width: 100%;">
-                </td>
-            </tr>
-            <tr>
-                <td style="border: none;"><label for="capacity"><strong>Seating Capacity:</strong></label></td>
-                <td style="border: none;">
-                    <input type="number" id="capacity" name="capacity" th:value="${vehicle.capacity}" 
-                           required min="1" max="100" style="width: 100%;">
-                </td>
-            </tr>
-            <tr>
-                <td style="border: none;"><label for="driverId"><strong>Assigned Driver:</strong></label></td>
-                <td style="border: none;">
-                    <select id="driverId" name="driverId" style="width: 100%;">
-                        <option value="">-- No Driver Assigned --</option>
-                        <option th:each="d : ${drivers}"
-                                th:value="${d.employeeId}"
-                                th:text="${d.firstName} + ' ' + (${d.lastName != null} ? ${d.lastName} : '') + ' (' + ${d.employeeId} + ')'"
-                                th:selected="${d.employeeId == vehicle.driverId}"></option>
-                    </select>
-                </td>
-            </tr>
-        </table>
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
 
-        <div style="margin-top: 20px;">
-            <button type="submit" class="btn" style="background: #2563eb; color: white; border: none; border-radius: 4px;" 
-                    th:text="${mode == 'create'} ? 'Create Vehicle' : 'Save Changes'">Save Vehicle</button>
-            <a href="/admin/transport" style="margin-left: 15px; color: #555; text-decoration: none;">Cancel</a>
+    <form th:action="${mode == 'create' ? '/admin/transport/vehicle/new' : '/admin/transport/vehicle/edit/' + vehicle.vehicleId}"
+          method="post" class="needs-validation">
+
+        <div class="card mb-4" style="max-width: 700px;">
+            <div class="card-header">Vehicle &amp; Route Configuration</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Vehicle ID -->
+                    <div class="col-md-6">
+                        <label for="vehicleId" class="form-label">Vehicle ID <span class="text-danger">*</span></label>
+                        <input type="text" id="vehicleId" name="vehicleId"
+                               th:value="${vehicle.vehicleId}"
+                               th:readonly="${mode == 'edit'}"
+                               class="form-control"
+                               placeholder="e.g. V09" required>
+                        <div class="form-text" th:if="${mode == 'edit'}">Vehicle identifier cannot be changed.</div>
+                    </div>
+
+                    <!-- Registration Number -->
+                    <div class="col-md-6">
+                        <label for="registrationNumber" class="form-label">Registration Number <span class="text-danger">*</span></label>
+                        <input type="text" id="registrationNumber" name="registrationNumber"
+                               th:value="${vehicle.registrationNumber}"
+                               class="form-control"
+                               placeholder="e.g. UP65XY1234" required>
+                        <div class="form-text">Official transport department plate number.</div>
+                    </div>
+
+                    <!-- Route Name -->
+                    <div class="col-12">
+                        <label for="routeName" class="form-label">Designated Bus Route <span class="text-danger">*</span></label>
+                        <input type="text" id="routeName" name="routeName"
+                               th:value="${vehicle.routeName}"
+                               class="form-control"
+                               placeholder="e.g. Route I - Manduadih &amp; Lahartara" required>
+                    </div>
+
+                    <!-- Seating Capacity -->
+                    <div class="col-md-6">
+                        <label for="capacity" class="form-label">Passenger Seating Capacity <span class="text-danger">*</span></label>
+                        <input type="number" id="capacity" name="capacity"
+                               th:value="${vehicle.capacity}"
+                               class="form-control" min="1" max="100" required>
+                    </div>
+
+                    <!-- Driver Assignment -->
+                    <div class="col-md-6">
+                        <label for="driverId" class="form-label">Assigned Driver</label>
+                        <select id="driverId" name="driverId" class="form-select">
+                            <option value="">-- No Driver Assigned --</option>
+                            <option th:each="d : ${drivers}"
+                                    th:value="${d.employeeId}"
+                                    th:text="${d.firstName} + ' ' + (${d.lastName != null} ? ${d.lastName} : '') + ' (' + ${d.employeeId} + ')'"
+                                    th:selected="${d.employeeId == vehicle.driverId}"></option>
+                        </select>
+                        <div class="form-text">Selected staff member will gain access to this bus roster.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-bw" th:text="${mode == 'create' ? 'Create Vehicle' : 'Save Changes'}">Save Vehicle</button>
+            <a href="/admin/transport" class="btn btn-bw-outline">Cancel</a>
         </div>
     </form>
+</section>
 </body>
 </html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Disburse Salary', ~{::section})}">
+<head><title>Disburse Salary</title></head>
+<body>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Disburse Salary</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Disburse Salary</h1>
+            <p class="page-subtitle">Process individual monthly payroll disbursements or disburse compensation in bulk.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-bw btn-sm" data-bs-toggle="modal" data-bs-target="#bulkPayModal">
+                Bulk Pay All for Month
+            </button>
+            <a href="/admin/transactions?type=Salary" class="btn btn-bw-outline btn-sm">Salary Ledger</a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- 1. Selection & Filter Card -->
+    <div class="card mb-4">
+        <div class="card-header">1. Select Employee &amp; Pay Period</div>
+        <div class="card-body">
+            <!-- Employee Type Tabs -->
+            <div class="d-flex gap-2 mb-3">
+                <a th:href="@{/admin/salary/pay(employeeType='Teacher', month=${selectedMonth}, year=${selectedYear})}"
+                   class="btn btn-sm"
+                   th:classappend="${employeeType == 'Teacher'} ? 'btn-bw' : 'btn-bw-outline'">
+                    Teachers (Faculty)
+                </a>
+                <a th:href="@{/admin/salary/pay(employeeType='Staff', month=${selectedMonth}, year=${selectedYear})}"
+                   class="btn btn-sm"
+                   th:classappend="${employeeType == 'Staff'} ? 'btn-bw' : 'btn-bw-outline'">
+                    Support Staff
+                </a>
+            </div>
+
+            <form method="get" action="/admin/salary/pay" class="row g-3 align-items-end">
+                <input type="hidden" name="employeeType" th:value="${employeeType}">
+
+                <!-- Employee Dropdown -->
+                <div class="col-md-5">
+                    <label for="employeeSelect" class="form-label" th:text="${employeeType == 'Teacher'} ? 'Select Teacher' : 'Select Staff Member'">Select Employee</label>
+                    <select id="employeeSelect" name="employeeId" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Choose an employee --</option>
+                        <th:block th:if="${employeeType == 'Teacher'}">
+                            <option th:each="t : ${teachers}"
+                                    th:value="${t.employeeId}"
+                                    th:text="${t.employeeId} + ' — ' + ${t.fullName} + ' (₹' + ${t.salary} + ')'"
+                                    th:selected="${employeeId == t.employeeId}"></option>
+                        </th:block>
+                        <th:block th:if="${employeeType == 'Staff'}">
+                            <option th:each="s : ${staffList}"
+                                    th:value="${s.employeeId}"
+                                    th:text="${s.employeeId} + ' — ' + ${s.fullName} + ' (' + ${s.designatedRole} + ' | ₹' + ${s.salary} + ')'"
+                                    th:selected="${employeeId == s.employeeId}"></option>
+                        </th:block>
+                    </select>
+                </div>
+
+                <!-- Month Selector -->
+                <div class="col-md-3">
+                    <label for="monthSelect" class="form-label">Salary Month</label>
+                    <select id="monthSelect" name="month" class="form-select" onchange="this.form.submit()">
+                        <option th:each="m : ${months}"
+                                th:value="${m.value}"
+                                th:text="${m.name}"
+                                th:selected="${m.value == selectedMonth}"></option>
+                    </select>
+                </div>
+
+                <!-- Year Selector -->
+                <div class="col-md-2">
+                    <label for="yearSelect" class="form-label">Salary Year</label>
+                    <select id="yearSelect" name="year" class="form-select" onchange="this.form.submit()">
+                        <option th:each="y : ${years}"
+                                th:value="${y}"
+                                th:text="${y}"
+                                th:selected="${y == selectedYear}"></option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-bw w-100">Load Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Selected Employee Verification Card -->
+    <div class="card mb-4" th:if="${selectedEmployee != null}">
+        <div class="card-header">2. Employee Verification &amp; Eligibility</div>
+        <div class="card-body p-0">
+            <table class="kv-table">
+                <tr>
+                    <td class="kv-label">Employee ID</td>
+                    <td><strong th:text="${employeeId}">T001</strong></td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Full Name</td>
+                    <td><strong th:text="${employeeName}">Anita Verma</strong></td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Designation / Role</td>
+                    <td>
+                        <span class="badge-outlined"
+                              th:text="${employeeType == 'Teacher'} ? 'Teacher' : ${selectedEmployee.designatedRole}">Teacher</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Contracted Monthly Salary</td>
+                    <td>
+                        <span class="stat-value" style="font-size: 20px;"
+                              th:text="'₹' + ${#numbers.formatDecimal(defaultSalary, 1, 2)}">₹52000.00</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Target Pay Period</td>
+                    <td>
+                        <strong th:text="${monthName} + ' ' + ${selectedYear}">October 2026</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Payment Status</td>
+                    <td>
+                        <div th:if="${isAlreadyPaid}" class="p-2" style="background: #f5f5f5; border: 1px solid #000; font-weight: 600;">
+                            ⚠️ DUPLICATE PAYMENT DETECTED: Salary for <span th:text="${employeeName}">Employee</span> has ALREADY been disbursed for <span th:text="${monthName} + ' ' + ${selectedYear}">October 2026</span>.
+                        </div>
+                        <div th:if="${!isAlreadyPaid}" class="p-2" style="background: #ffffff; border: 1px solid #000;">
+                            ✓ ELIGIBLE: No prior salary disbursement recorded for <span th:text="${monthName} + ' ' + ${selectedYear}">October 2026</span>.
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. Payment Details Entry Card -->
+    <div class="card mb-4" th:if="${selectedEmployee != null}">
+        <div class="card-header">3. Enter Disbursement Details</div>
+        <div class="card-body">
+            <div th:if="${isAlreadyPaid}" class="mb-3">
+                <p class="text-muted mb-0">Disbursement for this period is disabled because this employee has already been paid for <span th:text="${monthName} + ' ' + ${selectedYear}">this period</span>. To review previous transactions, visit the <a href="/admin/transactions?type=Salary">Salary Ledger</a>.</p>
+            </div>
+
+            <form method="post" action="/admin/salary/pay" th:if="${!isAlreadyPaid}">
+                <input type="hidden" name="employeeType" th:value="${employeeType}">
+                <input type="hidden" name="employeeId" th:value="${employeeId}">
+                <input type="hidden" name="month" th:value="${selectedMonth}">
+                <input type="hidden" name="year" th:value="${selectedYear}">
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="disburseAmount" class="form-label">Disbursement Amount (₹) <span style="font-weight: 400; color: #666;">*</span></label>
+                        <input type="number" step="0.01" min="1"
+                               id="disburseAmount" name="amount"
+                               th:value="${defaultSalary}"
+                               class="form-control" required>
+                        <div class="form-text" style="font-size: 11px; color: #666;">Pre-filled from employee's monthly contracted salary.</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="paymentMode" class="form-label">Payment Mode <span style="font-weight: 400; color: #666;">*</span></label>
+                        <select id="paymentMode" name="paymentMode" class="form-select" required>
+                            <option th:each="mode : ${paymentModes}"
+                                    th:value="${mode}"
+                                    th:text="${mode}"
+                                    th:selected="${mode == 'Bank Transfer'}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="paymentDate" class="form-label">Disbursement Date <span style="font-weight: 400; color: #666;">*</span></label>
+                        <input type="date" id="paymentDate" name="paymentDate"
+                               th:value="${paymentDate}"
+                               class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-bw">
+                        Disburse Salary &rarr;
+                    </button>
+                    <a th:href="@{/admin/salary/pay(employeeType=${employeeType})}" class="btn btn-bw-outline">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Empty State if no employee selected -->
+    <div th:if="${selectedEmployee == null}">
+        <div th:replace="~{fragments/ui :: empty-state('💼', 'No Employee Selected', 'Choose a teacher or support staff member above to review salary details and record disbursement.')}"></div>
+    </div>
+
+    <!-- ── BULK PAY CONFIRMATION MODAL ── -->
+    <div class="modal fade" id="bulkPayModal" tabindex="-1" aria-labelledby="bulkPayModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border: 2px solid #000; border-radius: 0;">
+                <form method="post" action="/admin/salary/bulk-pay">
+                    <div class="modal-header" style="border-bottom: 1px solid #000; background: #f5f5f5;">
+                        <h5 class="modal-title" id="bulkPayModalLabel" style="font-size: 16px; font-weight: 700;">Bulk Monthly Salary Disbursement</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="font-size: 13px;">This operation will disburse salary in <strong>ONE database transaction</strong> to all eligible employees who have not yet received payment for the chosen month.</p>
+
+                        <div class="mb-3">
+                            <label for="bulkTargetGroup" class="form-label">Target Group</label>
+                            <select id="bulkTargetGroup" name="targetGroup" class="form-select" required>
+                                <option value="all">All Employees (Teachers + Staff)</option>
+                                <option value="teachers">Teachers Only</option>
+                                <option value="staff">Support Staff Only</option>
+                            </select>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-7">
+                                <label for="bulkMonth" class="form-label">Month</label>
+                                <select id="bulkMonth" name="month" class="form-select" required>
+                                    <option th:each="m : ${months}"
+                                            th:value="${m.value}"
+                                            th:text="${m.name}"
+                                            th:selected="${m.value == selectedMonth}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="bulkYear" class="form-label">Year</label>
+                                <select id="bulkYear" name="year" class="form-select" required>
+                                    <option th:each="y : ${years}"
+                                            th:value="${y}"
+                                            th:text="${y}"
+                                            th:selected="${y == selectedYear}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label for="bulkPaymentMode" class="form-label">Payment Mode</label>
+                                <select id="bulkPaymentMode" name="paymentMode" class="form-select" required>
+                                    <option th:each="mode : ${paymentModes}"
+                                            th:value="${mode}"
+                                            th:text="${mode}"
+                                            th:selected="${mode == 'Bank Transfer'}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="bulkPaymentDate" class="form-label">Disbursement Date</label>
+                                <input type="date" id="bulkPaymentDate" name="paymentDate"
+                                       th:value="${paymentDate}"
+                                       class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="p-2" style="background: #f5f5f5; border: 1px solid #000; font-size: 12px;">
+                            <strong>Safety Guarantee:</strong> Any employee who has already received their salary for this month will be safely skipped. No duplicate disbursements will occur.
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid #000;">
+                        <button type="button" class="btn btn-bw-outline btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-bw btn-sm">Confirm &amp; Disburse All</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
+

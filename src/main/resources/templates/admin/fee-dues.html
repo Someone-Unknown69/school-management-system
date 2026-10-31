@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Fee Dues', ~{::section})}">
+<head><title>Fee Dues</title></head>
+<body>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/fees/dues">Fee Management</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Fee Dues</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Outstanding Fee Dues</h1>
+            <p class="page-subtitle">Track students with pending tuition balances, filter by standard/division, and collect payments.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/admin/fees/record" class="btn btn-bw btn-sm">+ Record Fee Payment</a>
+            <a href="/admin/transactions?type=Fee" class="btn btn-bw-outline btn-sm">Fee Transactions Ledger &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- Top KPI Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header">Filtered Dues Total</div>
+                <div class="card-body">
+                    <div class="stat-value" th:text="'₹' + ${#numbers.formatDecimal(totalOutstanding, 1, 2)}">₹0.00</div>
+                    <div class="text-muted mt-1" style="font-size: 12px;">Total unpaid dues in current filtered view</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header">Students with Dues</div>
+                <div class="card-body">
+                    <div class="stat-value" th:text="${dueStudentsCount}">0</div>
+                    <div class="text-muted mt-1" style="font-size: 12px;">Number of students with pending balances</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header">Total School Outstanding</div>
+                <div class="card-body">
+                    <div class="stat-value" th:text="'₹' + ${#numbers.formatDecimal(totalSchoolDues, 1, 2)}">₹0.00</div>
+                    <div class="text-muted mt-1" style="font-size: 12px;">School-wide aggregate unpaid tuition dues</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <form method="get" action="/admin/fees/dues" class="row g-2 align-items-end">
+            <!-- Standard -->
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label">Class (Standard)</label>
+                <select name="standard" class="form-select form-select-sm">
+                    <option value="">All Classes</option>
+                    <option th:each="cls : ${availableClasses}"
+                            th:value="${cls}"
+                            th:text="'Class ' + ${cls}"
+                            th:selected="${cls == selectedStandard}"></option>
+                </select>
+            </div>
+
+            <!-- Division -->
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label">Section (Division)</label>
+                <select name="division" class="form-select form-select-sm">
+                    <option value="">All Sections</option>
+                    <option th:each="d : ${availableDivisions}"
+                            th:value="${d}"
+                            th:text="'Section ' + ${d}"
+                            th:selected="${d == selectedDivision}"></option>
+                </select>
+            </div>
+
+            <!-- Search -->
+            <div class="col-sm-12 col-md-4">
+                <label class="form-label">Search Student</label>
+                <input type="text" name="search" th:value="${search}" class="form-control form-control-sm"
+                       placeholder="Admission No or Student Name...">
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-auto">
+                <button type="submit" class="btn btn-bw btn-sm">Filter</button>
+            </div>
+            <div class="col-auto" th:if="${selectedStandard != '' or selectedDivision != '' or search != ''}">
+                <a href="/admin/fees/dues" class="btn btn-bw-outline btn-sm">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Students Dues Table -->
+    <div class="table-responsive" th:if="${!#lists.isEmpty(students)}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Admission No</th>
+                    <th>Student Name</th>
+                    <th style="width: 110px;">Class</th>
+                    <th style="width: 80px;">Roll No</th>
+                    <th>House</th>
+                    <th>Contact Phone</th>
+                    <th style="text-align: right; width: 150px;">Outstanding Dues</th>
+                    <th style="text-align: center; width: 140px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="s : ${students}">
+                    <td><strong th:text="${s.admissionNo}">A001</strong></td>
+                    <td>
+                        <span th:text="${s.fullName}">Student Name</span>
+                    </td>
+                    <td>
+                        <span th:text="'Class ' + ${s.standard} + '-' + ${s.division}">10-A</span>
+                    </td>
+                    <td th:text="${s.rollNo}">1</td>
+                    <td>
+                        <span class="badge-outlined" th:text="${s.house}">Red</span>
+                    </td>
+                    <td th:text="${s.contactNumber != null and s.contactNumber != '' ? s.contactNumber : '—'}">9876543210</td>
+                    <td style="text-align: right; font-weight: 700;">
+                        <span th:text="'₹' + ${#numbers.formatDecimal(s.remainingFees, 1, 2)}">₹5000.00</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <a th:href="@{/admin/fees/record(admissionNo=${s.admissionNo})}" class="btn btn-bw btn-sm">Collect Fee &rarr;</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(students)}">
+        <div th:replace="~{fragments/ui :: empty-state('🎉', 'No Outstanding Dues Found', 'All students matching the selected filter criteria have completely cleared their fees.')}"></div>
+    </div>
+</section>
+</body>
+</html>

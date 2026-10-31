@@ -1,60 +1,68 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title th:text="${directoryTitle}">Student Directory</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${directoryTitle}, ~{::section})}">
+<head><title>Student Directory</title></head>
 <body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/students">Student Directory</a>
-        <!-- When logged in -->
-        <span th:if="${isLoggedIn}">
-            <span th:if="${loggedInRole == 'student'}">
-                <a href="/student/profile">My Profile</a>
-                <a href="/student/subjects">My Subjects</a>
-                <a href="/student/fees">My Fees</a>
-            </span>
-            <a th:if="${loggedInRole == 'teacher'}" href="/teacher/profile">My Profile</a>
-            <a th:if="${loggedInRole == 'staff'}" href="/staff/profile">My Profile</a>
-            <a th:if="${loggedInRole == 'admin'}" href="/admin/students">Admin Portal</a>
-            <a href="/logout">Logout (<span th:text="${loggedInUser}">User</span>)</a>
-        </span>
-        <!-- When not logged in -->
-        <span th:unless="${isLoggedIn}">
-            <a href="/login">Login</a>
-        </span>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${directoryTitle}">Student Directory</li>
+        </ol>
     </nav>
 
-    <h1 th:text="${directoryTitle}">Student Directory</h1>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Roll No</th>
-                <th>Admission No</th>
-                <th>Name</th>
-                <th>Class</th>
-                <th>Section</th>
-                <th>House</th>
-                <th th:if="${loggedInRole != 'student'}">Remaining Fees</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="s : ${studentList}">
-                <td th:text="${s.rollNo}">1</td>
-                <td th:text="${s.admissionNo}">A001</td>
-                <td th:text="${s.firstName} + (${s.lastName != null} ? ' ' + ${s.lastName} : '')">John Doe</td>
-                <td th:text="${s.standard}">10</td>
-                <td th:text="${s.division}">A</td>
-                <td th:text="${s.house}">Red</td>
-                <td th:if="${loggedInRole != 'student'}" th:text="'₹' + ${s.remainingFees}">0.0</td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(studentList)}">
-                <td colspan="6" style="text-align: center; color: #666;">No students found in this class and section.</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title" th:text="${directoryTitle}">Student Directory</h1>
+            <p class="page-subtitle">Roster of students enrolled in this division.</p>
+        </div>
+        <div>
+            <span class="badge-outlined" th:text="${#lists.size(studentList)} + ' Students'">0 Students</span>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- Responsive Table -->
+    <div class="table-responsive" th:if="${!#lists.isEmpty(studentList)}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Roll No</th>
+                    <th style="width: 140px;">Admission No</th>
+                    <th>Full Name</th>
+                    <th style="width: 100px;">Class</th>
+                    <th style="width: 100px;">Section</th>
+                    <th style="width: 120px;">House</th>
+                    <th th:if="${loggedInRole != 'student'}" style="width: 140px; text-align: right;">Remaining Fees</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="s : ${studentList}">
+                    <td th:text="${s.rollNo}">1</td>
+                    <td><strong th:text="${s.admissionNo}">A001</strong></td>
+                    <td th:text="${s.firstName} + (${s.lastName != null} ? ' ' + ${s.lastName} : '')">John Doe</td>
+                    <td th:text="${s.standard}">10</td>
+                    <td th:text="${s.division}">A</td>
+                    <td>
+                        <span class="badge-outlined" th:text="${s.house}">Red</span>
+                    </td>
+                    <td th:if="${loggedInRole != 'student'}" style="text-align: right;">
+                        <span th:if="${s.remainingFees > 0}" class="badge-outlined" th:text="'₹' + ${s.remainingFees}">₹5000</span>
+                        <span th:unless="${s.remainingFees > 0}" class="badge-filled">Paid</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(studentList)}">
+        <div th:replace="~{fragments/ui :: empty-state('👤', 'No Students Found', 'There are currently no students listed for this class and division.')}"></div>
+    </div>
+</section>
 </body>
 </html>

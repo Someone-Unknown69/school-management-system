@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout((${mode} == 'edit' ? 'Edit Subject — ' + ${subject.subjectCode} : 'New Subject'), ~{::section})}">
+<head><title th:text="${mode} == 'edit' ? 'Edit Subject' : 'New Subject'">Subject Form</title></head>
+<body>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/subjects">Subjects</a></li>
+            <li class="breadcrumb-item active" aria-current="page"
+                th:text="${mode} == 'edit' ? 'Edit Subject (' + ${subject.subjectCode} + ')' : 'New Subject'">Subject Form</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title" th:text="${mode} == 'edit' ? 'Edit Subject — ' + ${subject.subjectCode} : 'Create New Subject'">Subject Form</h1>
+            <p class="page-subtitle">Configure syllabus code, target class level, weekly periods, and bibliography reference books.</p>
+        </div>
+        <div>
+            <a href="/admin/subjects" class="btn btn-bw-outline btn-sm">&larr; Back to Subjects</a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <div class="card">
+        <div class="card-header" th:text="${mode} == 'edit' ? 'Subject Configuration: ' + ${subject.subjectCode} : 'New Curriculum Subject Particulars'">Form</div>
+        <div class="card-body">
+            <form method="post"
+                  th:action="${mode} == 'edit' ? @{'/admin/subjects/edit/' + ${subject.subjectCode}} : @{/admin/subjects/new}">
+
+                <div class="row g-3">
+                    <!-- Subject Code -->
+                    <div class="col-md-4">
+                        <label for="subjectCode" class="form-label">Subject Code <span style="color:#666;">*</span></label>
+                        <input type="text" id="subjectCode" name="subjectCode"
+                               th:value="${subject.subjectCode}"
+                               th:readonly="${mode == 'edit'}"
+                               class="form-control"
+                               placeholder="e.g. MATH10, PHY11" required>
+                        <div class="form-text" style="font-size: 11px; color: #666;">Unique primary key identifier (e.g. MATH10). Cannot be changed after creation.</div>
+                    </div>
+
+                    <!-- Subject Name -->
+                    <div class="col-md-5">
+                        <label for="subjectName" class="form-label">Subject Name <span style="color:#666;">*</span></label>
+                        <input type="text" id="subjectName" name="subjectName"
+                               th:value="${subject.subjectName}"
+                               class="form-control"
+                               placeholder="e.g. Mathematics, Physical Education" required>
+                    </div>
+
+                    <!-- Class Level -->
+                    <div class="col-md-3">
+                        <label for="className" class="form-label">Class Level <span style="color:#666;">*</span></label>
+                        <select id="className" name="className" class="form-select" required>
+                            <option value="">-- Choose Class --</option>
+                            <option th:each="cls : ${availableClasses}"
+                                    th:value="${cls}"
+                                    th:text="'Class ' + ${cls}"
+                                    th:selected="${subject.className == cls}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Periods Per Week -->
+                    <div class="col-md-4">
+                        <label for="periodsPerWeek" class="form-label">Periods Per Week <span style="color:#666;">*</span></label>
+                        <input type="number" id="periodsPerWeek" name="periodsPerWeek"
+                               th:value="${subject.periodsPerWeek}"
+                               min="1" max="40"
+                               class="form-control" required>
+                        <div class="form-text" style="font-size: 11px; color: #666;">Must be greater than 0 (database check constraint).</div>
+                    </div>
+
+                    <!-- Reference Books Textarea -->
+                    <div class="col-12">
+                        <label for="referenceBooksText" class="form-label">Reference Books &amp; Textbooks (One per line)</label>
+                        <textarea id="referenceBooksText" name="referenceBooksText"
+                                  rows="4" class="form-control"
+                                  placeholder="NCERT Class 10 Mathematics&#10;R.D. Sharma Class 10 Mathematics"
+                                  th:text="${referenceBooksText}"></textarea>
+                        <div class="form-text" style="font-size: 11px; color: #666;">
+                            Enter each textbook or reference material title on a new line. These are stored directly in the <code>Reference_Books</code> database table.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-bw"
+                            th:text="${mode} == 'edit' ? 'Update Subject' : 'Create Subject'">Save Subject</button>
+                    <a href="/admin/subjects" class="btn btn-bw-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>
+

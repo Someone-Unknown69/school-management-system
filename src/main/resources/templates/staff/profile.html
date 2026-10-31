@@ -1,55 +1,119 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Staff Profile</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Staff Profile', ~{::section})}">
+<head><title>Staff Profile</title></head>
 <body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/staff/profile">My Profile</a>
-        <a href="/staff/salary">My Salary</a>
-        <!-- Only driver gets transport link -->
-        <a th:if="${staff.isDriver()}" href="/staff/transport">My Bus Students</a>
-        <a href="/logout">Logout (<span th:text="${staff.employeeId}">S001</span>)</a>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Staff Profile</li>
+        </ol>
     </nav>
 
-    <h1>Staff Profile</h1>
-    <p>Welcome, <strong th:text="${staff.fullName}">Ramesh Kumar</strong></p>
-
-    <!-- Employment Details -->
-    <h2>Personal & Employment Information</h2>
-    <table style="width: 550px;">
-        <tr><th>Field</th><th>Value</th></tr>
-        <tr><td>Employee ID</td><td th:text="${staff.employeeId}">S001</td></tr>
-        <tr><td>Full Name</td><td th:text="${staff.fullName}">Ramesh Kumar</td></tr>
-        <tr><td>Designated Role</td><td><strong th:text="${staff.designatedRole}">Driver</strong></td></tr>
-        <tr><td>Contact Number</td><td th:text="${staff.contactNumber}">9876500001</td></tr>
-        <tr><td>Date of Joining</td><td th:text="${staff.dateOfJoining}">2019-06-01</td></tr>
-        <tr><td>Monthly Salary</td><td th:text="'₹' + ${staff.salary}">₹22000.0</td></tr>
-    </table>
-
-    <!-- Driver-specific Transport Card -->
-    <div th:if="${staff.isDriver()}">
-        <h2>Assigned School Vehicle</h2>
-        <div th:if="${vehicle != null}" style="border: 1px solid #ccc; padding: 12px; max-width: 550px; background: #fafafa;">
-            <p><strong>Vehicle ID:</strong> <span th:text="${vehicle.vehicleId}">V01</span></p>
-            <p><strong>Registration Number:</strong> <span th:text="${vehicle.registrationNumber}">UP65AB1234</span></p>
-            <p><strong>Assigned Route:</strong> <span th:text="${vehicle.routeName}">Route A - Sigra</span></p>
-            <p><strong>Vehicle Capacity:</strong> <span th:text="${vehicle.capacity} + ' Passengers'">40 Passengers</span></p>
-            <p><a href="/staff/transport"><strong>→ View Students Travelling by This Vehicle</strong></a></p>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title" th:text="${staff.fullName}">Ramesh Kumar</h1>
+            <p class="page-subtitle">
+                Employee ID: <strong th:text="${staff.employeeId}">S001</strong> &nbsp;|&nbsp;
+                Role: <span class="badge-outlined" th:text="${staff.designatedRole}">Driver</span>
+            </p>
         </div>
-        <div th:unless="${vehicle != null}" style="color: #666;">
-            <p>No vehicle currently registered under your Driver ID.</p>
+        <div>
+            <span class="badge-filled">Staff Member</span>
         </div>
     </div>
 
-    <!-- Non-driver note -->
-    <div th:unless="${staff.isDriver()}" style="margin-top: 25px; padding: 12px; border: 1px solid #e5e7eb; background: #f9fafb; max-width: 550px;">
-        <p style="margin: 0; font-size: 14px; color: #555;">
-            <strong>Staff Notice:</strong> Your portal access is designated for employment records and salary transaction management.
-        </p>
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <div class="row g-4">
+        <!-- Employment & Contact Information -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Employment Information</div>
+                <div class="card-body p-0">
+                    <table class="kv-table">
+                        <tr>
+                            <td class="kv-label">Employee ID</td>
+                            <td><strong th:text="${staff.employeeId}">S001</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Full Name</td>
+                            <td th:text="${staff.fullName}">Ramesh Kumar</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Designated Role</td>
+                            <td><span class="badge-filled" th:text="${staff.designatedRole}">Driver</span></td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Contact Number</td>
+                            <td th:text="${staff.contactNumber}">9876500001</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Date of Joining</td>
+                            <td th:text="${staff.dateOfJoining}">2019-06-01</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Monthly Salary</td>
+                            <td><strong th:text="'₹' + ${staff.salary}">₹22000.00</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Driver / Staff Assignment Panel -->
+        <div class="col-lg-6">
+            <!-- If Driver: show assigned vehicle -->
+            <div th:if="${staff.isDriver()}" class="card h-100">
+                <div class="card-header">Assigned School Bus Fleet Details</div>
+                <div class="card-body p-0">
+                    <table class="kv-table" th:if="${vehicle != null}">
+                        <tr>
+                            <td class="kv-label">Vehicle ID</td>
+                            <td><strong th:text="${vehicle.vehicleId}">V01</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Registration Number</td>
+                            <td th:text="${vehicle.registrationNumber}">UP65AB1234</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Assigned Route</td>
+                            <td><strong th:text="${vehicle.routeName}">Route A - Sigra</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Seating Capacity</td>
+                            <td th:text="${vehicle.capacity} + ' Passengers'">40 Passengers</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Passenger Action</td>
+                            <td>
+                                <a href="/staff/transport" class="btn btn-bw-outline btn-sm">View Passenger Roster &rarr;</a>
+                            </td>
+                        </tr>
+                    </table>
+                    <div th:unless="${vehicle != null}" class="p-3 text-muted">
+                        No school bus vehicle is currently assigned to your driver ID.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Non-Driver notice -->
+            <div th:unless="${staff.isDriver()}" class="card h-100">
+                <div class="card-header">Staff Portal Access</div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        Your account is registered as operational non-teaching staff.
+                        You have access to verify your personal employment profile and monthly salary records.
+                    </p>
+                    <a href="/staff/salary" class="btn btn-bw-outline btn-sm">View Salary Ledger &rarr;</a>
+                </div>
+            </div>
+        </div>
     </div>
+</section>
 </body>
 </html>

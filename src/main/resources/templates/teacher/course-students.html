@@ -1,55 +1,70 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title th:text="'Enrolled Students — ' + ${subjectName}">Course Enrolled Students</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Enrolled Students — ' + ${subjectName}, ~{::section})}">
+<head><title>Course Enrolled Students</title></head>
 <body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/teacher/profile">My Profile</a>
-        <a href="/teacher/schedule">My Schedule</a>
-        <a href="/teacher/salary">My Salary</a>
-        <a href="/teacher/students">Student Directory</a>
-        <a href="/logout">Logout (<span th:text="${teacher.employeeId}">T001</span>)</a>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/teacher/schedule">Teaching Schedule</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${subjectCode} + ' Students'">Course Students</li>
+        </ol>
     </nav>
 
-    <p><a href="/teacher/schedule">← Back to My Schedule</a></p>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title" th:text="${subjectName} + ' (' + ${subjectCode} + ')'">Mathematics (MATH10)</h1>
+            <p class="page-subtitle">
+                Class: <strong th:text="'Class ' + ${standard} + ' - ' + ${division}">Class 10 - A</strong> &nbsp;|&nbsp;
+                Instructor: <span th:text="${teacher.fullName}">Anita Verma</span>
+            </p>
+        </div>
+        <div>
+            <a href="/teacher/schedule" class="btn btn-bw-outline btn-sm">&larr; Back to Schedule</a>
+        </div>
+    </div>
 
-    <h1>Enrolled Students</h1>
-    <p>
-        Course: <strong th:text="${subjectName} + ' (' + ${subjectCode} + ')'">Mathematics (MATH10)</strong> &nbsp;|&nbsp;
-        Class: <strong th:text="'Class ' + ${standard} + ' - Section ' + ${division}">Class 10 - Section A</strong> &nbsp;|&nbsp;
-        Teacher: <span th:text="${teacher.fullName}">Anita Verma</span>
-    </p>
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Roll No</th>
-                <th>Admission No</th>
-                <th>Name</th>
-                <th>Class</th>
-                <th>Section</th>
-                <th>House</th>
-                <th>Grade</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="s : ${enrolledStudents}">
-                <td th:text="${s.rollNo}">1</td>
-                <td><strong th:text="${s.admissionNo}">A001</strong></td>
-                <td th:text="${s.firstName} + (${s.lastName != null} ? ' ' + ${s.lastName} : '')">Rohan Mehta</td>
-                <td th:text="${s.standard}">10</td>
-                <td th:text="${s.division}">A</td>
-                <td th:text="${s.house}">Red</td>
-                <td><strong th:text="${s.grade != null ? s.grade : 'N/A'}">A</strong></td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(enrolledStudents)}">
-                <td colspan="7" style="text-align: center; color: #666;">No students enrolled in this course for this section.</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Enrolled Students Table -->
+    <div class="table-responsive" th:if="${!#lists.isEmpty(enrolledStudents)}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Roll No</th>
+                    <th style="width: 140px;">Admission No</th>
+                    <th>Student Name</th>
+                    <th style="width: 90px;">Class</th>
+                    <th style="width: 90px;">Section</th>
+                    <th style="width: 120px;">House</th>
+                    <th style="width: 100px; text-align: center;">Current Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="s : ${enrolledStudents}">
+                    <td th:text="${s.rollNo}">1</td>
+                    <td><strong th:text="${s.admissionNo}">A001</strong></td>
+                    <td th:text="${s.firstName} + (${s.lastName != null} ? ' ' + ${s.lastName} : '')">Rohan Mehta</td>
+                    <td th:text="${s.standard}">10</td>
+                    <td th:text="${s.division}">A</td>
+                    <td><span class="badge-outlined" th:text="${s.house}">Red</span></td>
+                    <td style="text-align: center;">
+                        <span th:if="${s.grade != null}" class="badge-filled" th:text="${s.grade}">A</span>
+                        <span th:unless="${s.grade != null}" class="badge-muted">N/A</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(enrolledStudents)}">
+        <div th:replace="~{fragments/ui :: empty-state('👥', 'No Students Enrolled', 'There are no students enrolled in this course for this section.')}"></div>
+    </div>
+</section>
 </body>
 </html>

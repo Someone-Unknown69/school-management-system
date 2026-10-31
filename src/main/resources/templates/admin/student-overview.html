@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Student Profile — ' + ${student.admissionNo}, ~{::section})}">
+<head><title th:text="'Student Profile — ' + ${student.fullName}">Student Profile</title></head>
+<body>
+<section>
+    <!-- Print Stylesheet -->
+    <style>
+        @media print {
+            .no-print,
+            .topbar,
+            .sidebar,
+            .breadcrumb-bar,
+            .page-header,
+            footer {
+                display: none !important;
+            }
+
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            .overview-dossier {
+                border: 2px solid #000000 !important;
+                box-shadow: none !important;
+                max-width: 100% !important;
+                margin: 0 auto !important;
+                padding: 24px !important;
+                page-break-inside: avoid;
+            }
+
+            .card {
+                border: 1px solid #000 !important;
+                margin-bottom: 16px !important;
+                page-break-inside: avoid;
+            }
+        }
+
+        .overview-dossier {
+            background: #ffffff;
+            border: 1px solid #000000;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+    </style>
+
+    <!-- Breadcrumb (Screen only) -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar no-print">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/students">Students</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${student.admissionNo}">Overview</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header (Screen only) -->
+    <div class="page-header no-print">
+        <div>
+            <h1 class="page-title" th:text="${student.fullName} + ' (' + ${student.admissionNo} + ')'">Student Profile</h1>
+            <p class="page-subtitle">Consolidated 360-degree student record across academics, house, transport, and finance.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-bw btn-sm" onclick="window.print()">
+                Print Dossier
+            </button>
+            <a th:href="@{'/admin/students/' + ${student.admissionNo}}" class="btn btn-bw-outline btn-sm">Manage Subjects</a>
+            <a th:href="@{'/admin/students/edit/' + ${student.admissionNo}}" class="btn btn-bw-outline btn-sm">Edit Record</a>
+            <a href="/admin/students" class="btn btn-bw-outline btn-sm">&larr; Back to Students</a>
+        </div>
+    </div>
+
+    <!-- Flash Messages (Screen only) -->
+    <div class="no-print">
+        <div th:replace="~{fragments/ui :: flash-messages}"></div>
+    </div>
+
+    <!-- ── CONSOLIDATED STUDENT DOSSIER ── -->
+    <div class="overview-dossier">
+        <!-- Print Header -->
+        <div class="text-center mb-4 pb-3" style="border-bottom: 2px solid #000;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Official Student Comprehensive Record</div>
+            <h2 style="font-size: 22px; font-weight: 800; margin: 4px 0 0 0;">SCHOOL NAME</h2>
+            <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;">Student Dossier &bull; Admission No: <strong th:text="${student.admissionNo}">A001</strong> &bull; Generated on <span th:text="${#temporals.format(#temporals.createNow(), 'dd MMM yyyy')}">30 Oct 2026</span></p>
+        </div>
+
+        <!-- 1. PERSONAL & GUARDIANS SECTION -->
+        <div class="card mb-4">
+            <div class="card-header">1. Personal Particulars &amp; Guardians</div>
+            <div class="card-body p-0">
+                <table class="kv-table">
+                    <tr>
+                        <td class="kv-label">Admission Number</td>
+                        <td><strong th:text="${student.admissionNo}">A001</strong></td>
+                        <td class="kv-label">Roll Number</td>
+                        <td><span th:text="${student.rollNo}">1</span></td>
+                    </tr>
+                    <tr>
+                        <td class="kv-label">Full Name</td>
+                        <td><strong th:text="${student.fullName}">Rohan Mehta</strong></td>
+                        <td class="kv-label">Date of Birth</td>
+                        <td><span th:text="${student.dateOfBirth}">2010-05-15</span> (Age: <span th:text="${student.age}">16</span>)</td>
+                    </tr>
+                    <tr>
+                        <td class="kv-label">Gender</td>
+                        <td th:text="${student.gender}">Male</td>
+                        <td class="kv-label">Blood Group</td>
+                        <td><span class="badge-outlined" th:text="${student.bloodGroup}">O+</span></td>
+                    </tr>
+                    <tr>
+                        <td class="kv-label">Student Phone</td>
+                        <td><span th:text="${student.contactNumber != null and !#strings.isEmpty(student.contactNumber)} ? ${student.contactNumber} : '—'">+91 9876543210</span></td>
+                        <td class="kv-label">Residential Address</td>
+                        <td><span th:text="${student.address != null and !#strings.isEmpty(student.address)} ? ${student.address} : '—'">123 Park Street</span></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Guardian info -->
+            <div class="p-3" style="border-top: 1px solid #e0e0e0; background: #fafafa;" th:if="${!#lists.isEmpty(guardians)}">
+                <div th:each="g : ${guardians}">
+                    <strong style="font-size: 13px;">Parent / Guardian:</strong>
+                    <span th:text="${g.fullName}">Rajesh Mehta</span>
+                    (<span th:text="${g.relationship}">Father</span>) &bull;
+                    Occupation: <span th:text="${g.occupation}">Engineer</span> &bull;
+                    Phone: <strong th:text="${g.phoneNo}">+91 9876543210</strong>
+                    <span th:if="${g.email != null and !#strings.isEmpty(g.email)}"> &bull; Email: <span th:text="${g.email}">rajesh@example.com</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. ACADEMIC SECTION -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>2. Academic Placement &amp; Enrolled Subjects</span>
+                <span class="badge-filled" th:text="'Class ' + ${student.standard} + ' - ' + ${student.division}">Class 10 - A</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="kv-table">
+                    <tr>
+                        <td class="kv-label">Current Section</td>
+                        <td><strong th:text="'Class ' + ${student.standard} + ' - ' + ${student.division}">Class 10 - A</strong></td>
+                        <td class="kv-label">Allocated Classroom</td>
+                        <td><span th:text="${section != null} ? 'Room ' + ${section.roomNo} : '—'">Room 101</span></td>
+                    </tr>
+                    <tr>
+                        <td class="kv-label">Class Teacher</td>
+                        <td colspan="3">
+                            <span th:text="${section != null and section.classTeacherName != null} ? ${section.classTeacherName} : 'Unassigned'">Anita Verma</span>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Subjects Table -->
+                <div class="table-responsive" th:if="${!#lists.isEmpty(enrolledSubjects)}">
+                    <table class="table mb-0" style="font-size: 13px;">
+                        <thead>
+                            <tr style="background: #f5f5f5;">
+                                <th style="width: 110px;">Code</th>
+                                <th>Course Title</th>
+                                <th style="width: 120px; text-align: center;">Periods / Wk</th>
+                                <th>Instructor</th>
+                                <th style="width: 100px; text-align: center;">Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="enr : ${enrolledSubjects}">
+                                <td><strong th:text="${enr.subjectCode}">MATH10</strong></td>
+                                <td th:text="${enr.subjectName}">Mathematics</td>
+                                <td style="text-align: center;" th:text="${enr.periodsPerWeek}">6</td>
+                                <td th:text="${enr.teacherName}">Anita Verma</td>
+                                <td style="text-align: center;">
+                                    <span class="badge-filled" th:if="${enr.grade != null and !#strings.isEmpty(enr.grade)}" th:text="${enr.grade}">A+</span>
+                                    <span class="text-muted" th:if="${enr.grade == null or #strings.isEmpty(enr.grade)}">—</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. HOUSE & 4. TRANSPORT TWO-COLUMN -->
+        <div class="row g-4 mb-4">
+            <!-- 3. House -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>3. House Allocation</span>
+                        <span th:if="${isCaptain}" class="badge-filled">House Captain</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="kv-table">
+                            <tr>
+                                <td class="kv-label">Assigned House</td>
+                                <td>
+                                    <strong th:text="${house != null} ? ${house.houseName} : ${student.house}">Red Dragons</strong>
+                                    (<span th:text="${student.house}">Red</span>)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="kv-label">House Standing</td>
+                                <td><span th:text="${house != null} ? ${house.noOfWins} + ' Tournaments Won' : '—'">5 Wins</span></td>
+                            </tr>
+                            <tr>
+                                <td class="kv-label">House Captain</td>
+                                <td>
+                                    <span th:if="${house != null and house.captainId != null}" th:text="${house.captainName} + ' (' + ${house.captainId} + ')'">Rohan Mehta (A001)</span>
+                                    <span th:if="${house == null or house.captainId == null}" class="text-muted">None</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="kv-label">Faculty Mentors</td>
+                                <td>
+                                    <span th:if="${house != null and !#lists.isEmpty(house.mentors)}"
+                                          th:text="${#strings.listJoin(house.mentors.![fullName], ', ')}">Anita Verma</span>
+                                    <span th:if="${house == null or #lists.isEmpty(house.mentors)}" class="text-muted">None</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Transport -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">4. Transportation Details</div>
+                    <div class="card-body p-0">
+                        <table class="kv-table">
+                            <tr>
+                                <td class="kv-label">Commute Mode</td>
+                                <td>
+                                    <span th:if="${vehicle != null}" class="badge-filled">School Bus Commuter</span>
+                                    <span th:if="${vehicle == null}" class="badge-outlined">Independent / Walker</span>
+                                </td>
+                            </tr>
+                            <tr th:if="${vehicle != null}">
+                                <td class="kv-label">Vehicle ID</td>
+                                <td><strong th:text="${vehicle.vehicleId}">V01</strong> (<span th:text="${vehicle.registrationNumber}">DL-01-AB-1234</span>)</td>
+                            </tr>
+                            <tr th:if="${vehicle != null}">
+                                <td class="kv-label">Designated Route</td>
+                                <td><span th:text="${vehicle.routeName}">North Campus Express</span></td>
+                            </tr>
+                            <tr th:if="${vehicle != null}">
+                                <td class="kv-label">Assigned Driver</td>
+                                <td>
+                                    <span th:text="${vehicle.driverName != null} ? ${vehicle.driverName} : 'Not Assigned'">Ramesh Kumar</span>
+                                    <span th:if="${vehicle.driverContact != null}"> (<strong th:text="${vehicle.driverContact}">+91 9876543210</strong>)</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. PAYMENTS & FINANCIAL LEDGER -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>5. Fee Payment History &amp; Balance</span>
+                <div>
+                    <span class="badge-filled me-2" th:text="'Total Paid: ₹' + ${#numbers.formatDecimal(totalPaid, 1, 2)}">Total Paid: ₹45000.00</span>
+                    <span th:if="${student.remainingFees > 0}" class="badge-outlined"
+                          th:text="'Outstanding Due: ₹' + ${#numbers.formatDecimal(student.remainingFees, 1, 2)}">Outstanding Due: ₹5000.00</span>
+                    <span th:if="${student.remainingFees <= 0}" class="badge-filled">Fees Cleared</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive" th:if="${!#lists.isEmpty(feePayments)}">
+                    <table class="table mb-0" style="font-size: 13px;">
+                        <thead>
+                            <tr style="background: #f5f5f5;">
+                                <th style="width: 120px;">Receipt ID</th>
+                                <th style="width: 160px;">Date</th>
+                                <th>Mode</th>
+                                <th>Remitter</th>
+                                <th style="width: 140px; text-align: right;">Amount (₹)</th>
+                                <th class="no-print" style="width: 110px; text-align: right;">Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="p : ${feePayments}">
+                                <td><strong th:text="${p.transactionId}">TXN0001</strong></td>
+                                <td th:text="${p.dateOfPayment}">2026-04-10</td>
+                                <td><span class="badge-outlined" th:text="${p.paymentMode}">UPI</span></td>
+                                <td th:text="${p.sender}">School</td>
+                                <td style="text-align: right; font-weight: 600;" th:text="'₹' + ${p.amount}">₹20000.00</td>
+                                <td class="no-print" style="text-align: right;">
+                                    <a th:href="@{'/admin/fees/receipt/' + ${p.transactionId}}"
+                                       class="btn btn-bw-outline btn-sm">Receipt &rarr;</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div th:if="${#lists.isEmpty(feePayments)}" class="p-3 text-muted" style="font-size: 13px;">
+                    No prior fee payment records on file for this student.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
+

@@ -1,57 +1,80 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>My Salary Transactions</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('My Salary', ~{::section})}">
+<head><title>My Salary Transactions</title></head>
 <body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/teacher/profile">My Profile</a>
-        <a href="/teacher/schedule">My Schedule</a>
-        <a href="/teacher/salary">My Salary</a>
-        <a href="/teacher/students">Student Directory</a>
-        <a href="/logout">Logout (<span th:text="${teacher.employeeId}">T001</span>)</a>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Salary History</li>
+        </ol>
     </nav>
 
-    <h1>My Salary & Payment History</h1>
-    <p>Teacher: <strong th:text="${teacher.fullName}">Anita Verma</strong> (Employee ID: <span th:text="${teacher.employeeId}">T001</span>)</p>
-
-    <!-- Monthly compensation card -->
-    <h2>Monthly Base Compensation</h2>
-    <div style="padding: 12px; border: 1px solid #ccc; max-width: 400px; margin-bottom: 20px;">
-        <p style="margin: 4px 0;">Official Monthly Salary:</p>
-        <h2 style="color: #2563eb; margin: 4px 0;" th:text="'₹' + ${teacher.salary}">₹52000.0</h2>
-        <p style="color: #666; margin: 0; font-size: 13px;">Contracted salary under employment records.</p>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Faculty Salary &amp; Disbursement History</h1>
+            <p class="page-subtitle">
+                Faculty: <strong th:text="${teacher.fullName}">Anita Verma</strong>
+                (Employee ID: <span th:text="${teacher.employeeId}">T001</span>)
+            </p>
+        </div>
     </div>
 
-    <!-- Salary Transactions History Table -->
-    <h2>Disbursed Salary Transactions</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Transaction ID</th>
-                <th>Date & Time</th>
-                <th>Amount</th>
-                <th>Payment Mode</th>
-                <th>Paid By (Sender)</th>
-                <th>Disbursed To</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="p : ${salaryPayments}">
-                <td><strong th:text="${p.transactionId}">TXN002</strong></td>
-                <td th:text="${p.dateOfPayment}">2025-04-05</td>
-                <td th:text="'₹' + ${p.amount}" style="font-weight: bold; color: #16a34a;">₹52000.0</td>
-                <td th:text="${p.paymentMode}">Bank Transfer</td>
-                <td th:text="${p.sender}">School</td>
-                <td th:text="${p.receiver}">Anita Verma</td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(salaryPayments)}">
-                <td colspan="6" style="text-align: center; color: #666;">No salary transaction records found.</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- Monthly compensation KPI -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">Contracted Base Pay</div>
+                <div class="card-body">
+                    <div class="stat-value" th:text="'₹' + ${teacher.salary}">₹52000.00</div>
+                    <div class="mt-2"><span class="badge-filled">Monthly Contracted Salary</span></div>
+                    <p class="text-muted mt-2 mb-0" style="font-size: 12px;">Disbursed directly via institutional payroll transfer.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disbursed Transactions Table -->
+    <h2 class="h3 mb-3">Disbursed Salary Ledger</h2>
+    <div class="table-responsive" th:if="${!#lists.isEmpty(salaryPayments)}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 140px;">Disbursement ID</th>
+                    <th style="width: 180px;">Payment Date</th>
+                    <th>Remittance Method</th>
+                    <th>Issuer</th>
+                    <th>Beneficiary</th>
+                    <th style="text-align: right; width: 140px;">Amount Disbursed</th>
+                    <th style="text-align: center; width: 130px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="p : ${salaryPayments}">
+                    <td><strong th:text="${p.transactionId}">TXN002</strong></td>
+                    <td th:text="${p.dateOfPayment}">2025-04-05</td>
+                    <td><span class="badge-outlined" th:text="${p.paymentMode}">Bank Transfer</span></td>
+                    <td th:text="${p.sender}">School</td>
+                    <td th:text="${p.receiver}">Anita Verma</td>
+                    <td style="text-align: right; font-weight: 700;" th:text="'₹' + ${p.amount}">₹52000.00</td>
+                    <td style="text-align: center;">
+                        <a th:href="@{'/teacher/salary/slip/' + ${p.transactionId}}" class="btn btn-bw-outline btn-sm">Salary Slip &rarr;</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(salaryPayments)}">
+        <div th:replace="~{fragments/ui :: empty-state('💵', 'No Disbursements Found', 'No prior salary transactions recorded on file.')}"></div>
+    </div>
+</section>
 </body>
 </html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Salary Slip — ' + slip.transactionId, ~{::section})}">
+<head>
+    <title>Salary Disbursement Slip</title>
+</head>
+<body>
+<section>
+    <!-- Print Stylesheet -->
+    <style>
+        @media print {
+            .no-print,
+            .topbar,
+            .sidebar,
+            .breadcrumb-bar,
+            .page-header,
+            footer {
+                display: none !important;
+            }
+
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            .slip-card {
+                border: 2px solid #000000 !important;
+                box-shadow: none !important;
+                max-width: 100% !important;
+                margin: 0 auto !important;
+                padding: 32px !important;
+                page-break-inside: avoid;
+            }
+
+            .slip-header {
+                border-bottom: 2px solid #000000 !important;
+            }
+        }
+
+        .slip-card {
+            background: #ffffff;
+            border: 1px solid #000000;
+            border-radius: 2px;
+            max-width: 780px;
+            margin: 0 auto 32px auto;
+            padding: 32px;
+        }
+
+        .slip-header {
+            border-bottom: 1px solid #000000;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .slip-badge {
+            display: inline-block;
+            border: 1px solid #000000;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+    </style>
+
+    <!-- Breadcrumb (Screen only) -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar no-print">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'admin'}"><a href="/admin/salary/pay">Payroll</a></li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'teacher'}"><a href="/teacher/salary">My Salary</a></li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'staff'}"><a href="/staff/salary">My Salary</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="'Slip ' + ${slip.transactionId}">Slip</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header (Screen only) -->
+    <div class="page-header no-print">
+        <div>
+            <h1 class="page-title" th:text="'Salary Slip #' + ${slip.transactionId}">Salary Slip</h1>
+            <p class="page-subtitle">Official computer-generated monthly salary disbursement advice.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-bw btn-sm" onclick="window.print()">
+                Print Salary Slip
+            </button>
+            <a th:if="${loggedInRole == 'admin'}" href="/admin/salary/pay" class="btn btn-bw-outline btn-sm">+ Disburse Another</a>
+            <a th:if="${loggedInRole == 'admin'}" href="/admin/transactions?type=Salary" class="btn btn-bw-outline btn-sm">&larr; Salary Ledger</a>
+            <a th:if="${loggedInRole == 'teacher'}" href="/teacher/salary" class="btn btn-bw-outline btn-sm">&larr; Back to My Salary</a>
+            <a th:if="${loggedInRole == 'staff'}" href="/staff/salary" class="btn btn-bw-outline btn-sm">&larr; Back to My Salary</a>
+        </div>
+    </div>
+
+    <!-- Flash Messages (Screen only) -->
+    <div class="no-print">
+        <div th:replace="~{fragments/ui :: flash-messages}"></div>
+    </div>
+
+    <!-- ── OFFICIAL PRINTABLE SALARY SLIP ── -->
+    <div class="slip-card">
+        <!-- School & Payroll Heading -->
+        <div class="slip-header text-center">
+            <div class="slip-badge mb-2">Institutional Payroll Advice</div>
+            <h2 style="font-size: 22px; font-weight: 800; letter-spacing: 1px; margin: 0; text-transform: uppercase;">
+                SCHOOL NAME
+            </h2>
+            <p style="font-size: 12px; color: #666; margin: 4px 0 0 0;">
+                Payroll &amp; Human Resources Division
+            </p>
+        </div>
+
+        <!-- Metadata Row: Slip Number & Date -->
+        <div class="row g-2 mb-4 pb-3" style="border-bottom: 1px solid #e0e0e0; font-size: 13px;">
+            <div class="col-sm-6">
+                <div><strong>Transaction ID:</strong> <span th:text="${slip.transactionId}">TXN002</span></div>
+                <div><strong>Pay Period:</strong> <span th:text="${slip.monthName} + ' ' + ${slip.salaryYear}">October 2026</span></div>
+                <div><strong>Payment Mode:</strong> <span th:text="${slip.paymentMode}">Bank Transfer</span></div>
+            </div>
+            <div class="col-sm-6 text-sm-end">
+                <div><strong>Disbursement Date:</strong> <span th:text="${slip.dateOfPayment}">2026-10-05 10:00:00</span></div>
+                <div><strong>Disbursing Entity:</strong> <span th:text="${slip.sender}">School</span></div>
+                <div><strong>Status:</strong> <span class="slip-badge">Disbursed</span></div>
+            </div>
+        </div>
+
+        <!-- Employee Particulars -->
+        <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+            Employee Particulars
+        </h3>
+        <table class="table mb-4" style="font-size: 13px; border: 1px solid #000;">
+            <tbody>
+                <tr>
+                    <td style="width: 25%; font-weight: 600; background: #f5f5f5; border: 1px solid #000;">Employee Name</td>
+                    <td style="width: 25%; border: 1px solid #000;"><strong th:text="${slip.employeeName}">Anita Verma</strong></td>
+                    <td style="width: 25%; font-weight: 600; background: #f5f5f5; border: 1px solid #000;">Employee ID</td>
+                    <td style="width: 25%; border: 1px solid #000;"><span th:text="${slip.employeeId}">T001</span></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 600; background: #f5f5f5; border: 1px solid #000;">Cadre / Type</td>
+                    <td style="border: 1px solid #000;" th:text="${slip.employeeType}">Teacher</td>
+                    <td style="font-weight: 600; background: #f5f5f5; border: 1px solid #000;">Designated Role</td>
+                    <td style="border: 1px solid #000;" th:text="${slip.designatedRole}">Teacher</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 600; background: #f5f5f5; border: 1px solid #000;">Contact Phone</td>
+                    <td style="border: 1px solid #000;" th:text="${slip.phoneNo != null and !#strings.isEmpty(slip.phoneNo)} ? ${slip.phoneNo} : '—'">+91 9876543210</td>
+                    <td style="font-weight: 600; background: #f5f5f5; border: 1px solid #000;">Official Email</td>
+                    <td style="border: 1px solid #000;" th:text="${slip.email != null and !#strings.isEmpty(slip.email)} ? ${slip.email} : '—'">anita@school.edu</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Remuneration Details -->
+        <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+            Earnings &amp; Compensation Breakdown
+        </h3>
+        <table class="table mb-4" style="font-size: 13px; border: 1px solid #000;">
+            <thead>
+                <tr style="background: #f5f5f5; border-bottom: 1px solid #000;">
+                    <th style="border: 1px solid #000;">Description</th>
+                    <th style="border: 1px solid #000; width: 140px;">Pay Period</th>
+                    <th style="border: 1px solid #000; width: 160px; text-align: right;">Amount (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border: 1px solid #000;">
+                        <strong>Monthly Contracted Remuneration</strong>
+                        <div style="font-size: 11px; color: #666;">Standard salary disbursement for service rendered</div>
+                    </td>
+                    <td style="border: 1px solid #000;" th:text="${slip.monthName} + ' ' + ${slip.salaryYear}">October 2026</td>
+                    <td style="border: 1px solid #000; text-align: right; font-weight: 600;"
+                        th:text="'₹' + ${#numbers.formatDecimal(slip.amount, 1, 2)}">₹52000.00</td>
+                </tr>
+                <tr style="border-top: 2px solid #000; background: #f5f5f5;">
+                    <td colspan="2" style="border: 1px solid #000; font-weight: 800; text-transform: uppercase;">
+                        Net Amount Disbursed
+                    </td>
+                    <td style="border: 1px solid #000; text-align: right; font-weight: 800; font-size: 16px;"
+                        th:text="'₹' + ${#numbers.formatDecimal(slip.amount, 1, 2)}">₹52000.00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Signatures / Authorisation Block -->
+        <div class="row pt-4 mt-4" style="border-top: 1px solid #000; font-size: 12px;">
+            <div class="col-4 text-center">
+                <div style="height: 40px;"></div>
+                <div style="border-top: 1px dashed #000; padding-top: 4px; font-weight: 600;">
+                    Disbursed By (Accounts)
+                </div>
+            </div>
+            <div class="col-4 text-center">
+                <div style="height: 40px;"></div>
+                <div style="border-top: 1px dashed #000; padding-top: 4px; font-weight: 600;">
+                    Bursar / Principal
+                </div>
+            </div>
+            <div class="col-4 text-center">
+                <div style="height: 40px;"></div>
+                <div style="border-top: 1px dashed #000; padding-top: 4px; font-weight: 600;">
+                    Employee Signature
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Notice -->
+        <div class="text-center text-muted mt-4 pt-2" style="font-size: 11px; border-top: 1px solid #e0e0e0;">
+            This is a computer-generated salary advice slip issued by the School Management System. Valid without physical seal when verified against official transaction registry.
+        </div>
+    </div>
+</section>
+</body>
+</html>
+

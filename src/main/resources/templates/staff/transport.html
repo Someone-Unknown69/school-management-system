@@ -1,59 +1,93 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Driver — My Bus Students</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Bus Passenger Roster', ~{::section})}">
+<head><title>Driver — My Bus Students</title></head>
 <body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/staff/profile">My Profile</a>
-        <a href="/staff/salary">My Salary</a>
-        <a href="/staff/transport">My Bus Students</a>
-        <a href="/logout">Logout (<span th:text="${staff.employeeId}">S001</span>)</a>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/staff/profile">Staff Profile</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Bus Passengers</li>
+        </ol>
     </nav>
 
-    <h1>My Bus Students</h1>
-    <p>Driver: <strong th:text="${staff.fullName}">Ramesh Kumar</strong> (Employee ID: <span th:text="${staff.employeeId}">S001</span>)</p>
-
-    <!-- Vehicle & Route Summary -->
-    <h2>Vehicle & Route Details</h2>
-    <div th:if="${vehicle != null}" style="border: 1px solid #ccc; padding: 12px; max-width: 550px; background: #fafafa; margin-bottom: 20px;">
-        <p style="margin: 4px 0;"><strong>Vehicle ID:</strong> <span th:text="${vehicle.vehicleId}">V01</span></p>
-        <p style="margin: 4px 0;"><strong>Registration Number:</strong> <span th:text="${vehicle.registrationNumber}">UP65AB1234</span></p>
-        <p style="margin: 4px 0;"><strong>Designated Route:</strong> <span th:text="${vehicle.routeName}">Route A - Sigra</span></p>
-        <p style="margin: 4px 0;"><strong>Vehicle Capacity:</strong> <span th:text="${vehicle.capacity} + ' Passengers'">40 Passengers</span></p>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Assigned Bus Student Passengers</h1>
+            <p class="page-subtitle">
+                Driver: <strong th:text="${staff.fullName}">Ramesh Kumar</strong>
+                (Employee ID: <span th:text="${staff.employeeId}">S001</span>)
+            </p>
+        </div>
+        <div th:if="${vehicle != null}">
+            <span class="badge-filled" th:text="${#lists.size(busStudents)} + ' / ' + ${vehicle.capacity} + ' Passengers'">34 / 40 Passengers</span>
+        </div>
     </div>
 
-    <!-- Student Passenger List -->
-    <h2>Students Travelling by This Vehicle</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Roll No</th>
-                <th>Admission No</th>
-                <th>Student Name</th>
-                <th>Class</th>
-                <th>Section</th>
-                <th>House</th>
-                <th>Blood Group</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="s : ${busStudents}">
-                <td th:text="${s.rollNo}">1</td>
-                <td><strong th:text="${s.admissionNo}">A001</strong></td>
-                <td th:text="${s.firstName} + (${s.lastName != null} ? ' ' + ${s.lastName} : '')">Rohan Mehta</td>
-                <td th:text="${s.standard}">10</td>
-                <td th:text="${s.division}">A</td>
-                <td th:text="${s.house}">Red</td>
-                <td th:text="${s.bloodGroup}">O+</td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(busStudents)}">
-                <td colspan="7" style="text-align: center; color: #666;">No students currently assigned to this vehicle route.</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- Vehicle Details KPI -->
+    <div class="row g-3 mb-4" th:if="${vehicle != null}">
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-value" th:text="${vehicle.vehicleId}">V01</div>
+                <div class="stat-label">Assigned Vehicle</div>
+                <div class="stat-sub" th:text="${vehicle.registrationNumber}">UP65AB1234</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-5">
+            <div class="stat-card">
+                <div class="stat-value" style="font-size: 18px; padding-top: 5px;" th:text="${vehicle.routeName}">Route A - Sigra</div>
+                <div class="stat-label">Designated Route</div>
+                <div class="stat-sub">Daily student pickup &amp; drop route</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="stat-card">
+                <div class="stat-value" th:text="${vehicle.capacity} + ' Seats'">40 Seats</div>
+                <div class="stat-label">Total Bus Capacity</div>
+                <div class="stat-sub" th:text="(${vehicle.capacity - #lists.size(busStudents)}) + ' seats vacant'">6 seats vacant</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Passenger Roster Table -->
+    <h2 class="h3 mb-3">Student Commuter Roster</h2>
+    <div class="table-responsive" th:if="${!#lists.isEmpty(busStudents)}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Roll No</th>
+                    <th style="width: 140px;">Admission No</th>
+                    <th>Student Name</th>
+                    <th style="width: 90px;">Class</th>
+                    <th style="width: 90px;">Section</th>
+                    <th style="width: 120px;">House</th>
+                    <th style="width: 110px;">Blood Group</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="s : ${busStudents}">
+                    <td th:text="${s.rollNo}">1</td>
+                    <td><strong th:text="${s.admissionNo}">A001</strong></td>
+                    <td th:text="${s.firstName} + (${s.lastName != null} ? ' ' + ${s.lastName} : '')">Rohan Mehta</td>
+                    <td th:text="${s.standard}">10</td>
+                    <td th:text="${s.division}">A</td>
+                    <td><span class="badge-outlined" th:text="${s.house}">Red</span></td>
+                    <td><span class="badge-muted" th:text="${s.bloodGroup}">O+</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(busStudents)}">
+        <div th:replace="~{fragments/ui :: empty-state('🚌', 'No Students Assigned', 'There are currently no students assigned to travel on this bus route.')}"></div>
+    </div>
+</section>
 </body>
 </html>

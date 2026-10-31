@@ -1,41 +1,90 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Login — School Management System</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Sign In', ~{::section})}">
+<head><title>Sign In</title></head>
 <body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/login">Login</a>
-    </nav>
+<section>
+    <!-- Centered Login Box -->
+    <div class="login-wrapper" style="min-height: calc(100vh - 120px); padding: 40px 16px;">
+        <div class="login-card-pro" style="max-width: 440px; width: 100%;">
+            <div class="text-center mb-4">
+                <span class="portal-badge mb-2">Portal Access</span>
+                <h1 class="login-card-title fs-3 mb-1">School Name</h1>
+                <p class="login-card-sub mb-0">Sign in to your academic and administrative portal</p>
+            </div>
 
-    <h1>Login</h1>
+            <!-- Error message from failed login attempt -->
+            <div th:if="${error}" class="flash-error mb-3" role="alert">
+                &#9888;&nbsp;<span th:text="${error}">Error</span>
+            </div>
 
-    <div th:if="${error}" class="error" th:text="${error}">Error</div>
+            <form method="post" action="/login">
+                <div class="mb-3">
+                    <label for="userId" class="form-label fw-bold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">User ID or Username</label>
+                    <input type="text"
+                           id="userId"
+                           name="userId"
+                           class="form-control"
+                           th:value="${userId}"
+                           placeholder="e.g. admin, A001, T001, S001"
+                           autocomplete="username"
+                           required>
+                </div>
 
-    <form method="post" action="/login" style="max-width: 320px;">
-        <label>User ID or Username:<br>
-            <input type="text" id="userId" name="userId" th:value="${userId}" placeholder="e.g. A001, T001, S001, admin" required style="width: 100%;">
-        </label><br><br>
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-bold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Password</label>
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           class="form-control"
+                           placeholder="Enter your password"
+                           autocomplete="current-password"
+                           required>
+                </div>
 
-        <label>Password:<br>
-            <input type="password" id="password" name="password" placeholder="Enter password" required style="width: 100%;">
-        </label><br><br>
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="letter-spacing: 0.5px;">Sign In to Portal &rarr;</button>
+            </form>
 
-        <button type="submit" class="btn" style="background: #2563eb; color: white; border: none; border-radius: 4px; padding: 8px 16px;">Login</button>
-    </form>
+            <!-- Test credentials quick-autofill chips -->
+            <div class="credential-chips-container">
+                <div class="credential-chips-title">One-Click Test Accounts:</div>
+                <div class="credential-chips-grid">
+                    <button type="button" class="credential-chip-btn" onclick="fillCredentials('admin', 'admin123')">
+                        <span class="chip-role">Administrator</span>
+                        <span class="chip-sub">admin / admin123</span>
+                    </button>
 
-    <br>
-    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; max-width: 450px; font-size: 13px; color: #475569;">
-        <strong>Default Test Credentials:</strong>
-        <ul style="margin: 6px 0 0 18px; padding: 0;">
-            <li><strong>Admin:</strong> <code>admin</code> / <code>admin123</code></li>
-            <li><strong>Student:</strong> <code>A001</code> / <code>pass_A001</code></li>
-            <li><strong>Teacher:</strong> <code>T001</code> / <code>pass_T001</code> (or email)</li>
-            <li><strong>Staff:</strong> <code>S001</code> / <code>pass_S001</code></li>
-        </ul>
+                    <button type="button" class="credential-chip-btn" onclick="fillCredentials('A001', 'pass_A001')">
+                        <span class="chip-role">Student (10-A)</span>
+                        <span class="chip-sub">A001 / pass_A001</span>
+                    </button>
+
+                    <button type="button" class="credential-chip-btn" onclick="fillCredentials('T001', 'pass_T001')">
+                        <span class="chip-role">Teacher</span>
+                        <span class="chip-sub">T001 / pass_T001</span>
+                    </button>
+
+                    <button type="button" class="credential-chip-btn" onclick="fillCredentials('S001', 'pass_S001')">
+                        <span class="chip-role">Driver / Staff</span>
+                        <span class="chip-sub">S001 / pass_S001</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Vanilla JavaScript for Quick Credential Autofill -->
+    <script>
+        function fillCredentials(user, pass) {
+            var u = document.getElementById('userId');
+            var p = document.getElementById('password');
+            if (u && p) {
+                u.value = user;
+                p.value = pass;
+                u.focus();
+            }
+        }
+    </script>
+</section>
 </body>
 </html>

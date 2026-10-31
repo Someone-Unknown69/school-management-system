@@ -1,213 +1,232 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin — Transport &amp; Fleet Management</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Transport &amp; Fleet', ~{::section})}">
+<head><title>Admin — Transport Fleet</title></head>
 <body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/admin/students">Manage Students</a>
-        <a href="/admin/faculty">Manage Faculty &amp; Staff</a>
-        <a href="/admin/transactions">Transactions</a>
-        <a href="/admin/transport"><strong>Transport</strong></a>
-        <a href="/logout">Logout (<span th:text="${loggedInUser}">admin</span>)</a>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Transport Fleet</li>
+        </ol>
     </nav>
 
-    <h1>School Transport &amp; Fleet Management</h1>
-    <p>Monitor bus routes, fleet capacity, driver assignments, and student passenger rosters.</p>
-
-    <!-- Feedback alerts -->
-    <div th:if="${successMessage}" style="background: #e6ffed; border: 1px solid #b7eb8f; padding: 10px; margin-bottom: 15px; color: #276749; border-radius: 4px;" th:text="${successMessage}"></div>
-    <div th:if="${errorMessage}" style="background: #fff1f0; border: 1px solid #ffa39e; padding: 10px; margin-bottom: 15px; color: #cf1322; border-radius: 4px;" th:text="${errorMessage}"></div>
-
-    <!-- Transport Summary KPI Cards -->
-    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
-        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 6px; min-width: 180px; flex: 1;">
-            <div style="font-size: 12px; color: #166534; font-weight: bold; text-transform: uppercase;">Total Fleet</div>
-            <div style="font-size: 22px; font-weight: bold; color: #15803d; margin-top: 5px;" th:text="${stats.totalVehicles} + ' Vehicles'">8 Vehicles</div>
-            <div style="font-size: 12px; color: #166534; margin-top: 3px;">Operational school buses</div>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">School Bus Fleet &amp; Route Logistics</h1>
+            <p class="page-subtitle">Manage bus fleet capacity, driver assignments, route allocations, and student passenger rosters.</p>
         </div>
-        <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 6px; min-width: 180px; flex: 1;">
-            <div style="font-size: 12px; color: #1e40af; font-weight: bold; text-transform: uppercase;">Fleet Capacity</div>
-            <div style="font-size: 22px; font-weight: bold; color: #1d4ed8; margin-top: 5px;" th:text="${stats.totalCapacity} + ' Seats'">300 Seats</div>
-            <div style="font-size: 12px; color: #1e40af; margin-top: 3px;">Total passenger seats</div>
-        </div>
-        <div style="background: #fefce8; border: 1px solid #fef08a; padding: 15px; border-radius: 6px; min-width: 180px; flex: 1;">
-            <div style="font-size: 12px; color: #854d0e; font-weight: bold; text-transform: uppercase;">Bus Commuters</div>
-            <div style="font-size: 22px; font-weight: bold; color: #a16207; margin-top: 5px;" th:text="${stats.assignedStudents} + ' Students'">239 Students</div>
-            <div style="font-size: 12px; color: #854d0e; margin-top: 3px;" th:text="${stats.unassignedStudents} + ' self-commute'">241 self-commute</div>
-        </div>
-        <div style="background: #fdf2f8; border: 1px solid #fbcfe8; padding: 15px; border-radius: 6px; min-width: 180px; flex: 1;">
-            <div style="font-size: 12px; color: #9d174d; font-weight: bold; text-transform: uppercase;">Fleet Utilization</div>
-            <div style="font-size: 22px; font-weight: bold; color: #be185d; margin-top: 5px;" th:text="${stats.utilizationPercentage} + '%'">80%</div>
-            <div style="font-size: 12px; color: #9d174d; margin-top: 3px;">Average occupancy rate</div>
+        <div>
+            <a href="/admin/transport/vehicle/new" class="btn btn-bw">+ Add New Vehicle</a>
         </div>
     </div>
 
-    <!-- Action Toolbar -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <h2 style="margin: 0;">Vehicle Fleet &amp; Bus Routes</h2>
-        <a href="/admin/transport/vehicle/new" style="background: #2563eb; color: white; padding: 8px 14px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 13px;">+ Add New Vehicle</a>
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- Transport Summary KPI Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-value" th:text="${stats.totalVehicles} + ' Buses'">8 Buses</div>
+                <div class="stat-label">Total Fleet</div>
+                <div class="stat-sub">Active institutional vehicles</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-value" th:text="${stats.totalCapacity} + ' Seats'">300 Seats</div>
+                <div class="stat-label">Fleet Capacity</div>
+                <div class="stat-sub">Total seating across routes</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-value" th:text="${stats.assignedStudents} + ' Riders'">239 Riders</div>
+                <div class="stat-label">Bus Commuters</div>
+                <div class="stat-sub" th:text="${stats.unassignedStudents} + ' students self-commute'">241 self-commute</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-value" th:text="${stats.utilizationPercentage} + '%'">80%</div>
+                <div class="stat-label">Fleet Occupancy</div>
+                <div class="stat-sub">Average seat utilization</div>
+            </div>
+        </div>
     </div>
 
     <!-- Vehicles Fleet Table -->
-    <table>
-        <thead>
-            <tr>
-                <th>Vehicle ID</th>
-                <th>Registration No</th>
-                <th>Route Name</th>
-                <th>Assigned Driver</th>
-                <th>Driver Contact</th>
-                <th>Capacity</th>
-                <th>Occupancy</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="v : ${vehicles}" th:style="${activeVehicle != null and activeVehicle.vehicleId == v.vehicleId} ? 'background: #eff6ff;' : ''">
-                <td>
-                    <strong th:text="${v.vehicleId}">V01</strong>
-                    <span th:if="${activeVehicle != null and activeVehicle.vehicleId == v.vehicleId}" 
-                          style="font-size: 11px; background: #2563eb; color: white; padding: 2px 5px; border-radius: 3px; margin-left: 4px;">Active</span>
-                </td>
-                <td th:text="${v.registrationNumber}">UP65AB1234</td>
-                <td><strong th:text="${v.routeName}">Route A - Sigra</strong></td>
-                <td>
-                    <span th:if="${v.driverName != null}">
-                        <span th:text="${v.driverName}">Ramesh Kumar</span>
-                        <small style="color: #666;" th:text="'(' + ${v.driverId} + ')'">(S001)</small>
-                    </span>
-                    <span th:unless="${v.driverName != null}" style="color: #999;">Unassigned</span>
-                </td>
-                <td th:text="${v.driverContact != null ? v.driverContact : '—'}">9876500001</td>
-                <td th:text="${v.capacity}">40</td>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span th:text="${v.assignedStudents} + ' / ' + ${v.capacity}">34 / 40</span>
-                        <span style="font-size: 11px; font-weight: bold; padding: 1px 6px; border-radius: 3px;"
-                              th:styleappend="${v.occupancyPercentage >= 95} ? 'background: #fee2e2; color: #b91c1c;' : (${v.occupancyPercentage >= 80} ? 'background: #fef3c7; color: #92400e;' : 'background: #dcfce7; color: #166534;')"
-                              th:text="${v.occupancyPercentage} + '%'">85%</span>
-                    </div>
-                </td>
-                <td>
-                    <a th:href="@{'/admin/transport?selectedVehicle=' + ${v.vehicleId} + '#passengers'}" 
-                       style="margin-right: 8px; font-weight: bold;">View Passengers</a>
-                    <a th:href="@{'/admin/transport/vehicle/edit/' + ${v.vehicleId}}" style="margin-right: 8px;">Edit</a>
-                    <form th:action="@{'/admin/transport/vehicle/delete/' + ${v.vehicleId}}" method="post" style="display: inline;" 
-                          onsubmit="return confirm('Are you sure you want to delete this vehicle? Any students assigned to it will become unassigned.');">
-                        <button type="submit" style="background: none; border: none; color: #dc2626; cursor: pointer; padding: 0; text-decoration: underline; font-size: inherit;">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(vehicles)}">
-                <td colspan="8" style="text-align: center; color: #666; padding: 20px;">No vehicles found in the fleet.</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- Passenger Roster for Selected Vehicle -->
-    <div id="passengers" th:if="${activeVehicle != null}" style="margin-top: 35px; border-top: 2px solid #ddd; padding-top: 20px;">
-        <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                <div>
-                    <h2 style="margin: 0 0 5px 0;">
-                        Passenger Roster: <span th:text="${activeVehicle.routeName}">Route A</span>
-                        (<span th:text="${activeVehicle.vehicleId}">V01</span> — <span th:text="${activeVehicle.registrationNumber}">UP65AB1234</span>)
-                    </h2>
-                    <p style="margin: 0; color: #475569; font-size: 13px;">
-                        Assigned Driver: <strong th:text="${activeVehicle.driverName != null ? activeVehicle.driverName : 'Unassigned'}">Ramesh Kumar</strong> 
-                        <span th:if="${activeVehicle.driverContact != null}"> | Phone: <strong th:text="${activeVehicle.driverContact}">9876500001</strong></span>
-                        | Total Riders: <strong th:text="${activeVehicle.assignedStudents} + ' / ' + ${activeVehicle.capacity} + ' seats'">34 / 40</strong>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add Passenger to this Route Form -->
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h3 style="margin: 0; font-size: 15px; color: #1e293b;">+ Add Student Passenger to this Route</h3>
-                <span style="font-size: 12px; font-weight: bold;" 
-                      th:styleappend="${activeVehicle.capacity > activeVehicle.assignedStudents} ? 'color: #16a34a;' : 'color: #b91c1c;'"
-                      th:text="(${activeVehicle.capacity - activeVehicle.assignedStudents} > 0 ? (${activeVehicle.capacity - activeVehicle.assignedStudents} + ' seats available') : 'Bus Full (0 seats available)')">
-                    6 seats available
-                </span>
-            </div>
-
-            <form th:action="@{/admin/transport/add-passenger}" method="post" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                <input type="hidden" name="vehicleId" th:value="${activeVehicle.vehicleId}">
-
-                <label style="display: flex; align-items: center; gap: 6px;">
-                    <span style="font-size: 13px; font-weight: bold;">Select Student:</span>
-                    <select name="admissionNo" style="min-width: 300px;">
-                        <option value="">-- Choose from Unassigned Students --</option>
-                        <option th:each="u : ${unassignedStudents}"
-                                th:value="${u.admissionNo}"
-                                th:text="${u.admissionNo} + ' — ' + ${u.firstName} + ' ' + (${u.lastName != null} ? ${u.lastName} : '') + ' (Class ' + ${u.standard} + '-' + ${u.division} + ')'"></option>
-                    </select>
-                </label>
-
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="color: #64748b; font-size: 13px;">or enter Admission No:</span>
-                    <input type="text" name="manualAdmissionNo" placeholder="e.g. A015" style="width: 100px;">
-                </div>
-
-                <button type="submit" class="btn" 
-                        th:disabled="${activeVehicle.assignedStudents >= activeVehicle.capacity}"
-                        style="background: #16a34a; color: white; border: none; border-radius: 4px; padding: 7px 15px; font-weight: bold; cursor: pointer;">
-                    + Add Passenger
-                </button>
-            </form>
-
-            <div th:if="${activeVehicle.assignedStudents >= activeVehicle.capacity}" style="margin-top: 8px; color: #b91c1c; font-size: 12px; font-weight: bold;">
-                Notice: This vehicle is at full capacity. You cannot add more passengers unless vehicle capacity is increased or an existing passenger is removed.
-            </div>
-        </div>
-
-        <table>
+    <h2 class="h3 mb-3">Bus Fleet &amp; Route Directory</h2>
+    <div class="table-responsive" th:if="${!#lists.isEmpty(vehicles)}">
+        <table class="table">
             <thead>
                 <tr>
-                    <th>Roll No</th>
-                    <th>Admission No</th>
-                    <th>Student Name</th>
-                    <th>Class</th>
-                    <th>Section</th>
-                    <th>House</th>
-                    <th>Blood Group</th>
-                    <th>Action</th>
+                    <th style="width: 110px;">Vehicle ID</th>
+                    <th style="width: 140px;">Reg Number</th>
+                    <th>Designated Route</th>
+                    <th>Assigned Driver</th>
+                    <th style="width: 130px;">Driver Phone</th>
+                    <th style="width: 90px;">Capacity</th>
+                    <th style="width: 140px;">Occupancy</th>
+                    <th style="width: 220px; text-align: right;">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="s : ${passengers}">
-                    <td th:text="${s.rollNo}">1</td>
-                    <td><strong th:text="${s.admissionNo}">A001</strong></td>
-                    <td th:text="${s.firstName} + (${s.lastName != null} ? ' ' + ${s.lastName} : '')">Rohan Mehta</td>
-                    <td th:text="'Class ' + ${s.standard}">Class 10</td>
-                    <td th:text="${s.division}">A</td>
+                <tr th:each="v : ${vehicles}" th:style="${activeVehicle != null and activeVehicle.vehicleId == v.vehicleId} ? 'background-color: #f5f5f5;' : ''">
                     <td>
-                        <span th:style="'color: ' + (${s.house.toLowerCase() == 'yellow'} ? '#ca8a04' : ${s.house.toLowerCase()}) + '; font-weight: bold;'" 
-                              th:text="${s.house}">Red</span>
+                        <strong th:text="${v.vehicleId}">V01</strong>
+                        <span th:if="${activeVehicle != null and activeVehicle.vehicleId == v.vehicleId}"
+                              class="badge-filled ms-1" style="font-size: 10px;">Active</span>
                     </td>
-                    <td th:text="${s.bloodGroup}">O+</td>
+                    <td th:text="${v.registrationNumber}">UP65AB1234</td>
+                    <td><strong th:text="${v.routeName}">Route A - Sigra</strong></td>
                     <td>
-                        <form th:action="@{/admin/transport/remove-passenger}" method="post" style="display: inline;" 
-                              onsubmit="return confirm('Remove student from this vehicle route?');">
-                            <input type="hidden" name="admissionNo" th:value="${s.admissionNo}">
-                            <input type="hidden" name="vehicleId" th:value="${activeVehicle.vehicleId}">
-                            <button type="submit" style="background: none; border: none; color: #dc2626; cursor: pointer; padding: 0; text-decoration: underline; font-size: inherit;">Remove</button>
-                        </form>
+                        <span th:if="${v.driverName != null}">
+                            <span th:text="${v.driverName}">Ramesh Kumar</span>
+                            <small class="text-muted" th:text="'(' + ${v.driverId} + ')'">(S001)</small>
+                        </span>
+                        <span th:unless="${v.driverName != null}" class="text-muted">Unassigned</span>
                     </td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(passengers)}">
-                    <td colspan="8" style="text-align: center; color: #666; padding: 20px;">
-                        No students are currently assigned to this vehicle route.
+                    <td th:text="${v.driverContact != null ? v.driverContact : '—'}">9876500001</td>
+                    <td th:text="${v.capacity}">40</td>
+                    <td>
+                        <span th:text="${v.assignedStudents} + ' / ' + ${v.capacity}">34 / 40</span>
+                        <span class="badge-outlined ms-1" th:text="${v.occupancyPercentage} + '%'">85%</span>
+                    </td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <a th:href="@{'/admin/transport?selectedVehicle=' + ${v.vehicleId} + '#passengers'}"
+                           class="btn btn-bw btn-sm me-1">Roster</a>
+                        <a th:href="@{'/admin/transport/vehicle/edit/' + ${v.vehicleId}}"
+                           class="btn btn-bw-outline btn-sm me-1">Edit</a>
+                        
+                        <button type="button"
+                                class="btn btn-bw-outline btn-sm"
+                                data-bs-toggle="modal"
+                                th:data-bs-target="'#deleteVehicleModal-' + ${v.vehicleId}">
+                            Delete
+                        </button>
+
+                        <div th:replace="~{fragments/ui :: confirm-modal('deleteVehicleModal-' + ${v.vehicleId},
+                                                                        'Delete Fleet Vehicle',
+                                                                        'Are you sure you want to delete vehicle ' + ${v.vehicleId} + ' (' + ${v.routeName} + ')? Students assigned to this vehicle will become unassigned.',
+                                                                        @{'/admin/transport/vehicle/delete/' + ${v.vehicleId}})}"></div>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+
+    <!-- Passenger Roster Section for Selected Vehicle -->
+    <div id="passengers" th:if="${activeVehicle != null}" class="mt-5 pt-3 border-top border-black">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <div>
+                <h2 class="h2 mb-1">
+                    Route Passenger Roster: <span th:text="${activeVehicle.routeName}">Route A</span>
+                    (<span th:text="${activeVehicle.vehicleId}">V01</span> — <span th:text="${activeVehicle.registrationNumber}">UP65AB1234</span>)
+                </h2>
+                <p class="page-subtitle">
+                    Driver: <strong th:text="${activeVehicle.driverName != null ? activeVehicle.driverName : 'Unassigned'}">Ramesh Kumar</strong>
+                    <span th:if="${activeVehicle.driverContact != null}"> | Tel: <span th:text="${activeVehicle.driverContact}">9876500001</span></span>
+                    &nbsp;|&nbsp; Occupancy: <strong th:text="${activeVehicle.assignedStudents} + ' / ' + ${activeVehicle.capacity} + ' seats'">34 / 40</strong>
+                </p>
+            </div>
+            <div>
+                <span th:if="${activeVehicle.capacity > activeVehicle.assignedStudents}" class="badge-filled">
+                    <span th:text="${activeVehicle.capacity - activeVehicle.assignedStudents}">6</span> Seats Available
+                </span>
+                <span th:unless="${activeVehicle.capacity > activeVehicle.assignedStudents}" class="badge-outlined">
+                    Bus Full (0 Seats)
+                </span>
+            </div>
+        </div>
+
+        <!-- Add Passenger Card -->
+        <div class="card mb-4">
+            <div class="card-header">Add Student Passenger to This Bus Route</div>
+            <div class="card-body">
+                <form th:action="@{/admin/transport/add-passenger}" method="post" class="row g-2 align-items-end">
+                    <input type="hidden" name="vehicleId" th:value="${activeVehicle.vehicleId}">
+
+                    <div class="col-md-5">
+                        <label class="form-label">Select Unassigned Student</label>
+                        <select name="admissionNo" class="form-select form-select-sm">
+                            <option value="">-- Choose from Unassigned Students --</option>
+                            <option th:each="u : ${unassignedStudents}"
+                                    th:value="${u.admissionNo}"
+                                    th:text="${u.admissionNo} + ' — ' + ${u.firstName} + ' ' + (${u.lastName != null} ? ${u.lastName} : '') + ' (Class ' + ${u.standard} + '-' + ${u.division} + ')'"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Or Type Admission No Directly</label>
+                        <input type="text" name="manualAdmissionNo" placeholder="e.g. A015" class="form-control form-control-sm">
+                    </div>
+
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-bw btn-sm"
+                                th:disabled="${activeVehicle.assignedStudents >= activeVehicle.capacity}">
+                            + Assign to Bus
+                        </button>
+                    </div>
+                </form>
+
+                <div th:if="${activeVehicle.assignedStudents >= activeVehicle.capacity}" class="form-text mt-2" style="font-weight: 600;">
+                    Notice: This vehicle is at full maximum seating capacity. Increase vehicle capacity or remove an existing passenger before assigning more.
+                </div>
+            </div>
+        </div>
+
+        <!-- Passenger Table -->
+        <div class="table-responsive" th:if="${!#lists.isEmpty(passengers)}">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Roll No</th>
+                        <th style="width: 140px;">Admission No</th>
+                        <th>Student Name</th>
+                        <th style="width: 100px;">Class</th>
+                        <th style="width: 90px;">Section</th>
+                        <th style="width: 120px;">House</th>
+                        <th style="width: 110px;">Blood Group</th>
+                        <th style="width: 120px; text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="s : ${passengers}">
+                        <td th:text="${s.rollNo}">1</td>
+                        <td><strong th:text="${s.admissionNo}">A001</strong></td>
+                        <td th:text="${s.firstName} + (${s.lastName != null} ? ' ' + ${s.lastName} : '')">Rohan Mehta</td>
+                        <td th:text="'Class ' + ${s.standard}">Class 10</td>
+                        <td th:text="${s.division}">A</td>
+                        <td><span class="badge-outlined" th:text="${s.house}">Red</span></td>
+                        <td><span class="badge-muted" th:text="${s.bloodGroup}">O+</span></td>
+                        <td style="text-align: right;">
+                            <button type="button"
+                                    class="btn btn-bw-outline btn-sm"
+                                    data-bs-toggle="modal"
+                                    th:data-bs-target="'#removePassengerModal-' + ${s.admissionNo}">
+                                Remove
+                            </button>
+
+                            <div th:replace="~{fragments/ui :: confirm-modal-with-2inputs('removePassengerModal-' + ${s.admissionNo},
+                                                                                          'Remove Passenger from Route',
+                                                                                          'Remove ' + ${s.firstName} + ' (' + ${s.admissionNo} + ') from vehicle ' + ${activeVehicle.vehicleId} + '?',
+                                                                                          @{/admin/transport/remove-passenger},
+                                                                                          'admissionNo', ${s.admissionNo},
+                                                                                          'vehicleId', ${activeVehicle.vehicleId})}"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${#lists.isEmpty(passengers)}">
+            <div th:replace="~{fragments/ui :: empty-state('🚌', 'No Passengers on Route', 'No students are currently assigned to this bus vehicle.')}"></div>
+        </div>
+    </div>
+</section>
 </body>
 </html>

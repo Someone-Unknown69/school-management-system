@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Subjects Management', ~{::section})}">
+<head><title>Subjects Management</title></head>
+<body>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Subjects Management</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Curriculum Subjects</h1>
+            <p class="page-subtitle">Configure academic subjects, syllabus periods, reference books, and faculty assignments.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/admin/subjects/new" class="btn btn-bw btn-sm">+ New Subject</a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- Filter Bar by Class -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" action="/admin/subjects" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="classFilter" class="form-label">Filter by Class Level</label>
+                    <select id="classFilter" name="classFilter" class="form-select" onchange="this.form.submit()">
+                        <option value="all" th:selected="${classFilter == 'all' or classFilter == null}">-- All Classes (1 to 12) --</option>
+                        <option th:each="cls : ${availableClasses}"
+                                th:value="${cls}"
+                                th:text="'Class ' + ${cls}"
+                                th:selected="${classFilter == cls}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-bw w-100">Apply Filter</button>
+                </div>
+                <div class="col-md-2" th:if="${classFilter != 'all' and classFilter != null}">
+                    <a href="/admin/subjects" class="btn btn-bw-outline w-100">Clear Filter</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Subjects Table -->
+    <div class="table-responsive" th:if="${!#lists.isEmpty(subjects)}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Code</th>
+                    <th>Subject Name</th>
+                    <th style="width: 100px;">Class</th>
+                    <th style="width: 140px; text-align: center;">Periods / Wk</th>
+                    <th style="width: 120px; text-align: center;">Enrolled</th>
+                    <th style="width: 120px; text-align: center;">Schedules</th>
+                    <th style="text-align: right; width: 240px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="sub : ${subjects}">
+                    <td><strong th:text="${sub.subjectCode}">MATH10</strong></td>
+                    <td>
+                        <a th:href="@{'/admin/subjects/' + ${sub.subjectCode}}"
+                           style="color: #000; font-weight: 600; text-decoration: underline;"
+                           th:text="${sub.subjectName}">Mathematics</a>
+                    </td>
+                    <td>
+                        <span class="badge-filled" th:text="'Class ' + ${sub.className}">Class 10</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span th:text="${sub.periodsPerWeek}">6</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="badge-outlined" th:text="${sub.enrollmentCount} + ' students'">60 students</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="badge-outlined" th:text="${sub.scheduleCount} + ' sections'">2 sections</span>
+                    </td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <a th:href="@{'/admin/subjects/' + ${sub.subjectCode}}"
+                           class="btn btn-bw-outline btn-sm me-1">Details &amp; Teachers</a>
+                        <a th:href="@{'/admin/subjects/edit/' + ${sub.subjectCode}}"
+                           class="btn btn-bw-outline btn-sm me-1">Edit</a>
+                        <button type="button"
+                                class="btn btn-bw-outline btn-sm"
+                                data-bs-toggle="modal"
+                                th:data-bs-target="'#deleteSubModal-' + ${sub.subjectCode}">
+                            Delete
+                        </button>
+
+                        <!-- Delete Confirm Modal -->
+                        <div th:replace="~{fragments/ui :: confirm-modal('deleteSubModal-' + ${sub.subjectCode},
+                                                                        'Delete Subject',
+                                                                        'Are you sure you want to permanently delete subject ' + ${sub.subjectName} + ' (' + ${sub.subjectCode} + ')? This will fail if students are currently enrolled or if it is on active timetables.',
+                                                                        @{'/admin/subjects/delete/' + ${sub.subjectCode}})}"></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(subjects)}">
+        <div th:replace="~{fragments/ui :: empty-state('📚', 'No Subjects Found', 'No curriculum subjects matched your filter criteria. Click New Subject above to add one.')}"></div>
+    </div>
+</section>
+</body>
+</html>
+

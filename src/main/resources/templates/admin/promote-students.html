@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Promote Students', ~{::section})}">
+<head><title>Promote Students</title></head>
+<body>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/sections">Classes &amp; Sections</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Promote Students</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Batch Student Promotion</h1>
+            <p class="page-subtitle">Advance student cohorts to higher grade sections with atomic single-transaction execution.</p>
+        </div>
+        <div>
+            <a href="/admin/sections" class="btn btn-bw-outline btn-sm">&larr; Back to Sections</a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- 1. Source and Target Section Selection Card -->
+    <div class="card mb-4">
+        <div class="card-header">1. Select Source &amp; Destination Sections</div>
+        <div class="card-body">
+            <form method="get" action="/admin/sections/promote" class="row g-3 align-items-end">
+                <!-- Source Section -->
+                <div class="col-md-5">
+                    <label for="sourceSelect" class="form-label">Current (Source) Section</label>
+                    <select id="sourceSelect" class="form-select" onchange="updateSourceParams(this.value)">
+                        <option value="">-- Choose source section to promote --</option>
+                        <option th:each="sec : ${allSections}"
+                                th:value="${sec.standard} + '|' + ${sec.division}"
+                                th:text="'Class ' + ${sec.standard} + ' - ' + ${sec.division} + ' (' + ${sec.studentCount} + ' students)'"
+                                th:selected="${sourceStandard == sec.standard and sourceDivision == sec.division}"></option>
+                    </select>
+                    <input type="hidden" id="sourceStandard" name="sourceStandard" th:value="${sourceStandard}">
+                    <input type="hidden" id="sourceDivision" name="sourceDivision" th:value="${sourceDivision}">
+                </div>
+
+                <!-- Target Section -->
+                <div class="col-md-5">
+                    <label for="targetSelect" class="form-label">Destination (Target) Section</label>
+                    <select id="targetSelect" class="form-select" onchange="updateTargetParams(this.value)">
+                        <option value="">-- Choose target section --</option>
+                        <option th:each="sec : ${allSections}"
+                                th:value="${sec.standard} + '|' + ${sec.division}"
+                                th:text="'Class ' + ${sec.standard} + ' - ' + ${sec.division} + ' (' + ${sec.studentCount} + ' students currently)'"
+                                th:selected="${targetStandard == sec.standard and targetDivision == sec.division}"></option>
+                    </select>
+                    <input type="hidden" id="targetStandard" name="targetStandard" th:value="${targetStandard}">
+                    <input type="hidden" id="targetDivision" name="targetDivision" th:value="${targetDivision}">
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-bw w-100">Load Students</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Students Preview & Confirmation Form -->
+    <div class="card mb-4" th:if="${!#lists.isEmpty(students)}">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>2. Select Students to Advance to Class <strong th:text="${targetStandard} + '-' + ${targetDivision}">11-A</strong></span>
+            <div>
+                <button type="button" class="btn btn-bw-outline btn-sm me-1" onclick="toggleSelectAll(true)">Select All</button>
+                <button type="button" class="btn btn-bw-outline btn-sm" onclick="toggleSelectAll(false)">Deselect All</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="post" action="/admin/sections/promote">
+                <input type="hidden" name="sourceStandard" th:value="${sourceStandard}">
+                <input type="hidden" name="sourceDivision" th:value="${sourceDivision}">
+                <input type="hidden" name="targetStandard" th:value="${targetStandard}">
+                <input type="hidden" name="targetDivision" th:value="${targetDivision}">
+
+                <div class="table-responsive mb-4">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px; text-align: center;">Promote</th>
+                                <th style="width: 120px;">Admission No</th>
+                                <th style="width: 90px;">Roll No</th>
+                                <th>Student Full Name</th>
+                                <th>House</th>
+                                <th style="text-align: right;">Fee Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="st : ${students}">
+                                <td style="text-align: center;">
+                                    <input type="checkbox" name="studentIds" th:value="${st.admissionNo}" checked class="form-check-input promote-cb">
+                                </td>
+                                <td><strong th:text="${st.admissionNo}">A001</strong></td>
+                                <td th:text="${st.rollNo}">1</td>
+                                <td><strong th:text="${st.fullName}">Rohan Mehta</strong></td>
+                                <td><span class="badge-outlined" th:text="${st.house}">Red</span></td>
+                                <td style="text-align: right;" th:text="'₹' + ${st.remainingFees}">₹0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="p-3 mb-3" style="background: #f5f5f5; border: 1px solid #000; font-size: 13px;">
+                    <strong>Notice:</strong> This promotion will immediately update the <code>Standard</code> and <code>Division</code> records of all ticked students in ONE atomic database transaction. Students beyond Class 12 cannot be promoted.
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-bw">
+                        Confirm &amp; Promote Selected Students &rarr;
+                    </button>
+                    <a href="/admin/sections" class="btn btn-bw-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Empty state if source selected has no students -->
+    <div th:if="${sourceStandard != null and #lists.isEmpty(students)}">
+        <div th:replace="~{fragments/ui :: empty-state('👥', 'No Students Found', 'There are no active students in Section ' + ${sourceStandard} + '-' + ${sourceDivision} + ' to promote.')}"></div>
+    </div>
+
+    <script>
+        function updateSourceParams(val) {
+            if (val && val.includes('|')) {
+                const parts = val.split('|');
+                document.getElementById('sourceStandard').value = parts[0];
+                document.getElementById('sourceDivision').value = parts[1];
+            }
+        }
+        function updateTargetParams(val) {
+            if (val && val.includes('|')) {
+                const parts = val.split('|');
+                document.getElementById('targetStandard').value = parts[0];
+                document.getElementById('targetDivision').value = parts[1];
+            }
+        }
+        function toggleSelectAll(checked) {
+            document.querySelectorAll('.promote-cb').forEach(cb => cb.checked = checked);
+        }
+    </script>
+</section>
+</body>
+</html>
+

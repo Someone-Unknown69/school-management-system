@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Fee Receipt — ' + receipt.transactionId, ~{::section})}">
+<head>
+    <title>Fee Payment Receipt</title>
+</head>
+<body>
+<section>
+    <!-- Print Stylesheet -->
+    <style>
+        @media print {
+            /* Hide non-printable navigation and shell elements */
+            .no-print,
+            .topbar,
+            .sidebar,
+            .breadcrumb-bar,
+            .page-header,
+            footer {
+                display: none !important;
+            }
+
+            /* Reset body and container for printing */
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            .receipt-card {
+                border: 2px solid #000000 !important;
+                box-shadow: none !important;
+                max-width: 100% !important;
+                margin: 0 auto !important;
+                padding: 32px !important;
+                page-break-inside: avoid;
+            }
+
+            .receipt-header {
+                border-bottom: 2px solid #000000 !important;
+            }
+        }
+
+        .receipt-card {
+            background: #ffffff;
+            border: 1px solid #000000;
+            border-radius: 2px;
+            max-width: 760px;
+            margin: 0 auto 32px auto;
+            padding: 32px;
+        }
+
+        .receipt-header {
+            border-bottom: 1px solid #000000;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .receipt-watermark {
+            display: inline-block;
+            border: 1px solid #000000;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+    </style>
+
+    <!-- Breadcrumb (Screen only) -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar no-print">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'admin'}"><a href="/admin/fees/dues">Fee Management</a></li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'student'}"><a href="/student/fees">My Fees</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="'Receipt ' + ${receipt.transactionId}">Receipt</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header (Screen only) -->
+    <div class="page-header no-print">
+        <div>
+            <h1 class="page-title" th:text="'Fee Receipt #' + ${receipt.transactionId}">Fee Receipt</h1>
+            <p class="page-subtitle">Official payment transaction record and computer-generated bursary receipt.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-bw btn-sm" onclick="window.print()">
+                Print Receipt
+            </button>
+            <a th:if="${loggedInRole == 'admin'}" href="/admin/fees/record" class="btn btn-bw-outline btn-sm">+ Record Another</a>
+            <a th:if="${loggedInRole == 'admin'}" href="/admin/fees/dues" class="btn btn-bw-outline btn-sm">&larr; Fee Dues</a>
+            <a th:if="${loggedInRole == 'student'}" href="/student/fees" class="btn btn-bw-outline btn-sm">&larr; Back to My Fees</a>
+        </div>
+    </div>
+
+    <!-- Flash Messages (Screen only) -->
+    <div class="no-print" th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- Printable Receipt Box -->
+    <div class="receipt-card">
+        <!-- Institution Header -->
+        <div class="receipt-header">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h2 class="h3 fw-bold mb-1" style="letter-spacing: 0.5px;">SCHOOL NAME</h2>
+                    <div class="text-muted" style="font-size: 13px;">School Administration &amp; Bursary Office</div>
+                    <div class="text-muted" style="font-size: 12px;">Contact: accounts@school.edu</div>
+                </div>
+                <div class="text-end">
+                    <span class="receipt-watermark mb-2">Official Receipt</span>
+                    <div style="font-size: 13px; font-weight: 700;">Receipt No: <span th:text="${receipt.transactionId}">TXN0001</span></div>
+                    <div style="font-size: 12px;" class="text-muted">Date: <span th:text="${receipt.dateOfPayment}">2026-10-30</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student & Payer Information Grid -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6">
+                <div class="card h-100 border">
+                    <div class="card-header bg-light py-1 fw-bold" style="font-size: 12px; letter-spacing: 0.5px;">STUDENT PARTICULARS</div>
+                    <div class="card-body p-2" style="font-size: 13px;">
+                        <div><strong>Admission No:</strong> <span th:text="${receipt.studentId}">A001</span></div>
+                        <div class="mt-1"><strong>Student Name:</strong> <span th:text="${receipt.studentName}">Rohan Mehta</span></div>
+                        <div class="mt-1"><strong>Class &amp; Section:</strong> <span th:text="'Class ' + ${receipt.standard} + ' - ' + ${receipt.division}">Class 10 - A</span></div>
+                        <div class="mt-1"><strong>Roll Number:</strong> <span th:text="${receipt.rollNo}">1</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card h-100 border">
+                    <div class="card-header bg-light py-1 fw-bold" style="font-size: 12px; letter-spacing: 0.5px;">PAYMENT TRANSACTION DETAILS</div>
+                    <div class="card-body p-2" style="font-size: 13px;">
+                        <div><strong>Transaction ID:</strong> <span th:text="${receipt.transactionId}">TXN0001</span></div>
+                        <div class="mt-1"><strong>Payment Mode:</strong> <span class="badge-outlined ms-1" th:text="${receipt.paymentMode}">UPI</span></div>
+                        <div class="mt-1"><strong>Remitted By:</strong> <span th:text="${receipt.sender}">Rohan Mehta</span></div>
+                        <div class="mt-1"><strong>Receiving Entity:</strong> <span th:text="${receipt.receiver}">School</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Receipt Line Items Table -->
+        <table class="table table-bordered mb-4" style="border: 1px solid #000000; font-size: 13px;">
+            <thead>
+                <tr style="background-color: #f5f5f5;">
+                    <th style="width: 50px; text-align: center;">#</th>
+                    <th>Fee Description</th>
+                    <th style="width: 140px; text-align: center;">Payment Mode</th>
+                    <th style="width: 160px; text-align: right;">Amount (INR)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">1</td>
+                    <td>
+                        <strong>Tuition &amp; Educational Services Installment</strong>
+                        <div class="text-muted" style="font-size: 11px;">Official institutional tuition remittance credited to school accounts.</div>
+                    </td>
+                    <td style="text-align: center;" th:text="${receipt.paymentMode}">UPI</td>
+                    <td style="text-align: right; font-weight: 700;" th:text="'₹' + ${#numbers.formatDecimal(receipt.amount, 1, 2)}">₹5000.00</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr style="border-top: 2px solid #000000;">
+                    <th colspan="3" style="text-align: right; font-size: 14px;">TOTAL AMOUNT PAID:</th>
+                    <th style="text-align: right; font-size: 16px; font-weight: 800;" th:text="'₹' + ${#numbers.formatDecimal(receipt.amount, 1, 2)}">₹5000.00</th>
+                </tr>
+                <tr style="background-color: #f5f5f5;">
+                    <td colspan="3" style="text-align: right; font-size: 12px;">Remaining Outstanding Balance after payment:</td>
+                    <td style="text-align: right; font-weight: 700; font-size: 12px;">
+                        <span th:if="${receipt.remainingFees > 0}" th:text="'₹' + ${#numbers.formatDecimal(receipt.remainingFees, 1, 2)}">₹0.00</span>
+                        <span th:if="${receipt.remainingFees <= 0}">₹0.00 (All Clear)</span>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- Signatures & Computer Generated Note -->
+        <div class="row pt-4 mt-4" style="border-top: 1px dashed #666666; font-size: 12px;">
+            <div class="col-6 text-start">
+                <div style="margin-top: 40px; border-top: 1px solid #000000; display: inline-block; width: 200px;"></div>
+                <div class="fw-bold mt-1">Payer Signature / Acknowledgment</div>
+                <div class="text-muted" style="font-size: 11px;">Remitted by: <span th:text="${receipt.sender}">Rohan Mehta</span></div>
+            </div>
+            <div class="col-6 text-end">
+                <div style="margin-top: 40px; border-top: 1px solid #000000; display: inline-block; width: 200px;"></div>
+                <div class="fw-bold mt-1">Authorized Bursary Signature</div>
+                <div class="text-muted" style="font-size: 11px;">School Name Accounts</div>
+            </div>
+            <div class="col-12 text-center text-muted mt-3" style="font-size: 11px;">
+                This is a computer-generated fee receipt recorded in the School DBMS. No manual stamp required.
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
+

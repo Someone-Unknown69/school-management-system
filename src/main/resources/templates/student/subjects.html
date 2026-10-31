@@ -1,52 +1,72 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>My Subjects & Grades</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('My Subjects', ~{::section})}">
+<head><title>My Subjects &amp; Grades</title></head>
 <body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/students">Student Directory</a>
-        <a href="/student/profile">My Profile</a>
-        <a href="/student/subjects">My Subjects</a>
-        <a href="/student/fees">My Fees</a>
-        <a href="/logout">Logout (<span th:text="${student.admissionNo}">A001</span>)</a>
+<section>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-bar">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Enrolled Subjects</li>
+        </ol>
     </nav>
 
-    <h1>My Enrolled Subjects & Grades</h1>
-    <p>Student: <strong th:text="${student.firstName} + (${student.lastName != null} ? ' ' + ${student.lastName} : '')">Rohan Mehta</strong> (Admission No: <span th:text="${student.admissionNo}">A001</span>)</p>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Enrolled Courses &amp; Academic Grades</h1>
+            <p class="page-subtitle">
+                Student: <strong th:text="${student.fullName}">Rohan Mehta</strong>
+                (Admission No: <span th:text="${student.admissionNo}">A001</span>)
+            </p>
+        </div>
+        <div>
+            <span class="badge-outlined" th:text="${#lists.size(enrollments)} + ' Subjects'">0 Subjects</span>
+        </div>
+    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Subject Code</th>
-                <th>Subject Name</th>
-                <th>Periods / Week</th>
-                <th>Assigned Teacher</th>
-                <th>Grade</th>
-                <th>Reference Books</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="e : ${enrollments}">
-                <td th:text="${e.subjectCode}">MATH10</td>
-                <td th:text="${e.subjectName}">Mathematics</td>
-                <td th:text="${e.periodsPerWeek}">6</td>
-                <td th:text="${e.teacherName}">Anita Verma</td>
-                <td><strong th:text="${e.grade != null ? e.grade : 'N/A'}">A</strong></td>
-                <td>
-                    <span th:if="${#lists.isEmpty(e.referenceBooks)}">None</span>
-                    <ul th:unless="${#lists.isEmpty(e.referenceBooks)}" style="margin: 0; padding-left: 18px;">
-                        <li th:each="book : ${e.referenceBooks}" th:text="${book}">NCERT Class 10 Maths</li>
-                    </ul>
-                </td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(enrollments)}">
-                <td colspan="6" style="text-align: center; color: #666;">No enrolled subjects found.</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Flash Messages -->
+    <div th:replace="~{fragments/ui :: flash-messages}"></div>
+
+    <!-- Subjects Table -->
+    <div class="table-responsive" th:if="${!#lists.isEmpty(enrollments)}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 140px;">Subject Code</th>
+                    <th>Course Title</th>
+                    <th style="width: 130px;">Periods / Wk</th>
+                    <th>Assigned Faculty</th>
+                    <th style="width: 100px; text-align: center;">Grade</th>
+                    <th>Reference Texts</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="e : ${enrollments}">
+                    <td><strong th:text="${e.subjectCode}">MATH10</strong></td>
+                    <td th:text="${e.subjectName}">Mathematics</td>
+                    <td th:text="${e.periodsPerWeek} + ' hrs'">6 hrs</td>
+                    <td th:text="${e.teacherName != null ? e.teacherName : 'Unassigned'}">Anita Verma</td>
+                    <td style="text-align: center;">
+                        <span th:if="${e.grade != null}" class="badge-filled" th:text="${e.grade}">A</span>
+                        <span th:unless="${e.grade != null}" class="badge-muted">N/A</span>
+                    </td>
+                    <td>
+                        <span th:if="${#lists.isEmpty(e.referenceBooks)}" class="text-muted">—</span>
+                        <ul th:unless="${#lists.isEmpty(e.referenceBooks)}" style="margin: 0; padding-left: 18px; font-size: 12px;">
+                            <li th:each="book : ${e.referenceBooks}" th:text="${book}">NCERT Class 10 Maths</li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(enrollments)}">
+        <div th:replace="~{fragments/ui :: empty-state('📚', 'No Subjects Found', 'No course enrollments were found for your current academic term.')}"></div>
+    </div>
+</section>
 </body>
 </html>

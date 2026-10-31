@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Admin Dashboard', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/admin/dashboard">Admin</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Admin Dashboard</h1>
+            <p class="page-subtitle">Real-time overview of academics, operations, fleet, and institutional finances</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/admin/fees/record" class="btn btn-secondary btn-sm">+ Record Fee</a>
+            <a href="/admin/salary/pay" class="btn btn-primary btn-sm">+ Pay Salary</a>
+        </div>
+    </div>
+
+    <!-- Stat Cards Grid -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-4 col-xl-2">
+            <div class="stat-card">
+                <div class="stat-label">Total Students</div>
+                <div class="stat-value" th:text="${totalStudents}">0</div>
+                <div class="stat-sub"><a href="/admin/students" class="text-decoration-underline text-reset">Manage Students &rarr;</a></div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 col-xl-2">
+            <div class="stat-card">
+                <div class="stat-label">Faculty &amp; Staff</div>
+                <div class="stat-value" th:text="${totalTeachers + totalStaff}">0</div>
+                <div class="stat-sub">
+                    <span th:text="${totalTeachers}">0</span> Tch · <span th:text="${totalStaff}">0</span> Stf
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 col-xl-2">
+            <div class="stat-card">
+                <div class="stat-label">Fees Collected</div>
+                <div class="stat-value" style="font-size: 20px;" th:text="'₹ ' + ${#numbers.formatDecimal(totalFees, 0, 'COMMA', 0, 'POINT')}">₹ 0</div>
+                <div class="stat-sub"><a href="/admin/transactions" class="text-decoration-underline text-reset">Ledger Details &rarr;</a></div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 col-xl-2">
+            <div class="stat-card">
+                <div class="stat-label">Outstanding Dues</div>
+                <div class="stat-value" style="font-size: 20px;" th:text="'₹ ' + ${#numbers.formatDecimal(totalDues, 0, 'COMMA', 0, 'POINT')}">₹ 0</div>
+                <div class="stat-sub"><a href="/admin/fees/dues" class="text-decoration-underline text-reset">View Fee Dues &rarr;</a></div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 col-xl-2">
+            <div class="stat-card">
+                <div class="stat-label">Transport Fleet</div>
+                <div class="stat-value" th:text="${totalVehicles}">0</div>
+                <div class="stat-sub">
+                    <span th:text="${totalCapacity}">0</span> Seat Capacity
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 col-xl-2">
+            <div class="stat-card">
+                <div class="stat-label">Capacity Utilization</div>
+                <div class="stat-value" th:text="${capacityUtilization} + '%'">0%</div>
+                <div class="stat-sub">
+                    <span th:text="${totalAssigned}">0</span> / <span th:text="${totalCapacity}">0</span> Assigned
+                </div>
+                <div class="progress-bw" title="Fleet Utilization">
+                    <div class="progress-bw-bar" th:style="'width: ' + (${capacityUtilization > 100} ? '100' : ${capacityUtilization}) + '%'"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js Row (Pure Black & White) -->
+    <div class="row g-4 mb-4">
+        <!-- Chart 1: Students per Class -->
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h2 class="chart-card-title">Students Per Class</h2>
+                    <span class="badge-outlined">Distribution</span>
+                </div>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="classDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 2: Monthly Fee Collections -->
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h2 class="chart-card-title">Monthly Fee Collections</h2>
+                    <span class="badge-filled">Revenue Flow</span>
+                </div>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="feeCollectionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Administrative Quick Actions</span>
+        </div>
+        <div class="card-body">
+            <div class="dashboard-actions-grid">
+                <a href="/admin/fees/record" class="action-tile">
+                    <div class="action-tile-title">Record Fee</div>
+                    <div class="action-tile-sub">Accept student payment</div>
+                </a>
+                <a href="/admin/salary/pay" class="action-tile">
+                    <div class="action-tile-title">Pay Salary</div>
+                    <div class="action-tile-sub">Disburse employee payroll</div>
+                </a>
+                <a href="/admin/fees/dues" class="action-tile">
+                    <div class="action-tile-title">Fee Dues</div>
+                    <div class="action-tile-sub">Track pending balances</div>
+                </a>
+                <a href="/admin/students/new" class="action-tile">
+                    <div class="action-tile-title">New Student</div>
+                    <div class="action-tile-sub">Admit a new learner</div>
+                </a>
+                <a href="/admin/subjects/new" class="action-tile">
+                    <div class="action-tile-title">Add Subject</div>
+                    <div class="action-tile-sub">Create course syllabus</div>
+                </a>
+                <a href="/admin/sections" class="action-tile">
+                    <div class="action-tile-title">Sections</div>
+                    <div class="action-tile-sub">Manage class teachers</div>
+                </a>
+                <a href="/admin/sections/promote" class="action-tile">
+                    <div class="action-tile-title">Promote</div>
+                    <div class="action-tile-sub">Advance batch grades</div>
+                </a>
+                <a href="/admin/houses" class="action-tile">
+                    <div class="action-tile-title">Houses</div>
+                    <div class="action-tile-sub">Captains &amp; mentors</div>
+                </a>
+                <a href="/admin/transactions/statement" class="action-tile">
+                    <div class="action-tile-title">Statement</div>
+                    <div class="action-tile-sub">Audit financial summary</div>
+                </a>
+                <a href="/admin/transactions/export" class="action-tile">
+                    <div class="action-tile-title">Export CSV</div>
+                    <div class="action-tile-sub">Download ledger records</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Payments Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Recent Transactions</span>
+            <a href="/admin/transactions" class="text-decoration-none fw-bold" style="font-size: 12px; color: var(--c-black);">View Full Ledger &rarr;</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive m-0 border-0">
+                <table class="table mb-0">
+                    <thead>
+                    <tr>
+                        <th>Txn ID</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Party ID</th>
+                        <th>Mode</th>
+                        <th class="text-end">Amount</th>
+                        <th class="text-center">Voucher / Slip</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(recentPayments)}">
+                        <td colspan="7" class="text-center text-muted py-4">No recent transactions recorded.</td>
+                    </tr>
+                    <tr th:each="tx : ${recentPayments}">
+                        <td><code class="fw-bold" th:text="${tx.transactionId}">TXN-001</code></td>
+                        <td th:text="${tx.dateOfPayment}">2026-10-30</td>
+                        <td>
+                            <span th:if="${tx.paymentType == 'Fee'}" class="badge-filled">Fee</span>
+                            <span th:if="${tx.paymentType == 'Salary'}" class="badge-outlined">Salary</span>
+                        </td>
+                        <td>
+                            <span class="fw-semibold" th:text="${tx.receiver != null ? tx.receiver : (tx.sender != null ? tx.sender : '-')}">-</span>
+                        </td>
+                        <td><span class="badge-outlined" th:text="${tx.paymentMode}">UPI</span></td>
+                        <td class="text-end fw-bold" th:text="'₹ ' + ${#numbers.formatDecimal(tx.amount, 0, 'COMMA', 2, 'POINT')}">₹ 0.00</td>
+                        <td class="text-center">
+                            <a th:if="${tx.paymentType == 'Fee'}"
+                               th:href="@{'/admin/fees/receipt/' + ${tx.transactionId}}"
+                               class="btn btn-secondary btn-sm py-0 px-2" style="font-size: 11px;">Receipt</a>
+                            <a th:if="${tx.paymentType == 'Salary'}"
+                               th:href="@{'/admin/salary/slip/' + ${tx.transactionId}}"
+                               class="btn btn-secondary btn-sm py-0 px-2" style="font-size: 11px;">Salary Slip</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js Monochrome Script Setup -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', function () {
+            // Data provided by Spring MVC Model
+            const classLabels = /*[[${classLabels}]]*/ [];
+            const classData = /*[[${classData}]]*/ [];
+            const feeLabels = /*[[${feeLabels}]]*/ [];
+            const feeData = /*[[${feeData}]]*/ [];
+
+            // 1. Chart 1: Students per Class (Monochrome Bar Chart)
+            const classCtx = document.getElementById('classDistributionChart');
+            if (classCtx && classLabels.length > 0) {
+                new Chart(classCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: classLabels,
+                        datasets: [{
+                            label: 'Students',
+                            data: classData,
+                            backgroundColor: '#000000',
+                            borderColor: '#000000',
+                            borderWidth: 1,
+                            borderRadius: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#000000',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                borderColor: '#ffffff',
+                                borderWidth: 1,
+                                cornerRadius: 2,
+                                displayColors: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: '#e0e0e0', drawBorder: true },
+                                ticks: { color: '#000000', font: { weight: '600', size: 12 } }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#e0e0e0', drawBorder: true },
+                                ticks: { color: '#000000', font: { size: 11 }, precision: 0 }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Chart 2: Monthly Fee Collections (Monochrome Bar/Line Chart)
+            const feeCtx = document.getElementById('feeCollectionChart');
+            if (feeCtx && feeLabels.length > 0) {
+                new Chart(feeCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: feeLabels,
+                        datasets: [{
+                            label: 'Fees Collected (₹)',
+                            data: feeData,
+                            backgroundColor: '#666666',
+                            borderColor: '#000000',
+                            borderWidth: 1.5,
+                            borderRadius: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#000000',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                borderColor: '#ffffff',
+                                borderWidth: 1,
+                                cornerRadius: 2,
+                                displayColors: false,
+                                callbacks: {
+                                    label: function (ctx) {
+                                        return ' Total: ₹ ' + Number(ctx.raw).toLocaleString('en-IN');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: '#e0e0e0', drawBorder: true },
+                                ticks: { color: '#000000', font: { weight: '600', size: 12 } }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#e0e0e0', drawBorder: true },
+                                ticks: {
+                                    color: '#000000',
+                                    font: { size: 11 },
+                                    callback: function (val) {
+                                        if (val >= 10000000) return '₹' + (val / 10000000).toFixed(1) + 'Cr';
+                                        if (val >= 100000) return '₹' + (val / 100000).toFixed(1) + 'L';
+                                        if (val >= 1000) return '₹' + (val / 1000).toFixed(0) + 'k';
+                                        return '₹' + val;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+        /*]]>*/
+    </script>
+
+</section>
+</body>
+</html>
+

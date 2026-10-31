@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Student Dashboard', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/student/dashboard">Student</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Student Dashboard</h1>
+            <p class="page-subtitle">
+                Welcome back, <strong th:text="${student != null ? student.fullName : loggedInUser}">Student</strong>
+                (Admission No: <code th:text="${student != null ? student.admissionNo : loggedInUser}">A001</code>)
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/student/fees" class="btn btn-secondary btn-sm">Fee Status</a>
+            <a href="/student/profile" class="btn btn-primary btn-sm">My Profile</a>
+        </div>
+    </div>
+
+    <!-- Stat Cards Row -->
+    <div class="row g-3 mb-4">
+        <!-- Card 1: Academic Class & Section -->
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label">Academic Class</div>
+                <div class="stat-value" th:text="'Class ' + ${student != null ? student.standard : '-'} + ' - ' + ${student != null ? student.division : '-'}">Class 10-A</div>
+                <div class="stat-sub">
+                    Roll No: <strong th:text="${student != null ? student.rollNo : '-'}">1</strong> &nbsp;|&nbsp;
+                    Room: <strong th:text="${section != null ? section.roomNo : '-'}">Room-101</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Fee Balance Status -->
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label">Fee Balance</div>
+                <div class="stat-value" th:text="'₹ ' + ${#numbers.formatDecimal(remainingFees, 0, 'COMMA', 2, 'POINT')}">₹ 0.00</div>
+                <div class="stat-sub">
+                    <span th:if="${remainingFees <= 0}" class="badge-filled">PAID IN FULL</span>
+                    <span th:if="${remainingFees > 0}" class="badge-outlined">PAYMENT DUE</span>
+                    &nbsp;<a href="/student/fees" class="text-decoration-underline text-reset small">Fee Details &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Enrolled Subjects Count -->
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label">Courses Enrolled</div>
+                <div class="stat-value" th:text="${subjectCount} + ' Subjects'">6 Subjects</div>
+                <div class="stat-sub">
+                    <a href="/student/subjects" class="text-decoration-underline text-reset">View Bibliography &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrolled Subjects & Latest Academic Grades -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Enrolled Subjects &amp; Academic Grades</span>
+            <a href="/student/subjects" class="text-decoration-none fw-bold" style="font-size: 12px; color: var(--c-black);">View Syllabus &rarr;</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive m-0 border-0">
+                <table class="table mb-0">
+                    <thead>
+                    <tr>
+                        <th>Subject Code</th>
+                        <th>Subject Name</th>
+                        <th class="text-center">Periods / Week</th>
+                        <th class="text-center">Academic Grade</th>
+                        <th class="text-center">Reference Books</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(enrollments)}">
+                        <td colspan="5" class="text-center text-muted py-4">No subject enrollments found for this student.</td>
+                    </tr>
+                    <tr th:each="enr : ${enrollments}">
+                        <td><code class="fw-bold" th:text="${enr.subjectCode}">MATH10</code></td>
+                        <td>
+                            <strong th:text="${enr.subjectName}">Mathematics</strong>
+                        </td>
+                        <td class="text-center" th:text="${enr.periodsPerWeek}">5</td>
+                        <td class="text-center">
+                            <span th:if="${enr.grade != null and !enr.grade.isEmpty()}"
+                                  th:class="${enr.grade == 'A+' or enr.grade == 'A'} ? 'badge-filled' : 'badge-outlined'"
+                                  th:text="${enr.grade}">A</span>
+                            <span th:if="${enr.grade == null or enr.grade.isEmpty()}"
+                                  class="text-muted small">Not Graded</span>
+                        </td>
+                        <td class="text-center">
+                            <a href="/student/subjects" class="btn btn-secondary btn-sm py-0 px-2" style="font-size: 11px;">Books</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- House & Transport Details Row -->
+    <div class="row g-4 mb-4">
+        <!-- House Box -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">House Affiliation</span>
+                    <span th:if="${student != null and student.house != null}" class="badge-outlined" th:text="'House ' + ${student.house}">Red</span>
+                </div>
+                <div class="card-body">
+                    <div th:if="${student != null and student.house != null}">
+                        <h3 class="h5 fw-bold mb-1" th:text="${house != null ? house.houseName : student.house + ' House'}">Garuda House</h3>
+                        <p class="text-muted small mb-3">
+                            House Colour: <strong th:text="${student.house}">Red</strong> (Monochrome Representation)
+                            <span th:if="${house != null}"> &nbsp;|&nbsp; Tournaments Won: <strong th:text="${house.noOfWins}">0</strong></span>
+                        </p>
+                        <div th:if="${house != null and house.captainId != null and house.captainId == student.admissionNo}">
+                            <span class="badge-filled">HOUSE CAPTAIN</span>
+                            <span class="small text-muted ms-2">You are appointed as the Captain of this house!</span>
+                        </div>
+                    </div>
+                    <div th:unless="${student != null and student.house != null}">
+                        <p class="text-muted mb-0">No house allocated yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transport Box -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Commute &amp; Transport</span>
+                    <span class="badge-outlined" th:text="${vehicle != null ? 'School Bus' : 'Self Commute'}">Bus</span>
+                </div>
+                <div class="card-body">
+                    <div th:if="${vehicle != null}">
+                        <h3 class="h5 fw-bold mb-1" th:text="'Vehicle: ' + ${vehicle.registrationNumber} + ' (' + ${vehicle.vehicleId} + ')'">UP65AB1234 (V01)</h3>
+                        <p class="text-muted small mb-1">
+                            Route: <strong th:text="${vehicle.routeName != null ? vehicle.routeName : 'Designated Bus Route'}">Route A</strong>
+                        </p>
+                        <p class="text-muted small mb-0" th:if="${vehicle.driverName != null}">
+                            Driver: <strong th:text="${vehicle.driverName}">Driver Name</strong>
+                            <span th:if="${vehicle.driverContact != null}"> (<span th:text="${vehicle.driverContact}">Contact</span>)</span>
+                        </p>
+                    </div>
+                    <div th:unless="${vehicle != null}">
+                        <h3 class="h5 fw-bold mb-1">Self Commute</h3>
+                        <p class="text-muted small mb-0">Student arranges private commute or walks to campus.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+        <div class="card-header">
+            <span class="fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Quick Actions</span>
+        </div>
+        <div class="card-body">
+            <div class="dashboard-actions-grid">
+                <a href="/student/profile" class="action-tile">
+                    <div class="action-tile-title">My Profile</div>
+                    <div class="action-tile-sub">Personal &amp; guardian data</div>
+                </a>
+                <a href="/student/subjects" class="action-tile">
+                    <div class="action-tile-title">My Subjects</div>
+                    <div class="action-tile-sub">Curriculum &amp; bibliography</div>
+                </a>
+                <a href="/student/fees" class="action-tile">
+                    <div class="action-tile-title">Fee Status</div>
+                    <div class="action-tile-sub">Receipts &amp; remaining fees</div>
+                </a>
+                <a href="/students" class="action-tile">
+                    <div class="action-tile-title">Class Directory</div>
+                    <div class="action-tile-sub">Section classmates list</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</section>
+</body>
+</html>

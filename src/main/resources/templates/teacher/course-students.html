@@ -7,7 +7,7 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/teacher/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="/teacher/schedule">Teaching Schedule</a></li>
             <li class="breadcrumb-item active" aria-current="page" th:text="${subjectCode} + ' Students'">Course Students</li>
         </ol>
@@ -21,9 +21,6 @@
                 Class: <strong th:text="'Class ' + ${standard} + ' - ' + ${division}">Class 10 - A</strong> &nbsp;|&nbsp;
                 Instructor: <span th:text="${teacher.fullName}">Anita Verma</span>
             </p>
-        </div>
-        <div>
-            <a href="/teacher/schedule" class="btn btn-bw-outline btn-sm">&larr; Back to Schedule</a>
         </div>
     </div>
 

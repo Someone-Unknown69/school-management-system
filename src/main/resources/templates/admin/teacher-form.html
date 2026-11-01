@@ -7,7 +7,7 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="/admin/faculty?tab=teachers">Faculty &amp; Staff</a></li>
             <li class="breadcrumb-item active" aria-current="page" th:text="${mode == 'create' ? 'Add Teacher' : 'Edit ' + teacher.employeeId}">Teacher Form</li>
         </ol>
@@ -18,9 +18,6 @@
         <div>
             <h1 class="page-title" th:text="${mode == 'create' ? 'Register New Teaching Faculty' : 'Edit Faculty Record — ' + teacher.employeeId}">Teacher Form</h1>
             <p class="page-subtitle">Configure teacher employment profile, salary, house mentorship, and academic credentials.</p>
-        </div>
-        <div>
-            <a href="/admin/faculty?tab=teachers" class="btn btn-bw-outline btn-sm">&larr; Back to Faculty List</a>
         </div>
     </div>
 

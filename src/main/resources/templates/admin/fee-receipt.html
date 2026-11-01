@@ -77,10 +77,11 @@
     <!-- Breadcrumb (Screen only) -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar no-print">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item" th:if="${loggedInRole == 'admin'}"><a href="/admin/fees/dues">Fee Management</a></li>
-            <li class="breadcrumb-item" th:if="${loggedInRole == 'student'}"><a href="/student/fees">My Fees</a></li>
-            <li class="breadcrumb-item active" aria-current="page" th:text="'Receipt ' + ${receipt.transactionId}">Receipt</li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'admin'}"><a href="/admin/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'student'}"><a href="/student/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'admin'}"><a href="/admin/fees/dues">Fee Dues</a></li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'student'}"><a href="/student/fees">Fee Status</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="'Receipt #' + ${receipt.transactionId}">Receipt</li>
         </ol>
     </nav>
 
@@ -95,8 +96,6 @@
                 Print Receipt
             </button>
             <a th:if="${loggedInRole == 'admin'}" href="/admin/fees/record" class="btn btn-bw-outline btn-sm">+ Record Another</a>
-            <a th:if="${loggedInRole == 'admin'}" href="/admin/fees/dues" class="btn btn-bw-outline btn-sm">&larr; Fee Dues</a>
-            <a th:if="${loggedInRole == 'student'}" href="/student/fees" class="btn btn-bw-outline btn-sm">&larr; Back to My Fees</a>
         </div>
     </div>
 

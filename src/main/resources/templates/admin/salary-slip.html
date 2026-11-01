@@ -75,11 +75,13 @@
     <!-- Breadcrumb (Screen only) -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar no-print">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item" th:if="${loggedInRole == 'admin'}"><a href="/admin/salary/pay">Payroll</a></li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'admin'}"><a href="/admin/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'teacher'}"><a href="/teacher/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'staff'}"><a href="/staff/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'admin'}"><a href="/admin/salary/pay">Disburse Salary</a></li>
             <li class="breadcrumb-item" th:if="${loggedInRole == 'teacher'}"><a href="/teacher/salary">My Salary</a></li>
-            <li class="breadcrumb-item" th:if="${loggedInRole == 'staff'}"><a href="/staff/salary">My Salary</a></li>
-            <li class="breadcrumb-item active" aria-current="page" th:text="'Slip ' + ${slip.transactionId}">Slip</li>
+            <li class="breadcrumb-item" th:if="${loggedInRole == 'staff'}"><a href="/staff/salary">Salary Records</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="'Slip #' + ${slip.transactionId}">Slip</li>
         </ol>
     </nav>
 
@@ -94,9 +96,6 @@
                 Print Salary Slip
             </button>
             <a th:if="${loggedInRole == 'admin'}" href="/admin/salary/pay" class="btn btn-bw-outline btn-sm">+ Disburse Another</a>
-            <a th:if="${loggedInRole == 'admin'}" href="/admin/transactions?type=Salary" class="btn btn-bw-outline btn-sm">&larr; Salary Ledger</a>
-            <a th:if="${loggedInRole == 'teacher'}" href="/teacher/salary" class="btn btn-bw-outline btn-sm">&larr; Back to My Salary</a>
-            <a th:if="${loggedInRole == 'staff'}" href="/staff/salary" class="btn btn-bw-outline btn-sm">&larr; Back to My Salary</a>
         </div>
     </div>
 

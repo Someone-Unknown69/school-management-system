@@ -7,7 +7,7 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="/admin/subjects">Subjects</a></li>
             <li class="breadcrumb-item active" aria-current="page"
                 th:text="${mode} == 'edit' ? 'Edit Subject (' + ${subject.subjectCode} + ')' : 'New Subject'">Subject Form</li>
@@ -19,9 +19,6 @@
         <div>
             <h1 class="page-title" th:text="${mode} == 'edit' ? 'Edit Subject — ' + ${subject.subjectCode} : 'Create New Subject'">Subject Form</h1>
             <p class="page-subtitle">Configure syllabus code, target class level, weekly periods, and bibliography reference books.</p>
-        </div>
-        <div>
-            <a href="/admin/subjects" class="btn btn-bw-outline btn-sm">&larr; Back to Subjects</a>
         </div>
     </div>
 

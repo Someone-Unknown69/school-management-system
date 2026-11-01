@@ -9,8 +9,6 @@
     <div class="breadcrumb-bar">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item"><a href="/staff/dashboard">Staff</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
             </ol>
         </nav>
@@ -25,10 +23,6 @@
                 (Employee ID: <code th:text="${staff != null ? staff.employeeId : loggedInUser}">S001</code>)
                 &nbsp;|&nbsp; Role: <span class="badge-filled" th:text="${staff != null ? staff.designatedRole : 'Staff'}">Staff</span>
             </p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="/staff/salary" class="btn btn-secondary btn-sm">Salary Records</a>
-            <a href="/staff/profile" class="btn btn-primary btn-sm">My Profile</a>
         </div>
     </div>
 

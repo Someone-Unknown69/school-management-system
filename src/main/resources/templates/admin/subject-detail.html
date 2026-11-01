@@ -7,7 +7,7 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="/admin/subjects">Subjects</a></li>
             <li class="breadcrumb-item active" aria-current="page" th:text="${subject.subjectCode}">Subject</li>
         </ol>
@@ -19,9 +19,8 @@
             <h1 class="page-title" th:text="${subject.subjectName} + ' (' + ${subject.subjectCode} + ')'">Subject Details</h1>
             <p class="page-subtitle">Syllabus specifications, bibliography reference books, and faculty assignments.</p>
         </div>
-        <div class="d-flex gap-2">
+        <div>
             <a th:href="@{'/admin/subjects/edit/' + ${subject.subjectCode}}" class="btn btn-bw btn-sm">Edit Subject</a>
-            <a href="/admin/subjects" class="btn btn-bw-outline btn-sm">&larr; Back to Subjects</a>
         </div>
     </div>
 

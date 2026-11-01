@@ -57,7 +57,7 @@
     <!-- Breadcrumb (Screen only) -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar no-print">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="/admin/students">Students</a></li>
             <li class="breadcrumb-item active" aria-current="page" th:text="${student.admissionNo}">Overview</li>
         </ol>
@@ -75,7 +75,6 @@
             </button>
             <a th:href="@{'/admin/students/' + ${student.admissionNo}}" class="btn btn-bw-outline btn-sm">Manage Subjects</a>
             <a th:href="@{'/admin/students/edit/' + ${student.admissionNo}}" class="btn btn-bw-outline btn-sm">Edit Record</a>
-            <a href="/admin/students" class="btn btn-bw-outline btn-sm">&larr; Back to Students</a>
         </div>
     </div>
 

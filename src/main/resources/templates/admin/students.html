@@ -7,8 +7,8 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Manage Students</li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Students</li>
         </ol>
     </nav>
 
@@ -101,8 +101,6 @@
                     <td style="text-align: right; white-space: nowrap;">
                         <a th:href="@{'/admin/students/' + ${s.admissionNo} + '/overview'}"
                            class="btn btn-bw btn-sm me-1">Overview</a>
-                        <a th:href="@{'/admin/students/' + ${s.admissionNo}}"
-                           class="btn btn-bw-outline btn-sm me-1">Enrollments</a>
                         <a th:href="@{'/admin/students/edit/' + ${s.admissionNo}}"
                            class="btn btn-bw-outline btn-sm me-1">Edit</a>
                         

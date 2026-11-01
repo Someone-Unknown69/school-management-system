@@ -7,7 +7,7 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="/admin/transport">Transport Fleet</a></li>
             <li class="breadcrumb-item active" aria-current="page" th:text="${mode == 'create' ? 'Add Vehicle' : 'Edit ' + vehicle.vehicleId}">Vehicle Form</li>
         </ol>
@@ -18,9 +18,6 @@
         <div>
             <h1 class="page-title" th:text="${mode == 'create' ? 'Add New School Vehicle' : 'Edit Fleet Vehicle: ' + vehicle.vehicleId}">Vehicle Form</h1>
             <p class="page-subtitle">Configure vehicle registration, passenger capacity, route details, and assigned driver.</p>
-        </div>
-        <div>
-            <a href="/admin/transport" class="btn btn-bw-outline btn-sm">&larr; Back to Fleet</a>
         </div>
     </div>
 

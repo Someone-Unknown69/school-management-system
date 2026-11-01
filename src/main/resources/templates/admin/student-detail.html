@@ -7,7 +7,7 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="/admin/students">Students</a></li>
             <li class="breadcrumb-item active" aria-current="page" th:text="${student.admissionNo}">Student Details</li>
         </ol>
@@ -20,8 +20,8 @@
             <p class="page-subtitle">Academic profile, section assignment, and enrolled subject curriculum management.</p>
         </div>
         <div class="d-flex gap-2">
+            <a th:href="@{'/admin/students/' + ${student.admissionNo} + '/overview'}" class="btn btn-bw-outline btn-sm">&larr; Full Student Profile</a>
             <a th:href="@{'/admin/students/edit/' + ${student.admissionNo}}" class="btn btn-bw-outline btn-sm">Edit Profile</a>
-            <a href="/admin/students" class="btn btn-bw-outline btn-sm">&larr; Back to Students</a>
         </div>
     </div>
 

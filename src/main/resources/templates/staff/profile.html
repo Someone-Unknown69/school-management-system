@@ -7,7 +7,7 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/staff/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item active" aria-current="page">Staff Profile</li>
         </ol>
     </nav>
@@ -88,12 +88,6 @@
                             <td class="kv-label">Seating Capacity</td>
                             <td th:text="${vehicle.capacity} + ' Passengers'">40 Passengers</td>
                         </tr>
-                        <tr>
-                            <td class="kv-label">Passenger Action</td>
-                            <td>
-                                <a href="/staff/transport" class="btn btn-bw-outline btn-sm">View Passenger Roster &rarr;</a>
-                            </td>
-                        </tr>
                     </table>
                     <div th:unless="${vehicle != null}" class="p-3 text-muted">
                         No school bus vehicle is currently assigned to your driver ID.
@@ -105,11 +99,10 @@
             <div th:unless="${staff.isDriver()}" class="card h-100">
                 <div class="card-header">Staff Portal Access</div>
                 <div class="card-body">
-                    <p class="text-muted mb-3">
+                    <p class="text-muted mb-0">
                         Your account is registered as operational non-teaching staff.
                         You have access to verify your personal employment profile and monthly salary records.
                     </p>
-                    <a href="/staff/salary" class="btn btn-bw-outline btn-sm">View Salary Ledger &rarr;</a>
                 </div>
             </div>
         </div>

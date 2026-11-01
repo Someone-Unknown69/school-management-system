@@ -9,8 +9,6 @@
     <div class="breadcrumb-bar">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item"><a href="/teacher/dashboard">Teacher</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
             </ol>
         </nav>
@@ -24,10 +22,6 @@
                 Welcome back, <strong th:text="${teacher != null ? teacher.fullName : loggedInUser}">Teacher</strong>
                 (Employee ID: <code th:text="${teacher != null ? teacher.employeeId : loggedInUser}">T001</code>)
             </p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="/teacher/schedule" class="btn btn-secondary btn-sm">Full Schedule</a>
-            <a href="/teacher/profile" class="btn btn-primary btn-sm">My Profile</a>
         </div>
     </div>
 

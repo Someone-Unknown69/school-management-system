@@ -7,7 +7,7 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/teacher/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item active" aria-current="page">Faculty Profile</li>
         </ol>
     </nav>
@@ -88,13 +88,6 @@
                                     <span class="text-muted" th:text="' (' + ${teacher.classTeacherRoomNo} + ')'">(Room-101)</span>
                                 </span>
                                 <span th:unless="${teacher.classTeacherStandard != null}" class="text-muted">Not Assigned as Class Teacher</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="kv-label">Quick Actions</td>
-                            <td>
-                                <a href="/teacher/schedule" class="btn btn-bw-outline btn-sm me-2">View Schedule</a>
-                                <a href="/teacher/students" class="btn btn-bw-outline btn-sm">Class Roster</a>
                             </td>
                         </tr>
                     </table>

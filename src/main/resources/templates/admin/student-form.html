@@ -7,8 +7,8 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item"><a href="/admin/students">Manage Students</a></li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/admin/students">Students</a></li>
             <li class="breadcrumb-item active" aria-current="page" th:text="${mode == 'create' ? 'Add Student' : 'Edit ' + student.admissionNo}">Student Form</li>
         </ol>
     </nav>
@@ -18,9 +18,6 @@
         <div>
             <h1 class="page-title" th:text="${mode == 'create' ? 'Enroll New Student' : 'Edit Student Record — ' + student.admissionNo}">Student Form</h1>
             <p class="page-subtitle">Configure student profile, division placement, transportation, and primary guardian details.</p>
-        </div>
-        <div>
-            <a href="/admin/students" class="btn btn-bw-outline btn-sm">&larr; Back to Student List</a>
         </div>
     </div>
 

@@ -73,7 +73,7 @@
     <!-- Breadcrumb (Screen only) -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar no-print">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="/admin/transactions">Transactions</a></li>
             <li class="breadcrumb-item active" aria-current="page">Financial Statement</li>
         </ol>
@@ -91,7 +91,6 @@
             </button>
             <a th:href="@{/admin/transactions/export(startDate=${startDate}, endDate=${endDate})}"
                class="btn btn-bw-outline btn-sm">Export CSV</a>
-            <a href="/admin/transactions" class="btn btn-bw-outline btn-sm">&larr; Back to Transactions</a>
         </div>
     </div>
 

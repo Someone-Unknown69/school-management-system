@@ -7,8 +7,8 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="breadcrumb-bar">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Subjects Management</li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Subjects</li>
         </ol>
     </nav>
 
@@ -68,9 +68,7 @@
                 <tr th:each="sub : ${subjects}">
                     <td><strong th:text="${sub.subjectCode}">MATH10</strong></td>
                     <td>
-                        <a th:href="@{'/admin/subjects/' + ${sub.subjectCode}}"
-                           style="color: #000; font-weight: 600; text-decoration: underline;"
-                           th:text="${sub.subjectName}">Mathematics</a>
+                        <span th:text="${sub.subjectName}">Mathematics</span>
                     </td>
                     <td>
                         <span class="badge-filled" th:text="'Class ' + ${sub.className}">Class 10</span>

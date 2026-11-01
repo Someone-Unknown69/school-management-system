@@ -23,11 +23,11 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ---------------------------------------------------------
 -- 1. Houses
 -- ---------------------------------------------------------
-INSERT INTO House (Color, House_Name, No_Of_Wins, Captain_ID) VALUES
-('Red', 'Phoenix House', 18, NULL),
-('Blue', 'Neptune House', 14, NULL),
-('Green', 'Falcon House', 16, NULL),
-('Yellow', 'Tigris House', 15, NULL);
+INSERT INTO House (Color, House_Name, No_Of_Wins) VALUES
+('Red', 'Phoenix House', 18),
+('Blue', 'Neptune House', 14),
+('Green', 'Falcon House', 16),
+('Yellow', 'Tigris House', 15);
 
 -- ---------------------------------------------------------
 -- 2. Classes (Standards 9 to 12)
@@ -1637,14 +1637,6 @@ INSERT INTO Student_Guardian (Student_ID, Relationship, First_Name, Middle_Name,
 ('A479', 'Mother', 'Pooja', NULL, 'Chauhan', 'Government Officer', '9900000894', 'pooja.chauhan29@gmail.com'),
 ('A480', 'Father', 'Rajesh', NULL, 'Jaiswal', 'Software Engineer', '9900000895', 'rajesh.jaiswal30@gmail.com'),
 ('A480', 'Mother', 'Saroj', NULL, 'Jaiswal', 'Architect', '9900000896', 'saroj.jaiswal30@gmail.com');
-
--- ---------------------------------------------------------
--- 10b. House Captains (Each house gets a captain from its own students)
--- ---------------------------------------------------------
-UPDATE House SET Captain_ID = 'A364' WHERE Color = 'Red';
-UPDATE House SET Captain_ID = 'A361' WHERE Color = 'Blue';
-UPDATE House SET Captain_ID = 'A362' WHERE Color = 'Green';
-UPDATE House SET Captain_ID = 'A363' WHERE Color = 'Yellow';
 
 -- ---------------------------------------------------------
 -- 11. Subjects (Classes 9, 10, 11, 12)

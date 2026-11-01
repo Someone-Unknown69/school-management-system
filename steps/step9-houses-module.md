@@ -1,22 +1,20 @@
 # Step 9: Houses Module (Admin)
 
 ## 1. Overview
-Step 9 implements inter-house league administration, providing a dedicated dashboard for the school's four houses (Red, Blue, Green, Yellow), tournament standings management, house captain appointment (with strict house-membership validation), faculty mentor assignments, and student roster access.
+Step 9 implements inter-house league administration, providing a dedicated dashboard for the school's four houses (Red, Blue, Green, Yellow), tournament standings management, faculty mentor assignments, and student roster access. *(Note: House captain assignment was subsequently removed per client specification; faculty mentors and tournament tracking remain active).*
 
 ---
 
 ## 2. Requirements Implemented
 1. **Four House Cards Dashboard (`/admin/houses`)**:
    - Strict black-and-white presentation (colour represented as text: "Colour: Red", not a visual color).
-   - Metrics shown on each card: House Name, Colour text, Tournaments Won, Appointed Captain (with student ID), Mentor Count, and Student Count.
+   - Metrics shown on each card: House Name, Colour text, Tournaments Won, Mentor Count, and Student Count.
 2. **House Detail & Configuration Page (`/admin/houses/{color}`)**:
    - Edit Tournaments Won: updates `House.No_Of_Wins`.
-   - Set House Captain: dropdown strictly limited to students currently enrolled in that house (`Student.House = ?`).
-   - Validation Rule: The backend strictly enforces that any assigned captain belongs to that house; non-members are rejected with an explanatory error.
    - Faculty Mentors: displays current teachers mentoring this house, provides "Add Mentor" (from available unassigned teachers) and "Remove Mentor" (sets `MentorOf = NULL`).
-   - Enrolled Students Roster: comprehensive table of all students allocated to this house, indicating the appointed captain.
+   - Enrolled Students Roster: comprehensive table of all students allocated to this house.
 3. **Automated Tests**:
-   - MockMvc tests for houses list, house detail, tournament updates, captain appointment, non-member captain rejection, and adding/removing mentors.
+   - MockMvc tests for houses list, house detail, tournament updates, and adding/removing mentors.
 
 ---
 
@@ -57,6 +55,5 @@ Result: All tests pass.
 3. Review the four house cards (Red, Blue, Green, Yellow).
 4. Click **Manage House &rarr;** on Red House:
    - Update tournament wins (e.g. set to `7`).
-   - Appoint a captain from the dropdown of Red house students.
    - Assign an available faculty member as a mentor, then remove them.
 

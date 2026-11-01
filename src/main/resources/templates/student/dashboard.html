@@ -127,14 +127,10 @@
                 <div class="card-body">
                     <div th:if="${student != null and student.house != null}">
                         <h3 class="h5 fw-bold mb-1" th:text="${house != null ? house.houseName : student.house + ' House'}">Garuda House</h3>
-                        <p class="text-muted small mb-3">
+                        <p class="text-muted small mb-0">
                             House Colour: <strong th:text="${student.house}">Red</strong> (Monochrome Representation)
                             <span th:if="${house != null}"> &nbsp;|&nbsp; Tournaments Won: <strong th:text="${house.noOfWins}">0</strong></span>
                         </p>
-                        <div th:if="${house != null and house.captainId != null and house.captainId == student.admissionNo}">
-                            <span class="badge-filled">HOUSE CAPTAIN</span>
-                            <span class="small text-muted ms-2">You are appointed as the Captain of this house!</span>
-                        </div>
                     </div>
                     <div th:unless="${student != null and student.house != null}">
                         <p class="text-muted mb-0">No house allocated yet.</p>

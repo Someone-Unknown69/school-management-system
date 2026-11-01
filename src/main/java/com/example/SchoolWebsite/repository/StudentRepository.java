@@ -121,7 +121,7 @@ public class StudentRepository {
                      "s.Blood_Group, s.Standard, s.Division, s.House, s.Vehicle_No, " +
                      "s.Date_Of_Admission, s.Date_Of_Birth, s.Age, s.Gender, s.Remaining_Fees, " +
                      "s.Address, s.Contact_Number, " +
-                     "h.House_Name, h.No_Of_Wins AS houseWins, h.Captain_ID AS houseCaptainId, " +
+                     "h.House_Name, h.No_Of_Wins AS houseWins, " +
                      "sec.Room_No, " +
                      "CONCAT(t.First_Name, ' ', COALESCE(t.Last_Name, '')) AS classTeacherName, " +
                      "tr.Route_Name " +
@@ -153,7 +153,6 @@ public class StudentRepository {
             s.setContactNumber(rs.getString("Contact_Number"));
             s.setHouseName(rs.getString("House_Name"));
             s.setHouseWins(rs.getInt("houseWins"));
-            s.setHouseCaptainId(rs.getString("houseCaptainId"));
             s.setRoomNo(rs.getString("Room_No"));
             s.setClassTeacherName(rs.getString("classTeacherName"));
             s.setRouteName(rs.getString("Route_Name"));
@@ -297,7 +296,7 @@ public class StudentRepository {
 
     // Available Houses
     public List<java.util.Map<String, Object>> getAvailableHouses() {
-        String sql = "SELECT Color, House_Name, No_Of_Wins, Captain_ID FROM House ORDER BY House_Name";
+        String sql = "SELECT Color, House_Name, No_Of_Wins FROM House ORDER BY House_Name";
         return jdbcTemplate.queryForList(sql);
     }
 

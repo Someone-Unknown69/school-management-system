@@ -17,7 +17,7 @@
     <div class="page-header">
         <div>
             <h1 class="page-title" th:text="${house.houseName} + ' (' + ${house.color} + ' House)'">House Details</h1>
-            <p class="page-subtitle">Configure tournament titles, captain appointment, faculty mentorship, and student roster.</p>
+            <p class="page-subtitle">Configure tournament titles, faculty mentorship, and student roster.</p>
         </div>
         <div>
             <a href="/admin/houses" class="btn btn-bw-outline btn-sm">&larr; Back to Houses</a>
@@ -28,13 +28,13 @@
     <div th:replace="~{fragments/ui :: flash-messages}"></div>
 
     <div class="row g-4 mb-4">
-        <!-- Tournaments Won & Captain Configuration -->
+        <!-- Tournaments Won Standings -->
         <div class="col-md-6">
             <div class="card h-100">
-                <div class="card-header">1. House Leadership &amp; Standings</div>
+                <div class="card-header">1. Tournament Standings</div>
                 <div class="card-body">
                     <!-- Update Tournaments Form -->
-                    <form method="post" th:action="@{'/admin/houses/' + ${house.color} + '/tournaments'}" class="mb-4">
+                    <form method="post" th:action="@{'/admin/houses/' + ${house.color} + '/tournaments'}">
                         <label for="noOfWinsInput" class="form-label">Total Tournaments Won</label>
                         <div class="input-group">
                             <input type="number" id="noOfWinsInput" name="noOfWins"
@@ -43,26 +43,6 @@
                         </div>
                         <div class="form-text" style="font-size: 11px; color: #666;">
                             Official school sports &amp; inter-house league championship victories.
-                        </div>
-                    </form>
-
-                    <!-- Appoint Captain Form -->
-                    <form method="post" th:action="@{'/admin/houses/' + ${house.color} + '/captain'}">
-                        <label for="captainSelect" class="form-label">
-                            Appoint House Captain <span style="font-size: 11px; color: #666;">(Limited to students of this house)</span>
-                        </label>
-                        <div class="input-group">
-                            <select id="captainSelect" name="studentId" class="form-select">
-                                <option value="">-- No Captain Assigned --</option>
-                                <option th:each="st : ${house.students}"
-                                        th:value="${st.admissionNo}"
-                                        th:text="${st.fullName} + ' (' + ${st.admissionNo} + ' | Class ' + ${st.standard} + '-' + ${st.division} + ')'"
-                                        th:selected="${house.captainId == st.admissionNo}"></option>
-                            </select>
-                            <button type="submit" class="btn btn-bw">Set Captain</button>
-                        </div>
-                        <div class="form-text" style="font-size: 11px; color: #666;">
-                            Validation rule: Captain must be an active student enrolled in <span th:text="${house.color}">this</span> house.
                         </div>
                     </form>
                 </div>
@@ -143,7 +123,6 @@
                             <th style="width: 90px;">Roll No</th>
                             <th>Student Full Name</th>
                             <th style="width: 140px;">Class &amp; Div</th>
-                            <th style="width: 120px; text-align: center;">Role</th>
                             <th style="width: 140px; text-align: right;">Action</th>
                         </tr>
                     </thead>
@@ -153,10 +132,6 @@
                             <td th:text="${st.rollNo}">1</td>
                             <td th:text="${st.fullName}">Rohan Mehta</td>
                             <td th:text="'Class ' + ${st.standard} + ' - ' + ${st.division}">Class 10 - A</td>
-                            <td style="text-align: center;">
-                                <span th:if="${house.captainId == st.admissionNo}" class="badge-filled">House Captain</span>
-                                <span th:if="${house.captainId != st.admissionNo}" class="text-muted" style="font-size: 12px;">Member</span>
-                            </td>
                             <td style="text-align: right;">
                                 <a th:href="@{'/admin/students/' + ${st.admissionNo} + '/overview'}"
                                    class="btn btn-bw-outline btn-sm">Overview &rarr;</a>

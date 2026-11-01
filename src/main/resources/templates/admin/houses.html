@@ -39,13 +39,6 @@
 
                     <table class="kv-table mb-3" style="font-size: 12px;">
                         <tr>
-                            <td class="kv-label">House Captain</td>
-                            <td>
-                                <strong th:if="${h.captainId != null}" th:text="${h.captainName} + ' (' + ${h.captainId} + ')'">Rohan Mehta (A001)</strong>
-                                <span th:if="${h.captainId == null}" class="text-muted">Unassigned</span>
-                            </td>
-                        </tr>
-                        <tr>
                             <td class="kv-label">Faculty Mentors</td>
                             <td>
                                 <span class="badge-filled" th:text="${h.mentorCount} + ' mentors'">2 mentors</span>

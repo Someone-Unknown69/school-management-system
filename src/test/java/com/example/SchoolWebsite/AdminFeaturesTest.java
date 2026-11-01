@@ -45,7 +45,6 @@ class AdminFeaturesTest {
         jdbcTemplate.update("UPDATE Section SET Class_Teacher = NULL WHERE Standard = '9' AND Division = 'A'");
 
         // Reset house test mutations
-        jdbcTemplate.update("UPDATE House SET Captain_ID = 'A001' WHERE Color = 'Red'");
         jdbcTemplate.update("UPDATE Teacher SET MentorOf = 'Red' WHERE Employee_ID = 'T001'");
         jdbcTemplate.update("UPDATE Teacher SET MentorOf = NULL WHERE Employee_ID = 'T010'");
     }
@@ -794,27 +793,6 @@ class AdminFeaturesTest {
                 .andExpect(flash().attributeExists("successMessage"));
     }
 
-    @Test
-    void testUpdateHouseCaptainSuccess() throws Exception {
-        // A001 belongs to Red house
-        mockMvc.perform(post("/admin/houses/Red/captain")
-                        .param("studentId", "A001")
-                        .session(createAdminSession()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin/houses/Red"))
-                .andExpect(flash().attributeExists("successMessage"));
-    }
-
-    @Test
-    void testUpdateHouseCaptainFailsWhenStudentNotInHouse() throws Exception {
-        // A002 belongs to Blue house, NOT Red house
-        mockMvc.perform(post("/admin/houses/Red/captain")
-                        .param("studentId", "A002")
-                        .session(createAdminSession()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin/houses/Red"))
-                .andExpect(flash().attributeExists("errorMessage"));
-    }
 
     @Test
     void testAddAndRemoveHouseMentor() throws Exception {
@@ -844,7 +822,7 @@ class AdminFeaturesTest {
         mockMvc.perform(get("/admin/students/A001/overview").session(createAdminSession()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin/student-overview"))
-                .andExpect(model().attributeExists("student", "guardians", "section", "enrolledSubjects", "house", "isCaptain", "totalPaid"));
+                .andExpect(model().attributeExists("student", "guardians", "section", "enrolledSubjects", "house", "totalPaid"));
     }
 
     // ==========================================

@@ -54,14 +54,14 @@ def generate_sql():
     lines.append("-- ---------------------------------------------------------")
     lines.append("-- 1. Houses")
     lines.append("-- ---------------------------------------------------------")
-    lines.append("INSERT INTO House (Color, House_Name, No_Of_Wins, Captain_ID) VALUES")
+    lines.append("INSERT INTO House (Color, House_Name, No_Of_Wins) VALUES")
     houses = [
         ("Red", "Phoenix House", 18),
         ("Blue", "Neptune House", 14),
         ("Green", "Falcon House", 16),
         ("Yellow", "Tigris House", 15)
     ]
-    house_vals = [f"('{h[0]}', '{h[1]}', {h[2]}, NULL)" for h in houses]
+    house_vals = [f"('{h[0]}', '{h[1]}', {h[2]})" for h in houses]
     lines.append(",\n".join(house_vals) + ";")
     lines.append("")
 
@@ -549,19 +549,6 @@ def generate_sql():
     lines.append(",\n".join(guardians_vals) + ";")
     lines.append("")
 
-    # 10b. House Captains
-    lines.append("-- ---------------------------------------------------------")
-    lines.append("-- 10b. House Captains (Each house gets a captain from its own students)")
-    lines.append("-- ---------------------------------------------------------")
-    captains = {}
-    for col in house_colors:
-        for s in students_data:
-            if s["standard"] == "12" and s["house"] == col:
-                captains[col] = s["adm_id"]
-                break
-    for col, cap_id in captains.items():
-        lines.append(f"UPDATE House SET Captain_ID = '{cap_id}' WHERE Color = '{col}';")
-    lines.append("")
 
     # 11. Subject
     lines.append("-- ---------------------------------------------------------")

@@ -20,12 +20,12 @@ Before modifying code or database tables, `database/schema.sql` was inspected ag
 
 ## 2. Migration & Seed Data Updates
 
-### A. Non-Destructive Migration Script (`database/migration_01.sql`)
-Executes `ALTER TABLE` statements so existing database records are preserved:
-- Adds `Address` and `Contact_Number` to `Student`.
-- Adds `Email` to `Student_Guardian`.
-- Adds `Address` to `Teacher`.
-- Adds `Captain_ID VARCHAR(10) UNIQUE` to `House` with Foreign Key referencing `Student(Admission_No)` (`ON DELETE SET NULL ON UPDATE CASCADE`).
+### A. Unified Main Schema (`database/schema.sql`)
+All entity definitions are consolidated directly into the main `database/schema.sql` file:
+- `Address` and `Contact_Number` in `Student`.
+- `Email` in `Student_Guardian`.
+- `Address` in `Teacher`.
+- `House` table without `Captain_ID` (captains removed per specification).
 
 ### B. Seed Data Generator (`database/generate_seed.py`)
 - Generates realistic residential addresses and valid 10-digit phone numbers for all 480 students.
@@ -73,14 +73,11 @@ Executes `ALTER TABLE` statements so existing database records are preserved:
 
 ---
 
-## 4. How to Run the Migration
-
-### Option 1: Existing Database (Preserve Data)
-Run the migration script directly via terminal:
+## 4. How to Initialize Database
+Import the consolidated schema directly via terminal:
 ```bash
-mysql -u root -p school_dbms < database/migration_01.sql
+mysql -u root -p school_dbms < database/schema.sql
 ```
-*(Or execute `database/migration_01.sql` inside MySQL Workbench / DBeaver)*
 
 ### Option 2: Fresh Database (Full Seed)
 Regenerate and reload the complete test seed dataset:

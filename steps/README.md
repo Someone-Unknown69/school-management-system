@@ -25,9 +25,9 @@ This folder contains the complete, step-by-step documentation of all development
   ```bash
   ./mvnw clean test
   ```
-- **Apply migration script:**
+- **Initialize database schema:**
   ```bash
-  mysql -u root -p school_dbms < database/migration_01.sql
+  mysql -u root -p school_dbms < database/schema.sql
   ```
 - **Regenerate seed data:**
   ```bash

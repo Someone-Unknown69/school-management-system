@@ -1824,27 +1824,6 @@ public class AdminController {
         return "redirect:/admin/houses/" + color;
     }
 
-    @PostMapping("/houses/{color}/captain")
-    public String updateHouseCaptain(
-            @PathVariable String color,
-            @RequestParam(required = false) String studentId,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
-
-        if (!isAdmin(session)) {
-            return "redirect:/login";
-        }
-
-        try {
-            houseService.updateCaptain(color, studentId);
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "House captain for " + color + " House updated successfully.");
-        } catch (IllegalArgumentException ex) {
-            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
-        }
-
-        return "redirect:/admin/houses/" + color;
-    }
 
     @PostMapping("/houses/{color}/mentors/add")
     public String addHouseMentor(
@@ -1922,7 +1901,6 @@ public class AdminController {
 
         // House
         House house = houseService.getHouse(student.getHouse());
-        boolean isCaptain = (house != null && student.getAdmissionNo().equalsIgnoreCase(house.getCaptainId()));
 
         // Transport
         VehicleInfo vehicle = null;
@@ -1939,7 +1917,6 @@ public class AdminController {
         model.addAttribute("section", section);
         model.addAttribute("enrolledSubjects", enrolledSubjects);
         model.addAttribute("house", house);
-        model.addAttribute("isCaptain", isCaptain);
         model.addAttribute("vehicle", vehicle);
         model.addAttribute("feePayments", feePayments);
         model.addAttribute("totalPaid", totalPaid);

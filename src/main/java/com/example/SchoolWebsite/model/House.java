@@ -7,8 +7,6 @@ public class House {
     private String color;
     private String houseName;
     private int noOfWins;
-    private String captainId;
-    private String captainName;
     private int mentorCount;
     private int studentCount;
     private List<Teacher> mentors = new ArrayList<>();
@@ -16,11 +14,10 @@ public class House {
 
     public House() {}
 
-    public House(String color, String houseName, int noOfWins, String captainId) {
+    public House(String color, String houseName, int noOfWins) {
         this.color = color;
         this.houseName = houseName;
         this.noOfWins = noOfWins;
-        this.captainId = captainId;
     }
 
     public String getColor() { return color; }
@@ -31,12 +28,6 @@ public class House {
 
     public int getNoOfWins() { return noOfWins; }
     public void setNoOfWins(int noOfWins) { this.noOfWins = noOfWins; }
-
-    public String getCaptainId() { return captainId; }
-    public void setCaptainId(String captainId) { this.captainId = captainId; }
-
-    public String getCaptainName() { return captainName; }
-    public void setCaptainName(String captainName) { this.captainName = captainName; }
 
     public int getMentorCount() { return mentorCount; }
     public void setMentorCount(int mentorCount) { this.mentorCount = mentorCount; }

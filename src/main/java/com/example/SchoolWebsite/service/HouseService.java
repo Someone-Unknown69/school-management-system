@@ -43,25 +43,6 @@ public class HouseService {
     }
 
     @Transactional
-    public void updateCaptain(String color, String studentId) {
-        if (color == null || color.trim().isEmpty()) {
-            throw new IllegalArgumentException("House color identifier is required.");
-        }
-        String cleanColor = color.trim();
-
-        if (studentId != null && !studentId.trim().isEmpty()) {
-            String cleanStudentId = studentId.trim();
-            if (!houseRepository.isStudentInHouse(cleanColor, cleanStudentId)) {
-                throw new IllegalArgumentException(String.format(
-                        "Validation error: Captain '%s' does not belong to %s House.", cleanStudentId, cleanColor));
-            }
-            houseRepository.updateCaptain(cleanColor, cleanStudentId);
-        } else {
-            houseRepository.updateCaptain(cleanColor, null);
-        }
-    }
-
-    @Transactional
     public void addMentor(String color, String teacherId) {
         if (color == null || teacherId == null || color.trim().isEmpty() || teacherId.trim().isEmpty()) {
             throw new IllegalArgumentException("House color and Teacher ID are required.");

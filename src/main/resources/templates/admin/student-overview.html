@@ -194,9 +194,8 @@
             <!-- 3. House -->
             <div class="col-md-6">
                 <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="card-header">
                         <span>3. House Allocation</span>
-                        <span th:if="${isCaptain}" class="badge-filled">House Captain</span>
                     </div>
                     <div class="card-body p-0">
                         <table class="kv-table">
@@ -210,13 +209,6 @@
                             <tr>
                                 <td class="kv-label">House Standing</td>
                                 <td><span th:text="${house != null} ? ${house.noOfWins} + ' Tournaments Won' : '—'">5 Wins</span></td>
-                            </tr>
-                            <tr>
-                                <td class="kv-label">House Captain</td>
-                                <td>
-                                    <span th:if="${house != null and house.captainId != null}" th:text="${house.captainName} + ' (' + ${house.captainId} + ')'">Rohan Mehta (A001)</span>
-                                    <span th:if="${house == null or house.captainId == null}" class="text-muted">None</span>
-                                </td>
                             </tr>
                             <tr>
                                 <td class="kv-label">Faculty Mentors</td>

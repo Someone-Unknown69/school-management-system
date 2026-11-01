@@ -92,7 +92,7 @@ All test accounts use passwords hashed or prefixed with `pass_<ID>`:
 | **D2** | **Classes**: Class ID / standard, class name (e.g. Grade 10), section/division, room number, exactly one appointed Class Teacher. | **DONE** | [`/admin/sections`](http://localhost:8080/admin/sections) | `admin` / `admin123` |
 | **D3** | **Subjects**: Unique subject code, subject name, periods per week (> 0), reference books, teacher-subject mapping. | **DONE** | [`/admin/subjects/MATH10`](http://localhost:8080/admin/subjects/MATH10) | `admin` / `admin123` |
 | **D4** | **Teachers**: Unique teacher ID, full name, qualification, date of joining, address, contact phone, contact email, assigned subjects. | **DONE** | [`/admin/faculty`](http://localhost:8080/admin/faculty) | `admin` / `admin123` |
-| **D5** | **Houses**: Unique name, designated house colour (monochrome textual representation), House Captain (single student), multiple teacher Mentors, tournaments won count. | **DONE** | [`/admin/houses/Red`](http://localhost:8080/admin/houses/Red) | `admin` / `admin123` |
+| **D5** | **Houses**: Unique name, designated house colour (monochrome textual representation), multiple teacher Mentors, tournaments won count. | **DONE** | [`/admin/houses/Red`](http://localhost:8080/admin/houses/Red) | `admin` / `admin123` |
 | **D6** | **Transportation & Staff**: Vehicle ID (Bus no. 1, etc.), registration number, route name, seating capacity; Staff: ID, name, designated role, contact info; Drivers assigned to vehicles. | **DONE** | [`/admin/transport`](http://localhost:8080/admin/transport) | `admin` / `admin123` |
 | **D7** | **Payments System**: Unique transaction ID, amount, transaction date, payment mode (Cash, UPI, Net Banking, Cheque, Card); Student fees and Teacher/Staff monthly salaries. | **DONE** | [`/admin/transactions`](http://localhost:8080/admin/transactions) | `admin` / `admin123` |
 
@@ -110,7 +110,7 @@ All test accounts use passwords hashed or prefixed with `pass_<ID>`:
 | **6** | **Appointing teachers to teach specific subjects**. | **DONE** | [`/admin/subjects/MATH10`](http://localhost:8080/admin/subjects/MATH10) | `admin` / `admin123` |
 | **7** | **Recording new teacher or staff member details** upon hiring and updating them. | **DONE** | Teacher: [`/admin/teachers/new`](http://localhost:8080/admin/teachers/new)<br>Staff: [`/admin/staff/new`](http://localhost:8080/admin/staff/new) | `admin` / `admin123` |
 | **8** | **Assigning a student to a house upon enrollment**. | **DONE** | [`/admin/students/new`](http://localhost:8080/admin/students/new) or edit at [`/admin/students/edit/A001`](http://localhost:8080/admin/students/edit/A001) | `admin` / `admin123` |
-| **9** | **Designating a student as House Captain** for a given house. | **DONE** | [`/admin/houses/Red`](http://localhost:8080/admin/houses/Red) | `admin` / `admin123` |
+| **9** | **House Captains** (Removed per client specification). | **REMOVED** | [`/admin/houses/Red`](http://localhost:8080/admin/houses/Red) | `admin` / `admin123` |
 | **10** | **Assigning teachers as mentors to a house**. | **DONE** | [`/admin/houses/Red`](http://localhost:8080/admin/houses/Red) | `admin` / `admin123` |
 | **11** | **Enrolling student for transportation** (assigning route and vehicle). | **DONE** | [`/admin/students/edit/A001`](http://localhost:8080/admin/students/edit/A001) | `admin` / `admin123` |
 | **12** | **Assigning drivers from the staff pool to specific vehicles**. | **DONE** | [`/admin/transport`](http://localhost:8080/admin/transport) (Edit vehicle) | `admin` / `admin123` |
@@ -169,7 +169,7 @@ Follow this 5-minute click path to demonstrate all requirements in order:
 1. **Houses Module (Req #8, #9, #10)**:
    - Click **Operations &rarr; Houses &amp; Mentorship** (`/admin/houses`).
    - Click **Manage Red House** (`/admin/houses/Red`).
-   - Update Tournaments Won, change House Captain (limited to Red House students), or add/remove a Mentor Teacher.
+   - Update Tournaments Won or add/remove a Mentor Teacher.
 2. **Transportation Fleet & Drivers (Req #11, #12)**:
    - Click **Operations &rarr; Transport &amp; Vehicles** (`/admin/transport`).
    - Edit vehicle `V01`. Reassign driver from the driver pool or update vehicle capacity.
@@ -179,7 +179,7 @@ Follow this 5-minute click path to demonstrate all requirements in order:
 2. Inspect the consolidated view:
    - **Personal & Guardians**: Student contact info, address, guardian name and email.
    - **Academic Status**: Standard, division, room number, assigned class teacher, enrolled subjects and grades.
-   - **House**: House name, captain status, assigned mentors.
+   - **House**: House name, tournaments won, assigned mentors.
    - **Transport**: Vehicle ID, registration number, route name, driver name and phone.
    - **Financials**: Lifetime fee transaction history, total amount paid, and remaining balance.
 3. Click **Print Profile** to verify clean print preview.

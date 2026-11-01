@@ -18,12 +18,10 @@ public class HouseRepository {
     }
 
     public List<House> findAll() {
-        String sql = "SELECT h.Color, h.House_Name, h.No_Of_Wins, h.Captain_ID, " +
-                     "CONCAT(st.First_Name, ' ', COALESCE(st.Last_Name, '')) AS captainName, " +
+        String sql = "SELECT h.Color, h.House_Name, h.No_Of_Wins, " +
                      "(SELECT COUNT(*) FROM Teacher t WHERE t.MentorOf = h.Color) AS mentorCount, " +
                      "(SELECT COUNT(*) FROM Student s WHERE s.House = h.Color) AS studentCount " +
                      "FROM House h " +
-                     "LEFT JOIN Student st ON h.Captain_ID = st.Admission_No " +
                      "ORDER BY h.House_Name ASC";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -31,9 +29,6 @@ public class HouseRepository {
             h.setColor(rs.getString("Color"));
             h.setHouseName(rs.getString("House_Name"));
             h.setNoOfWins(rs.getInt("No_Of_Wins"));
-            h.setCaptainId(rs.getString("Captain_ID"));
-            String capName = rs.getString("captainName");
-            h.setCaptainName(capName != null && !capName.trim().isEmpty() ? capName.trim() : "Unassigned");
             h.setMentorCount(rs.getInt("mentorCount"));
             h.setStudentCount(rs.getInt("studentCount"));
             return h;
@@ -41,12 +36,10 @@ public class HouseRepository {
     }
 
     public House findByColor(String color) {
-        String sql = "SELECT h.Color, h.House_Name, h.No_Of_Wins, h.Captain_ID, " +
-                     "CONCAT(st.First_Name, ' ', COALESCE(st.Last_Name, '')) AS captainName, " +
+        String sql = "SELECT h.Color, h.House_Name, h.No_Of_Wins, " +
                      "(SELECT COUNT(*) FROM Teacher t WHERE t.MentorOf = h.Color) AS mentorCount, " +
                      "(SELECT COUNT(*) FROM Student s WHERE s.House = h.Color) AS studentCount " +
                      "FROM House h " +
-                     "LEFT JOIN Student st ON h.Captain_ID = st.Admission_No " +
                      "WHERE h.Color = ?";
 
         List<House> list = jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -54,9 +47,6 @@ public class HouseRepository {
             h.setColor(rs.getString("Color"));
             h.setHouseName(rs.getString("House_Name"));
             h.setNoOfWins(rs.getInt("No_Of_Wins"));
-            h.setCaptainId(rs.getString("Captain_ID"));
-            String capName = rs.getString("captainName");
-            h.setCaptainName(capName != null && !capName.trim().isEmpty() ? capName.trim() : "Unassigned");
             h.setMentorCount(rs.getInt("mentorCount"));
             h.setStudentCount(rs.getInt("studentCount"));
             return h;
@@ -124,20 +114,9 @@ public class HouseRepository {
         }, color);
     }
 
-    public boolean isStudentInHouse(String color, String studentId) {
-        String sql = "SELECT COUNT(*) FROM Student WHERE House = ? AND Admission_No = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, color, studentId);
-        return count != null && count > 0;
-    }
-
     public void updateTournamentsWon(String color, int wins) {
         String sql = "UPDATE House SET No_Of_Wins = ? WHERE Color = ?";
         jdbcTemplate.update(sql, Math.max(0, wins), color);
-    }
-
-    public void updateCaptain(String color, String studentId) {
-        String sql = "UPDATE House SET Captain_ID = ? WHERE Color = ?";
-        jdbcTemplate.update(sql, (studentId != null && !studentId.trim().isEmpty()) ? studentId.trim() : null, color);
     }
 
     public void addMentor(String color, String teacherId) {

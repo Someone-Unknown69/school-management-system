@@ -42,6 +42,7 @@ build/
 
 ### Local environment & credentials ###
 src/main/resources/application.properties
-src/main/resources/application-local.properties
-application.properties
+src/main/resources/applsteps/
 
+# Readme
+steps/

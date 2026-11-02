@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout(${mode == 'create' ? 'Add New Teacher' : 'Edit Teacher — ' + teacher.employeeId}, ~{::section})}">
+      th:replace="~{fragments/layout :: layout(${mode == 'create' ? 'Add Teacher' : 'Edit Teacher — ' + teacher.employeeId}, ~{::section})}">
 <head><title>Teacher Form</title></head>
 <body>
 <section>

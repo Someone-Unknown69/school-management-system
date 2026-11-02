@@ -57,6 +57,20 @@ class AdminFeaturesTest {
     }
 
     @Test
+    void testAdminNewStudentPageRendersSuccessfully() throws Exception {
+        mockMvc.perform(get("/admin/students/new").session(createAdminSession()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/student-form"));
+    }
+
+    @Test
+    void testAdminNewTeacherPageRendersSuccessfully() throws Exception {
+        mockMvc.perform(get("/admin/faculty/teacher/new").session(createAdminSession()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/teacher-form"));
+    }
+
+    @Test
     void testAdminTransactionsPageRendersSuccessfully() throws Exception {
         mockMvc.perform(get("/admin/transactions").session(createAdminSession()))
                 .andExpect(status().isOk())

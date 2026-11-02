@@ -71,6 +71,45 @@ class AdminFeaturesTest {
     }
 
     @Test
+    void testAdminFacultyPagesRenderSuccessfully() throws Exception {
+        mockMvc.perform(get("/admin/faculty?tab=teachers").session(createAdminSession()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/faculty"))
+                .andExpect(model().attributeExists("teachers", "activeTab"));
+
+        mockMvc.perform(get("/admin/faculty?tab=staff").session(createAdminSession()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/faculty"))
+                .andExpect(model().attributeExists("staffList", "activeTab"));
+    }
+
+    @Test
+    void testAdminDeleteTeacherSuccess() throws Exception {
+        // Insert a temporary test teacher
+        jdbcTemplate.update("INSERT IGNORE INTO Teacher (Employee_ID, First_Name, Last_Name, Date_Of_Joining, Phone_No, Email, Salary) " +
+                            "VALUES ('T999', 'Test', 'Teacher', '2026-01-01', '9999999999', 'test.t@school.edu', 30000.00)");
+        jdbcTemplate.update("INSERT IGNORE INTO User_Account (Username, Password, Role) VALUES ('T999', 'pass_T999', 'teacher')");
+
+        mockMvc.perform(post("/admin/faculty/teacher/delete/T999").session(createAdminSession()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/faculty?tab=teachers"))
+                .andExpect(flash().attributeExists("successMessage"));
+    }
+
+    @Test
+    void testAdminDeleteStaffSuccess() throws Exception {
+        // Insert a temporary test staff
+        jdbcTemplate.update("INSERT IGNORE INTO Staff (Employee_ID, First_Name, Last_Name, Date_Of_Joining, Contact_Number, Designated_Role, Salary) " +
+                            "VALUES ('S999', 'Test', 'Staff', '2026-01-01', '8888888888', 'Peon', 20000.00)");
+        jdbcTemplate.update("INSERT IGNORE INTO User_Account (Username, Password, Role) VALUES ('S999', 'pass_S999', 'staff')");
+
+        mockMvc.perform(post("/admin/faculty/staff/delete/S999").session(createAdminSession()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/faculty?tab=staff"))
+                .andExpect(flash().attributeExists("successMessage"));
+    }
+
+    @Test
     void testAdminTransactionsPageRendersSuccessfully() throws Exception {
         mockMvc.perform(get("/admin/transactions").session(createAdminSession()))
                 .andExpect(status().isOk())

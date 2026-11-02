@@ -90,16 +90,19 @@
                                     th:data-bs-target="'#deleteTeacherModal-' + ${t.employeeId}">
                                 Delete
                             </button>
-
-                            <div th:replace="~{fragments/ui :: confirm-modal('deleteTeacherModal-' + ${t.employeeId},
-                                                                            'Delete Teacher Record',
-                                                                            'Are you sure you want to delete teacher ' + ${t.fullName} + ' (' + ${t.employeeId} + ')?',
-                                                                            @{'/admin/faculty/teacher/delete/' + ${t.employeeId}})}"></div>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- Teacher Delete Modals (Rendered outside table-responsive to ensure correct z-index & backdrop stacking) -->
+        <th:block th:each="t : ${teachers}">
+            <div th:replace="~{fragments/ui :: confirm-modal('deleteTeacherModal-' + ${t.employeeId},
+                                                            'Delete Teacher Record',
+                                                            'Are you sure you want to delete teacher ' + ${t.fullName} + ' (' + ${t.employeeId} + ')?',
+                                                            @{'/admin/faculty/teacher/delete/' + ${t.employeeId}})}"></div>
+        </th:block>
 
         <div th:if="${#lists.isEmpty(teachers)}">
             <div th:replace="~{fragments/ui :: empty-state('👨‍🏫', 'No Teachers Registered', 'There are no teaching faculty members currently in the database.')}"></div>
@@ -141,16 +144,19 @@
                                     th:data-bs-target="'#deleteStaffModal-' + ${s.employeeId}">
                                 Delete
                             </button>
-
-                            <div th:replace="~{fragments/ui :: confirm-modal('deleteStaffModal-' + ${s.employeeId},
-                                                                            'Delete Staff Record',
-                                                                            'Are you sure you want to delete staff member ' + ${s.fullName} + ' (' + ${s.employeeId} + ')?',
-                                                                            @{'/admin/faculty/staff/delete/' + ${s.employeeId}})}"></div>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- Staff Delete Modals (Rendered outside table-responsive to ensure correct z-index & backdrop stacking) -->
+        <th:block th:each="s : ${staffList}">
+            <div th:replace="~{fragments/ui :: confirm-modal('deleteStaffModal-' + ${s.employeeId},
+                                                            'Delete Staff Record',
+                                                            'Are you sure you want to delete staff member ' + ${s.fullName} + ' (' + ${s.employeeId} + ')?',
+                                                            @{'/admin/faculty/staff/delete/' + ${s.employeeId}})}"></div>
+        </th:block>
 
         <div th:if="${#lists.isEmpty(staffList)}">
             <div th:replace="~{fragments/ui :: empty-state('👷', 'No Staff Registered', 'There are no operational staff members currently in the database.')}"></div>

@@ -93,17 +93,19 @@
                                 th:data-bs-target="'#deleteSubModal-' + ${sub.subjectCode}">
                             Delete
                         </button>
-
-                        <!-- Delete Confirm Modal -->
-                        <div th:replace="~{fragments/ui :: confirm-modal('deleteSubModal-' + ${sub.subjectCode},
-                                                                        'Delete Subject',
-                                                                        'Are you sure you want to permanently delete subject ' + ${sub.subjectName} + ' (' + ${sub.subjectCode} + ')? This will fail if students are currently enrolled or if it is on active timetables.',
-                                                                        @{'/admin/subjects/delete/' + ${sub.subjectCode}})}"></div>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+
+    <!-- Subject Delete Modals (Rendered outside table-responsive to ensure correct z-index & backdrop stacking) -->
+    <th:block th:each="sub : ${subjects}">
+        <div th:replace="~{fragments/ui :: confirm-modal('deleteSubModal-' + ${sub.subjectCode},
+                                                        'Delete Subject',
+                                                        'Are you sure you want to permanently delete subject ' + ${sub.subjectName} + ' (' + ${sub.subjectCode} + ')? This will fail if students are currently enrolled or if it is on active timetables.',
+                                                        @{'/admin/subjects/delete/' + ${sub.subjectCode}})}"></div>
+    </th:block>
 
     <!-- Empty State -->
     <div th:if="${#lists.isEmpty(subjects)}">

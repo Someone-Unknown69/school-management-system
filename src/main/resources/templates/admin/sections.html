@@ -64,7 +64,7 @@
                         </form>
                     </td>
                     <td style="text-align: right;">
-                        <a th:href="@{'/admin/sections/promote(sourceStandard=' + ${sec.standard} + ', sourceDivision=' + ${sec.division} + ')'}"
+                        <a th:href="@{/admin/sections/promote(sourceStandard=${sec.standard},sourceDivision=${sec.division})}"
                            class="btn btn-bw-outline btn-sm">Promote &rarr;</a>
                     </td>
                 </tr>

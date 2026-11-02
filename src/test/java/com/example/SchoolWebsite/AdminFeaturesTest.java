@@ -770,16 +770,51 @@ class AdminFeaturesTest {
     }
 
     @Test
-    void testPromoteStudentsTargetSectionNotExistsBlocked() throws Exception {
+    void testPromoteAliasRedirectsToSectionsPromote() throws Exception {
+        mockMvc.perform(get("/admin/promote").session(createAdminSession()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/sections/promote"));
+    }
+
+    @Test
+    void testPromoteStudentsPageWithSourceOnlyAutoSuggestsTarget() throws Exception {
+        // When navigating from sections page with source 9-A, target 10-A should be auto-suggested
+        mockMvc.perform(get("/admin/sections/promote")
+                        .param("sourceStandard", "9")
+                        .param("sourceDivision", "A")
+                        .session(createAdminSession()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/promote-students"))
+                .andExpect(model().attribute("sourceStandard", "9"))
+                .andExpect(model().attribute("sourceDivision", "A"))
+                .andExpect(model().attribute("targetStandard", "10"))
+                .andExpect(model().attribute("targetDivision", "A"))
+                .andExpect(model().attributeExists("allSections", "students"));
+    }
+
+    @Test
+    void testPromoteStudentsMissingTargetSectionBlocked() throws Exception {
         mockMvc.perform(post("/admin/sections/promote")
                         .param("sourceStandard", "9")
                         .param("sourceDivision", "A")
-                        .param("targetStandard", "10")
-                        .param("targetDivision", "Z")
                         .param("studentIds", "A001")
                         .session(createAdminSession()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(flash().attributeExists("errorMessage"));
+                .andExpect(redirectedUrl("/admin/sections/promote?sourceStandard=9&sourceDivision=A"))
+                .andExpect(flash().attribute("errorMessage", "Please select a destination (target) section for promotion."));
+    }
+
+    @Test
+    void testPromoteStudentsUsingTargetSectionCombinedParam() throws Exception {
+        mockMvc.perform(post("/admin/sections/promote")
+                        .param("sourceStandard", "9")
+                        .param("sourceDivision", "A")
+                        .param("targetSection", "10|A")
+                        .param("studentIds", "A001")
+                        .session(createAdminSession()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/sections"))
+                .andExpect(flash().attributeExists("successMessage"));
     }
 
     // ==========================================

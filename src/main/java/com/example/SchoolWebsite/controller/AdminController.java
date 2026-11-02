@@ -1585,6 +1585,11 @@ public class AdminController {
         return "redirect:/admin/sections";
     }
 
+    @GetMapping("/promote")
+    public String promoteAlias() {
+        return "redirect:/admin/sections/promote";
+    }
+
     @GetMapping("/sections/promote")
     public String showPromoteStudentsForm(
             @RequestParam(required = false) String sourceStandard,
@@ -1604,6 +1609,20 @@ public class AdminController {
         if (sourceStandard != null && sourceDivision != null &&
                 !sourceStandard.trim().isEmpty() && !sourceDivision.trim().isEmpty()) {
             students = sectionService.getStudentsInSection(sourceStandard.trim(), sourceDivision.trim());
+
+            // If source is provided but target is not, suggest sourceStandard + 1 if available
+            if (targetStandard == null || targetStandard.trim().isEmpty()) {
+                try {
+                    int nextStd = Integer.parseInt(sourceStandard.trim()) + 1;
+                    String suggestedStd = String.valueOf(nextStd);
+                    boolean exists = allSections.stream()
+                            .anyMatch(s -> s.getStandard().equals(suggestedStd) && s.getDivision().equalsIgnoreCase(sourceDivision.trim()));
+                    if (exists) {
+                        targetStandard = suggestedStd;
+                        targetDivision = sourceDivision.trim();
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
         }
 
         model.addAttribute("allSections", allSections);
@@ -1623,14 +1642,31 @@ public class AdminController {
     public String processStudentPromotion(
             @RequestParam String sourceStandard,
             @RequestParam String sourceDivision,
-            @RequestParam String targetStandard,
-            @RequestParam String targetDivision,
+            @RequestParam(required = false) String targetStandard,
+            @RequestParam(required = false) String targetDivision,
+            @RequestParam(required = false) String targetSection,
             @RequestParam(name = "studentIds", required = false) List<String> studentIds,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
         if (!isAdmin(session)) {
             return "redirect:/login";
+        }
+
+        // Support combined targetSection dropdown value format "standard|division"
+        if ((targetStandard == null || targetStandard.trim().isEmpty() ||
+             targetDivision == null || targetDivision.trim().isEmpty())
+                && targetSection != null && targetSection.contains("|")) {
+            String[] parts = targetSection.split("\\|");
+            targetStandard = parts[0].trim();
+            targetDivision = parts.length > 1 ? parts[1].trim() : "";
+        }
+
+        if (targetStandard == null || targetStandard.trim().isEmpty() ||
+            targetDivision == null || targetDivision.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Please select a destination (target) section for promotion.");
+            return String.format("redirect:/admin/sections/promote?sourceStandard=%s&sourceDivision=%s",
+                    sourceStandard, sourceDivision);
         }
 
         try {

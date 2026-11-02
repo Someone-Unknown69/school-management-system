@@ -108,16 +108,19 @@
                                 th:data-bs-target="'#deleteVehicleModal-' + ${v.vehicleId}">
                             Delete
                         </button>
-
-                        <div th:replace="~{fragments/ui :: confirm-modal('deleteVehicleModal-' + ${v.vehicleId},
-                                                                        'Delete Fleet Vehicle',
-                                                                        'Are you sure you want to delete vehicle ' + ${v.vehicleId} + ' (' + ${v.routeName} + ')? Students assigned to this vehicle will become unassigned.',
-                                                                        @{'/admin/transport/vehicle/delete/' + ${v.vehicleId}})}"></div>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+
+    <!-- Vehicle Delete Modals outside table-responsive -->
+    <th:block th:each="v : ${vehicles}">
+        <div th:replace="~{fragments/ui :: confirm-modal('deleteVehicleModal-' + ${v.vehicleId},
+                                                        'Delete Fleet Vehicle',
+                                                        'Are you sure you want to delete vehicle ' + ${v.vehicleId} + ' (' + ${v.routeName} + ')? Students assigned to this vehicle will become unassigned.',
+                                                        @{'/admin/transport/vehicle/delete/' + ${v.vehicleId}})}"></div>
+    </th:block>
 
     <!-- Passenger Roster Section for Selected Vehicle -->
     <div id="passengers" th:if="${activeVehicle != null}" class="mt-5 pt-3 border-top border-black">
@@ -210,18 +213,21 @@
                                     th:data-bs-target="'#removePassengerModal-' + ${s.admissionNo}">
                                 Remove
                             </button>
-
-                            <div th:replace="~{fragments/ui :: confirm-modal-with-2inputs('removePassengerModal-' + ${s.admissionNo},
-                                                                                          'Remove Passenger from Route',
-                                                                                          'Remove ' + ${s.firstName} + ' (' + ${s.admissionNo} + ') from vehicle ' + ${activeVehicle.vehicleId} + '?',
-                                                                                          @{/admin/transport/remove-passenger},
-                                                                                          'admissionNo', ${s.admissionNo},
-                                                                                          'vehicleId', ${activeVehicle.vehicleId})}"></div>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- Passenger Remove Modals outside table-responsive -->
+        <th:block th:each="s : ${passengers}">
+            <div th:replace="~{fragments/ui :: confirm-modal-with-2inputs('removePassengerModal-' + ${s.admissionNo},
+                                                                          'Remove Passenger from Route',
+                                                                          'Remove ' + ${s.firstName} + ' (' + ${s.admissionNo} + ') from vehicle ' + ${activeVehicle.vehicleId} + '?',
+                                                                          @{/admin/transport/remove-passenger},
+                                                                          'admissionNo', ${s.admissionNo},
+                                                                          'vehicleId', ${activeVehicle.vehicleId})}"></div>
+        </th:block>
 
         <div th:if="${#lists.isEmpty(passengers)}">
             <div th:replace="~{fragments/ui :: empty-state('🚌', 'No Passengers on Route', 'No students are currently assigned to this bus vehicle.')}"></div>

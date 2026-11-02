@@ -67,18 +67,44 @@
     <!-- 2. Students Preview & Confirmation Form -->
     <div class="card mb-4" th:if="${!#lists.isEmpty(students)}">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <span>2. Select Students to Advance to Class <strong th:text="${targetStandard} + '-' + ${targetDivision}">11-A</strong></span>
+            <span id="promoteHeaderTitle">
+                <span th:if="${targetStandard != null and targetDivision != null}">
+                    2. Advance Students to Class <strong th:text="${targetStandard} + '-' + ${targetDivision}">10-A</strong>
+                </span>
+                <span th:unless="${targetStandard != null and targetDivision != null}">
+                    2. Select Destination Section &amp; Choose Students to Advance
+                </span>
+            </span>
             <div>
                 <button type="button" class="btn btn-bw-outline btn-sm me-1" onclick="toggleSelectAll(true)">Select All</button>
                 <button type="button" class="btn btn-bw-outline btn-sm" onclick="toggleSelectAll(false)">Deselect All</button>
             </div>
         </div>
         <div class="card-body">
-            <form method="post" action="/admin/sections/promote">
+            <form method="post" action="/admin/sections/promote" id="promoteForm" onsubmit="return validatePromoteForm()">
                 <input type="hidden" name="sourceStandard" th:value="${sourceStandard}">
                 <input type="hidden" name="sourceDivision" th:value="${sourceDivision}">
-                <input type="hidden" name="targetStandard" th:value="${targetStandard}">
-                <input type="hidden" name="targetDivision" th:value="${targetDivision}">
+                <input type="hidden" id="formTargetStandard" name="targetStandard" th:value="${targetStandard}">
+                <input type="hidden" id="formTargetDivision" name="targetDivision" th:value="${targetDivision}">
+
+                <!-- Destination Section Dropdown directly in Promotion Form -->
+                <div class="row g-3 align-items-center mb-4 p-3 border rounded bg-light">
+                    <div class="col-md-3">
+                        <label for="promoteTargetSelect" class="form-label fw-bold mb-0">Destination (Target) Section *</label>
+                    </div>
+                    <div class="col-md-6">
+                        <select id="promoteTargetSelect" name="targetSection" class="form-select" required onchange="syncPromoteTarget(this.value)">
+                            <option value="">-- Choose destination section --</option>
+                            <option th:each="sec : ${allSections}"
+                                    th:value="${sec.standard} + '|' + ${sec.division}"
+                                    th:text="'Class ' + ${sec.standard} + ' - ' + ${sec.division} + ' (' + ${sec.studentCount} + ' students currently)'"
+                                    th:selected="${targetStandard == sec.standard and targetDivision == sec.division}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-muted small">
+                        Class students will be promoted into.
+                    </div>
+                </div>
 
                 <div class="table-responsive mb-4">
                     <table class="table">
@@ -132,6 +158,9 @@
                 const parts = val.split('|');
                 document.getElementById('sourceStandard').value = parts[0];
                 document.getElementById('sourceDivision').value = parts[1];
+            } else {
+                document.getElementById('sourceStandard').value = '';
+                document.getElementById('sourceDivision').value = '';
             }
         }
         function updateTargetParams(val) {
@@ -139,7 +168,46 @@
                 const parts = val.split('|');
                 document.getElementById('targetStandard').value = parts[0];
                 document.getElementById('targetDivision').value = parts[1];
+                const formSelect = document.getElementById('promoteTargetSelect');
+                if (formSelect) formSelect.value = val;
+                syncPromoteTarget(val);
             }
+        }
+        function syncPromoteTarget(val) {
+            if (val && val.includes('|')) {
+                const parts = val.split('|');
+                const formStd = document.getElementById('formTargetStandard');
+                const formDiv = document.getElementById('formTargetDivision');
+                if (formStd) formStd.value = parts[0];
+                if (formDiv) formDiv.value = parts[1];
+                const topTargetStd = document.getElementById('targetStandard');
+                const topTargetDiv = document.getElementById('targetDivision');
+                if (topTargetStd) topTargetStd.value = parts[0];
+                if (topTargetDiv) topTargetDiv.value = parts[1];
+                const topTargetSelect = document.getElementById('targetSelect');
+                if (topTargetSelect) topTargetSelect.value = val;
+            } else {
+                const formStd = document.getElementById('formTargetStandard');
+                const formDiv = document.getElementById('formTargetDivision');
+                if (formStd) formStd.value = '';
+                if (formDiv) formDiv.value = '';
+            }
+        }
+        function validatePromoteForm() {
+            const formStd = document.getElementById('formTargetStandard');
+            const formDiv = document.getElementById('formTargetDivision');
+            const formSelect = document.getElementById('promoteTargetSelect');
+            const hasTarget = (formStd && formStd.value && formDiv && formDiv.value) || (formSelect && formSelect.value);
+            if (!hasTarget) {
+                alert('Please select a destination (target) section for promotion.');
+                return false;
+            }
+            const checkedCount = document.querySelectorAll('.promote-cb:checked').length;
+            if (checkedCount === 0) {
+                alert('Please select at least one student to promote.');
+                return false;
+            }
+            return true;
         }
         function toggleSelectAll(checked) {
             document.querySelectorAll('.promote-cb').forEach(cb => cb.checked = checked);

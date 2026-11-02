@@ -111,17 +111,19 @@
                                 th:data-bs-target="'#deleteModal-' + ${s.admissionNo}">
                             Delete
                         </button>
-
-                        <!-- Confirm Modal for row -->
-                        <div th:replace="~{fragments/ui :: confirm-modal('deleteModal-' + ${s.admissionNo},
-                                                                        'Delete Student Record',
-                                                                        'Are you sure you want to permanently delete student ' + ${s.fullName} + ' (' + ${s.admissionNo} + ')? This will remove their profile, guardian, and enrollments.',
-                                                                        @{'/admin/students/delete/' + ${s.admissionNo}})}"></div>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+
+    <!-- Student Delete Modals (Rendered outside table-responsive for proper Bootstrap stacking context) -->
+    <th:block th:each="s : ${students}">
+        <div th:replace="~{fragments/ui :: confirm-modal('deleteModal-' + ${s.admissionNo},
+                                                        'Delete Student Record',
+                                                        'Are you sure you want to permanently delete student ' + ${s.fullName} + ' (' + ${s.admissionNo} + ')? This will remove their profile, guardian, and enrollments.',
+                                                        @{'/admin/students/delete/' + ${s.admissionNo}})}"></div>
+    </th:block>
 
     <!-- Empty State -->
     <div th:if="${#lists.isEmpty(students)}">

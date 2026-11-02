@@ -321,6 +321,18 @@ class AdminFeaturesTest {
     }
 
     @Test
+    void testRecordFeePaymentPageHandlesMultipleAdmissionNoParameters() throws Exception {
+        mockMvc.perform(get("/admin/fees/record")
+                        .param("admissionNo", "A001")
+                        .param("admissionNo", "")
+                        .session(createAdminSession()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/fee-record"))
+                .andExpect(model().attributeExists("selectedStudent"))
+                .andExpect(model().attribute("admissionNo", "A001"));
+    }
+
+    @Test
     void testRecordFeePaymentSuccessFlow() throws Exception {
         mockMvc.perform(post("/admin/fees/record")
                         .param("admissionNo", "A001")

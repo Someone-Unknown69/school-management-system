@@ -28,28 +28,34 @@
     <div class="card mb-4">
         <div class="card-header">1. Select Student</div>
         <div class="card-body">
-            <form method="get" action="/admin/fees/record" class="row g-3 align-items-end">
+            <div class="row g-3 align-items-end">
                 <div class="col-md-6">
-                    <label for="selectStudentDues" class="form-label">Select from Students with Outstanding Dues</label>
-                    <select id="selectStudentDues" name="admissionNo" class="form-select" onchange="this.form.submit()">
-                        <option value="">-- Choose a student with pending balance --</option>
-                        <option th:each="st : ${studentsWithDues}"
-                                th:value="${st.admissionNo}"
-                                th:text="${st.admissionNo} + ' — ' + ${st.fullName} + ' (Class ' + ${st.standard} + '-' + ${st.division} + ' | Due: ₹' + ${st.remainingFees} + ')'"
-                                th:selected="${selectedStudent != null and selectedStudent.admissionNo == st.admissionNo}"></option>
-                    </select>
+                    <form method="get" action="/admin/fees/record" class="m-0">
+                        <label for="selectStudentDues" class="form-label">Select from Students with Outstanding Dues</label>
+                        <select id="selectStudentDues" name="admissionNo" class="form-select" onchange="this.form.submit()">
+                            <option value="">-- Choose a student with pending balance --</option>
+                            <option th:each="st : ${studentsWithDues}"
+                                    th:value="${st.admissionNo}"
+                                    th:text="${st.admissionNo} + ' — ' + ${st.fullName} + ' (Class ' + ${st.standard} + '-' + ${st.division} + ' | Due: ₹' + ${st.remainingFees} + ')'"
+                                    th:selected="${selectedStudent != null and selectedStudent.admissionNo == st.admissionNo}"></option>
+                        </select>
+                    </form>
                 </div>
-                <div class="col-md-4">
-                    <label for="admissionNoInput" class="form-label">Or Type Admission Number</label>
-                    <input type="text" id="admissionNoInput" name="admissionNo"
-                           th:value="${admissionNo}"
-                           class="form-control"
-                           placeholder="e.g. A001">
+                <div class="col-md-6">
+                    <form method="get" action="/admin/fees/record" class="row g-2 align-items-end m-0">
+                        <div class="col-sm-8">
+                            <label for="admissionNoInput" class="form-label">Or Type Admission Number</label>
+                            <input type="text" id="admissionNoInput" name="admissionNo"
+                                   th:value="${admissionNo}"
+                                   class="form-control"
+                                   placeholder="e.g. A001">
+                        </div>
+                        <div class="col-sm-4">
+                            <button type="submit" class="btn btn-bw w-100">Fetch Student</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-bw w-100">Fetch Student</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 

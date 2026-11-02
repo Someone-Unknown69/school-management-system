@@ -685,6 +685,17 @@ public class AdminController {
             return "redirect:/login";
         }
 
+        if (admissionNo != null) {
+            String clean = "";
+            for (String part : admissionNo.split(",")) {
+                if (!part.trim().isEmpty()) {
+                    clean = part.trim();
+                    break;
+                }
+            }
+            admissionNo = clean;
+        }
+
         Student selectedStudent = null;
         if (admissionNo != null && !admissionNo.trim().isEmpty()) {
             selectedStudent = studentService.findByAdmissionNo(admissionNo.trim());
@@ -717,6 +728,15 @@ public class AdminController {
 
         if (!isAdmin(session)) {
             return "redirect:/login";
+        }
+
+        if (admissionNo != null) {
+            for (String part : admissionNo.split(",")) {
+                if (!part.trim().isEmpty()) {
+                    admissionNo = part.trim();
+                    break;
+                }
+            }
         }
 
         if (admissionNo == null || admissionNo.trim().isEmpty()) {
